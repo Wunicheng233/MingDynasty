@@ -7,7 +7,7 @@ window.LawGame = {
     /**
      * 启动游戏
      */
-    start(gameView, gameState) {
+    start(gameView, gameState, title = null) {
         const task = gameState.currentTask;
 
         // 案件题库
@@ -94,22 +94,24 @@ window.LawGame = {
             selectedStatements: [],
             selectedLaw: null,
             correctContradiction: randomCase.contradiction.map(idx => randomCase.statements[idx]),
-            step: 'select_contradiction' // select_contradiction -> select_law -> result
+            step: 'select_contradiction', // select_contradiction -> select_law -> result
+            isPractice: title !== null
         };
 
-        this.renderContradictionStep(gameState, gameView);
+        this.renderContradictionStep(gameState, gameView, title);
     },
 
     /**
      * 渲染第一步：选择矛盾证词
      */
-    renderContradictionStep(gameState, gameView) {
+    renderContradictionStep(gameState, gameView, title = null) {
         const game = gameState.lawGame;
         const task = gameState.currentTask;
+        const headerTitle = title ? `${title} - ${game.case.title}` : (task ? `${task.name} - ${game.case.title}` : `审理案件 - ${game.case.title}`);
 
         let html = `
             <div class="law-header">
-                <h2>${task.name} - ${game.case.title}</h2>
+                <h2>${headerTitle}</h2>
                 <p>${game.case.description}</p>
             </div>
             <div class="law-case" style="background: #f5f0e1; padding: 15px; border-radius: 8px; margin: 15px 0;">
@@ -207,9 +209,10 @@ window.LawGame = {
         game.step = step;
 
         if (step === 'select_law') {
+            const headerTitle = game.isPractice ? `审理案件 - ${game.case.title}` : (gameState.currentTask ? `${gameState.currentTask.name} - ${game.case.title}` : `审理案件 - ${game.case.title}`);
             let html = `
                 <div class="law-header">
-                    <h2>${gameState.currentTask.name} - ${game.case.title}</h2>
+                    <h2>${headerTitle}</h2>
                     <p>你已选出矛盾证词，请选择应当适用的《大明律》条文：</p>
                 </div>
                 <div class="law-case" style="background: #f5f0e1; padding: 15px; border-radius: 8px; margin: 15px 0;">
@@ -298,10 +301,6 @@ window.LawGame = {
         else if (correctCount === 1) ratio = 0.5;
         else ratio = 0.2;
 
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(15 * ratio);
-
         let resultTitle, resultDesc;
         if (correctCount === 2) {
             resultTitle = '✔ 断案正确！';
@@ -314,40 +313,78 @@ window.LawGame = {
             resultDesc = '你没有找出真正的矛盾，也选错了法律，此案恐成冤假错案。';
         }
 
-        gameState.merit += finalMerit;
-        gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            gameState.addSkillExp(task.requiredSkill, expGained);
-        }
-
-        gameState.checkRolePromotion();
-        const skillName = getSkillById(task.requiredSkill)?.name || '';
-        gameState.addLog(`任务【${task.name}】完成！${resultTitle} 获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
-
-        // 显示结果页
-        let html = `
-            <div class="law-result" style="text-align: center; padding: 30px;">
-                <h2 style="font-size: 28px; margin-bottom: 20px; color: #8b4513;">${resultTitle}</h2>
-                <p style="font-size: 16px; margin-bottom: 30px;">${resultDesc}</p>
-                <div style="background: #f5f0e1; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: left;">
-                    <p><strong>正确答案：</strong></p>
-                    <p style="color: #8b4513; margin: 10px 0;">▶ 矛盾证词：${game.correctContradiction[0]} 与 ${game.correctContradiction[1]}</p>
-                    <p style="color: #8b4513; margin: 10px 0;">▶ 正确法律：${game.case.laws.find(l => l.correct).text}</p>
-                </div>
-                <p style="margin: 10px 0;">获得：${finalMerit} 功勋，${finalMoney} 金钱</p>
-                <div style="margin-top: 30px;">
-                    <button class="btn primary-btn" id="law-done-btn">结案返回</button>
-                </div>
-            </div>
-        `;
-
-        document.getElementById('farming-game-view').innerHTML = html;
-        document.getElementById('law-done-btn').addEventListener('click', () => {
-            gameView.advanceTwoMonths();
-            gameState.currentTask = null;
+        if (game.isPractice) {
+            // 刑部司练习 - 非任务，固定奖励律政经验，消耗5天
+            const expGained = Math.round(15 * ratio);
+            gameState.addSkillExp('law', expGained);
+            gameState.addLog(`审理案件练习完成！${resultTitle} 获得 ${expGained} 律政经验，消耗5天时间。`);
+            gameState.advanceDays(5);
             gameState.lawGame = null;
-            gameState.currentScene = GameScene.CITY_VIEW;
-            gameView.renderAll();
-        });
+
+            // 显示结果页
+            let html = `
+                <div class="law-result" style="text-align: center; padding: 30px;">
+                    <h2 style="font-size: 28px; margin-bottom: 20px; color: #8b4513;">${resultTitle}</h2>
+                    <p style="font-size: 16px; margin-bottom: 30px;">${resultDesc}</p>
+                    <div style="background: #f5f0e1; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: left;">
+                        <p><strong>正确答案：</strong></p>
+                        <p style="color: #8b4513; margin: 10px 0;">▶ 矛盾证词：${game.correctContradiction[0]} 与 ${game.correctContradiction[1]}</p>
+                        <p style="color: #8b4513; margin: 10px 0;">▶ 正确法律：${game.case.laws.find(l => l.correct).text}</p>
+                    </div>
+                    <p>获得：${expGained} 律政经验</p>
+                    <div style="margin-top: 30px;">
+                        <button class="btn primary-btn" id="law-done-btn">返回刑部司</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('farming-game-view').innerHTML = html;
+            document.getElementById('law-done-btn').addEventListener('click', () => {
+                // 返回设施场景
+                gameState.currentScene = GameScene.FACILITY;
+                gameView.renderAll();
+            });
+        } else {
+            // 正常任务结算
+            const finalMerit = Math.round(task.rewardMerit * ratio);
+            const finalMoney = Math.round(task.rewardMoney * ratio);
+            const expGained = Math.round(15 * ratio);
+
+            gameState.merit += finalMerit;
+            gameState.money += finalMoney;
+            if (task.requiredSkill) {
+                gameState.addSkillExp(task.requiredSkill, expGained);
+            }
+
+            gameState.checkRolePromotion();
+            const skillName = getSkillById(task.requiredSkill)?.name || '';
+            gameState.addLog(`任务【${task.name}】完成！${resultTitle} 获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
+
+            // 显示结果页
+            let html = `
+                <div class="law-result" style="text-align: center; padding: 30px;">
+                    <h2 style="font-size: 28px; margin-bottom: 20px; color: #8b4513;">${resultTitle}</h2>
+                    <p style="font-size: 16px; margin-bottom: 30px;">${resultDesc}</p>
+                    <div style="background: #f5f0e1; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: left;">
+                        <p><strong>正确答案：</strong></p>
+                        <p style="color: #8b4513; margin: 10px 0;">▶ 矛盾证词：${game.correctContradiction[0]} 与 ${game.correctContradiction[1]}</p>
+                        <p style="color: #8b4513; margin: 10px 0;">▶ 正确法律：${game.case.laws.find(l => l.correct).text}</p>
+                    </div>
+                    <p style="margin: 10px 0;">获得：${finalMerit} 功勋，${finalMoney} 金钱</p>
+                    <div style="margin-top: 30px;">
+                        <button class="btn primary-btn" id="law-done-btn">结案返回</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('farming-game-view').innerHTML = html;
+            document.getElementById('law-done-btn').addEventListener('click', () => {
+                gameView.advanceTwoMonths();
+                gameState.currentTask = null;
+                gameState.lawGame = null;
+                gameState.currentScene = GameScene.CITY_VIEW;
+                gameView.renderAll();
+            });
+        }
     }
 };

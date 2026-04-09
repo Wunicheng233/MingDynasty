@@ -61,7 +61,19 @@ window.CardCollectionRenderer = {
                 const rarityClass = card.rarity ? `rarity-${card.rarity}` : '';
                 html += `
                     <div class="card-item ${collected ? 'collected' : 'uncollected'} ${rarityClass}">
-                        <div class="card-emoji">${card.emoji || '🃏'}</div>
+                `;
+
+                // 如果卡片有插图，显示插图
+                if (collected && card.image) {
+                    html += `<div class="card-illustration">
+                        <img src="${card.image}" alt="${card.name}">
+                    </div>`;
+                } else {
+                    // 没有插图，继续用emoji
+                    html += `<div class="card-emoji">${card.emoji || '🃏'}</div>`;
+                }
+
+                html += `
                         <div class="card-info">
                             <div class="card-name">${collected ? card.name : '???'}</div>
                             ${collected ? `<div class="card-desc">${card.description || ''}</div>` : '<div class="card-desc">未收集</div>'}

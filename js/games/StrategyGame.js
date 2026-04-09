@@ -8,7 +8,7 @@ window.StrategyGame = {
     /**
      * 启动游戏
      */
-    start(gameView, gameState) {
+    start(gameView, gameState, title = null) {
         const task = gameState.currentTask;
 
         // 阵型定义和克制关系
@@ -24,14 +24,15 @@ window.StrategyGame = {
             enemyProgress: 0,    // 敌方推进进度
             maxProgress: 5,      // 先到5格获胜
             history: [],         // 对战历史
-            currentEnemy: null   // 敌方这回合出什么
+            currentEnemy: null,   // 敌方这回合出什么
+            isPractice: title !== null
         };
 
         // 敌方第一回合随机出阵
         const game = gameState.strategyGame;
         game.currentEnemy = Object.keys(formations)[Math.floor(Math.random() * 3)];
 
-        this.render(gameState, gameView);
+        this.render(gameState, gameView, title);
     },
 
     /**
@@ -45,9 +46,10 @@ window.StrategyGame = {
             '方圆': {beats: ['鱼鳞'], description: '坚固阵形，稳如泰山，克制鱼鳞'}
         };
 
+        const headerTitle = title || (gameState.currentTask ? gameState.currentTask.name : '听讲兵法');
         let html = `
             <div class="strategy-header">
-                <h2>${gameState.currentTask.name}</h2>
+                <h2>${headerTitle}</h2>
                 <p>选择阵型克制对方，先推进 5 格到敌营获胜</p>
             </div>
             <div class="strategy-clues" style="background: #f5f0e1; padding: 12px; border-radius: 8px; margin: 15px 0;">
@@ -194,42 +196,74 @@ window.StrategyGame = {
             resultDesc = `你的阵型被敌军层层克制，我方只推进了 ${game.playerProgress} 格，不得不收兵回营。`;
         }
 
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(15 * ratio);
-
-        gameState.merit += finalMerit;
-        gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            gameState.addSkillExp(task.requiredSkill, expGained);
-        }
-
-        const skillName = getSkillById(task.requiredSkill)?.name || '';
-        gameState.checkRolePromotion();
-        gameState.addLog(`任务【${task.name}】${resultTitle} 我军推进${game.playerProgress}格，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
-
-        // 显示结果页
-        let html = `
-            <div class="strategy-result" style="text-align: center; padding: 30px;">
-                <h2 style="font-size: 28px; margin-bottom: 20px; color: #8b4513;">${resultTitle}</h2>
-                <p style="font-size: 16px; margin-bottom: 20px;">${resultDesc}</p>
-                <div style="background: #f5f0e1; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                    <p>最终推进：我军 ${game.playerProgress} - 敌军 ${game.enemyProgress}</p>
-                </div>
-                <p>获得：${finalMerit} 功勋，${finalMoney} 金钱</p>
-                <div style="margin-top: 30px;">
-                    <button class="btn primary-btn" id="strategy-done-btn">返回</button>
-                </div>
-            </div>
-        `;
-
-        document.getElementById('farming-game-view').innerHTML = html;
-        document.getElementById('strategy-done-btn').addEventListener('click', () => {
-            gameView.advanceTwoMonths();
-            gameState.currentTask = null;
+        if (game.isPractice) {
+            // 书院兵法练习 - 非任务，固定奖励兵法经验，消耗5天
+            const expGained = Math.round(15 * ratio);
+            gameState.addSkillExp('strategy', expGained);
+            gameState.addLog(`听讲兵法完成！${resultTitle} 我军推进${game.playerProgress}格，获得 ${expGained} 兵法经验，消耗5天时间。`);
+            gameState.advanceDays(5);
             gameState.strategyGame = null;
-            gameState.currentScene = GameScene.CITY_VIEW;
-            gameView.renderAll();
-        });
+
+            // 显示结果页
+            let html = `
+                <div class="strategy-result" style="text-align: center; padding: 30px;">
+                    <h2 style="font-size: 28px; margin-bottom: 20px; color: #8b4513;">${resultTitle}</h2>
+                    <p style="font-size: 16px; margin-bottom: 20px;">${resultDesc}</p>
+                    <div style="background: #f5f0e1; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                        <p>最终推进：我军 ${game.playerProgress} - 敌军 ${game.enemyProgress}</p>
+                    </div>
+                    <p>获得：${expGained} 兵法经验</p>
+                    <div style="margin-top: 30px;">
+                        <button class="btn primary-btn" id="strategy-done-btn">返回书院</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('farming-game-view').innerHTML = html;
+            document.getElementById('strategy-done-btn').addEventListener('click', () => {
+                // 返回设施场景
+                gameState.currentScene = GameScene.FACILITY;
+                gameView.renderAll();
+            });
+        } else {
+            // 正常任务结算
+            const finalMerit = Math.round(task.rewardMerit * ratio);
+            const finalMoney = Math.round(task.rewardMoney * ratio);
+            const expGained = Math.round(15 * ratio);
+
+            gameState.merit += finalMerit;
+            gameState.money += finalMoney;
+            if (task.requiredSkill) {
+                gameState.addSkillExp(task.requiredSkill, expGained);
+            }
+
+            const skillName = getSkillById(task.requiredSkill)?.name || '';
+            gameState.checkRolePromotion();
+            gameState.addLog(`任务【${task.name}】${resultTitle} 我军推进${game.playerProgress}格，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
+
+            // 显示结果页
+            let html = `
+                <div class="strategy-result" style="text-align: center; padding: 30px;">
+                    <h2 style="font-size: 28px; margin-bottom: 20px; color: #8b4513;">${resultTitle}</h2>
+                    <p style="font-size: 16px; margin-bottom: 20px;">${resultDesc}</p>
+                    <div style="background: #f5f0e1; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                        <p>最终推进：我军 ${game.playerProgress} - 敌军 ${game.enemyProgress}</p>
+                    </div>
+                    <p>获得：${finalMerit} 功勋，${finalMoney} 金钱</p>
+                    <div style="margin-top: 30px;">
+                        <button class="btn primary-btn" id="strategy-done-btn">返回</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('farming-game-view').innerHTML = html;
+            document.getElementById('strategy-done-btn').addEventListener('click', () => {
+                gameView.advanceTwoMonths();
+                gameState.currentTask = null;
+                gameState.strategyGame = null;
+                gameState.currentScene = GameScene.CITY_VIEW;
+                gameView.renderAll();
+            });
+        }
     }
 };

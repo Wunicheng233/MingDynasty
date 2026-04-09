@@ -7,13 +7,14 @@ window.CalligraphyGame = {
     /**
      * 启动游戏
      */
-    start(gameView, gameState) {
+    start(gameView, gameState, title = null) {
         const task = gameState.currentTask;
         // 初始化游戏状态
         gameState.calligraphyGame = {
             currentRound: 0,
             totalRounds: 5,
-            correctCount: 0
+            correctCount: 0,
+            isPractice: title !== null
         };
         // 题目题库
         this.questions = [
@@ -27,7 +28,7 @@ window.CalligraphyGame = {
             {sentence: "山重水复___无路，柳暗花明又一村", options: ["疑", "路", "皆", "尽"], answer: "疑"},
             {sentence: "飞流直下___千尺，疑是银河落九天", options: ["三", "两", "九", "万"], answer: "三"},
             {sentence: "飞流直下___千尺，疑是银河落九天", options: ["三", "两", "九", "万"], answer: "三"},
-            {sentence: "天生我材必有用，千金散___还复来", options: ["尽", "去", "了", "毕"], answer: "尽"},
+            {sentence: "天生我材必有用，千金散___还复来", options: ["尽", "去", "毕"], answer: "尽"},
             {sentence: "会当___绝顶，一览众山小", options: ["登", "到", "临", "上"], answer: "临"},
             {sentence: "黄沙百战穿金___，不破楼兰终不还", options: ["甲", "戈", "袍", "铠"], answer: "甲"},
             {sentence: "苟利国家生___以，岂因祸福避趋之", options: ["死", "命", "之", "理"], answer: "死"},
@@ -37,21 +38,22 @@ window.CalligraphyGame = {
 
         // 洗牌
         this.questions = this.questions.sort(() => Math.random() - 0.5);
-        this.renderRound(gameState, gameView);
+        this.renderRound(gameState, gameView, title);
     },
 
     /**
      * 渲染当前题目
      */
-    renderRound(gameState, gameView) {
+    renderRound(gameState, gameView, title = null) {
         const game = gameState.calligraphyGame;
         const q = this.questions[game.currentRound];
+        const headerTitle = title || (gameState.currentTask ? gameState.currentTask.name : '听讲经义');
 
         let html = `
             <div class="calligraphy-header">
-                <h2>${gameState.currentTask.name}</h2>
+                <h2>${headerTitle}</h2>
                 <p>第 ${game.currentRound + 1} / ${game.totalRounds} 题</p>
-                <p>选出正确的字填入奏章</p>
+                <p>选出正确的字填入经文</p>
             </div>
             <div class="calligraphy-question">
                 <div class="calligraphy-sentence">${q.sentence.replace('___', '<span class="blank">___</span>')}</div>
@@ -96,7 +98,7 @@ window.CalligraphyGame = {
             setTimeout(() => this.finish(gameState, gameView), 1000);
         } else {
             setTimeout(() => this.renderRound(gameState, gameView), 1000);
-}
+        }
     },
 
     /**
@@ -107,24 +109,37 @@ window.CalligraphyGame = {
         const task = gameState.currentTask;
         const ratio = game.correctCount / game.totalRounds;
 
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(10 * ratio);
+        if (game.isPractice) {
+            // 国子监练习 - 非任务，固定奖励文墨经验，消耗5天
+            const expGained = Math.round(10 * ratio);
+            gameState.addSkillExp('calligraphy', expGained);
+            gameState.addLog(`听讲经义完成！答对 ${game.correctCount}/${game.totalRounds} 题，获得 ${expGained} 文墨经验，消耗5天时间。`);
+            gameState.advanceDays(5);
+            gameState.calligraphyGame = null;
+            // 返回设施场景
+            gameState.currentScene = GameScene.FACILITY;
+            gameView.renderAll();
+        } else {
+            // 正常任务结算
+            const finalMerit = Math.round(task.rewardMerit * ratio);
+            const finalMoney = Math.round(task.rewardMoney * ratio);
+            const expGained = Math.round(10 * ratio);
 
-        gameState.merit += finalMerit;
-        gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            gameState.addSkillExp(task.requiredSkill, expGained);
+            gameState.merit += finalMerit;
+            gameState.money += finalMoney;
+            if (task.requiredSkill) {
+                gameState.addSkillExp(task.requiredSkill, expGained);
+            }
+
+            const skillName = getSkillById(task.requiredSkill)?.name || '';
+            gameState.checkRolePromotion();
+            gameState.addLog(`任务【${task.name}】完成！答对 ${game.correctCount}/${game.totalRounds} 题，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
+
+            gameView.advanceTwoMonths();
+            gameState.currentTask = null;
+            gameState.calligraphyGame = null;
+            gameState.currentScene = GameScene.CITY_VIEW;
+            gameView.renderAll();
         }
-
-        const skillName = getSkillById(task.requiredSkill)?.name || '';
-        gameState.checkRolePromotion();
-        gameState.addLog(`任务【${task.name}】完成！答对 ${game.correctCount}/${game.totalRounds} 题，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
-
-        gameView.advanceTwoMonths();
-        gameState.currentTask = null;
-        gameState.calligraphyGame = null;
-        gameState.currentScene = GameScene.CITY_VIEW;
-        gameView.renderAll();
     }
 };

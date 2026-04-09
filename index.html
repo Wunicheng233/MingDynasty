@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>大明王朝 - MingDynasty</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Pixelify+Sans:wght@400;700&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/views.css">
+    <link rel="stylesheet" href="css/games.css">
+    <link rel="stylesheet" href="css/battle.css">
 </head>
 <body>
     <div id="game-container">
@@ -46,6 +52,12 @@
             <div id="map-view" class="map-view" style="display: none;">
                 <!-- 城市地图视图 -->
             </div>
+            <div id="market-view" class="scene-view" style="display: none;">
+                <!-- 市集交易视图 -->
+            </div>
+            <div id="event-view" class="scene-view" style="display: none;">
+                <!-- 剧情事件视图 -->
+            </div>
         </div>
 
         <!-- 底部导航区 -->
@@ -75,18 +87,30 @@
     <script src="data/battle-troops.js"></script>
     <script src="data/tasks.js"></script>
     <script src="data/personal-battle.js"></script>
+    <script src="data/goods.js"></script>
+    <script src="data/events.js"></script>
 
     <!-- 工具模块 -->
     <script src="js/utils/BattleCalculator.js"></script>
     <script src="js/utils/BattleAI.js"></script>
+    <script src="js/utils/EconomicCalculator.js"></script>
+    <script src="js/utils/EventScheduler.js"></script>
+    <script src="js/utils/GameInitializer.js"></script>
+    <script src="js/utils/SaveManager.js"></script>
 
     <!-- 游戏模块 -->
     <script src="js/GameState.js"></script>
     <!-- 渲染模块 - 拆分出去保持代码整洁 -->
+    <script src="js/modules/CharacterViewRenderer.js"></script>
+    <script src="js/modules/CityViewRenderer.js"></script>
+    <script src="js/modules/TaskListRenderer.js"></script>
     <script src="js/modules/CharacterListRenderer.js"></script>
     <script src="js/modules/SocialRenderer.js"></script>
     <script src="js/modules/CardCollectionRenderer.js"></script>
     <script src="js/modules/MapRenderer.js"></script>
+    <script src="js/modules/MarketScene.js"></script>
+    <script src="js/modules/EventScene.js"></script>
+    <script src="js/modules/FacilityScene.js"></script>
     <!-- 小游戏模块 - 每个小游戏独立文件 -->
     <script src="js/games/FarmingGame.js"></script>
     <script src="js/games/EloquenceGame.js"></script>

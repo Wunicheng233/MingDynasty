@@ -7,7 +7,7 @@ window.EngineeringGame = {
     /**
      * 启动游戏
      */
-    start(gameView, gameState) {
+    start(gameView, gameState, title = null) {
         const task = gameState.currentTask;
         // 随机目标重量在 1400-1800 之间
         const targetWeight = Math.floor(Math.random() * 400) + 1400;
@@ -20,20 +20,22 @@ window.EngineeringGame = {
                 {name: '大块青石', weight: 500},
                 {name: '中块条石', weight: 250},
                 {name: '小块碎石', weight: 50}
-            ]
+            ],
+            isPractice: title !== null
         };
 
-        this.render(gameState);
+        this.render(gameState, title);
     },
 
     /**
      * 渲染当前状态
      */
-    render(gameState) {
+    render(gameState, title = null) {
         const game = gameState.engineeringGame;
+        const headerTitle = title || (gameState.currentTask ? gameState.currentTask.name : '修筑城防');
         let html = `
             <div class="engineering-header">
-                <h2>${gameState.currentTask.name}</h2>
+                <h2>${headerTitle}</h2>
                 <p>用不同大小石块堆砌城墙，让总重量尽可能接近目标重量</p>
                 <p>目标重量: <strong>${game.targetWeight}</strong> 贯</p>
                 <p>当前重量: <strong id="current-weight">${game.currentWeight}</strong> 贯</p>
@@ -112,23 +114,36 @@ window.EngineeringGame = {
             resultText = `❌ 不合格，总重量${game.currentWeight}，目标${game.targetWeight}，误差${error}贯 > 50，误差太大。`;
         }
 
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(10 * ratio);
+        if (game.isPractice) {
+            // 工部作坊练习 - 非任务，固定奖励工政经验，消耗5天
+            const expGained = Math.round(10 * ratio);
+            gameState.addSkillExp('engineering', expGained);
+            gameState.addLog(`修筑城防练习完成：${resultText} 获得 ${expGained} 工政经验，消耗5天时间。`);
+            gameState.advanceDays(5);
+            gameState.engineeringGame = null;
+            // 返回设施场景
+            gameState.currentScene = GameScene.FACILITY;
+            gameView.renderAll();
+        } else {
+            // 正常任务结算
+            const finalMerit = Math.round(task.rewardMerit * ratio);
+            const finalMoney = Math.round(task.rewardMoney * ratio);
+            const expGained = Math.round(10 * ratio);
 
-        gameState.merit += finalMerit;
-        gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            gameState.addSkillExp(task.requiredSkill, expGained);
+            gameState.merit += finalMerit;
+            gameState.money += finalMoney;
+            if (task.requiredSkill) {
+                gameState.addSkillExp(task.requiredSkill, expGained);
+            }
+
+            gameState.checkRolePromotion();
+            gameState.addLog(`任务【${task.name}】完成：${resultText} 获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} 工政经验。`);
+
+            gameView.advanceTwoMonths();
+            gameState.currentTask = null;
+            gameState.engineeringGame = null;
+            gameState.currentScene = GameScene.CITY_VIEW;
+            gameView.renderAll();
         }
-
-        gameState.checkRolePromotion();
-        gameState.addLog(`任务【${task.name}】完成：${resultText} 获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} 工政经验。`);
-
-        gameView.advanceTwoMonths();
-        gameState.currentTask = null;
-        gameState.engineeringGame = null;
-        gameState.currentScene = GameScene.CITY_VIEW;
-        gameView.renderAll();
     }
 };

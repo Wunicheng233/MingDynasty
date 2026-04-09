@@ -7,9 +7,7 @@ window.MartialGame = {
     /**
      * 启动游戏
      */
-    start(gameView, gameState) {
-        const task = gameState.currentTask;
-
+    start(gameView, gameState, title = null) {
         // 获取玩家属性
         const player = gameState.getPlayerCharacter();
         const strength = player.strength || 50;
@@ -17,31 +15,32 @@ window.MartialGame = {
 
         // 计算初始属性
         const maxHp = strength * 2 + 50;
-        const handSize = 4 + martialLevel; // 武艺LV0=4, LV3=7
 
         // 对手 - 馆主，中等属性
         const enemy = {
             name: '武馆师傅',
             maxHp: (strength - 10) * 2 + 50,
             hp: (strength - 10) * 2 + 50,
-            handSize: 4 + Math.max(0, martialLevel - 1),
             skillLevel: {martial: Math.max(0, martialLevel - 1)}
         };
 
-        // 初始化牌堆 - 数字卡 1-9 + 已学会的特殊技
+        // 初始化牌堆 - 数字卡 1-9 各 3 张 + 默认特殊技
         let playerDeck = [];
-        // 数字卡 1-9 各一张
+        // 数字卡 1-9 各三张
         for (let i = 1; i <= 9; i++) {
-            playerDeck.push({type: 'number', value: i});
+            for (let j = 0; j < 3; j++) {
+                playerDeck.push({type: 'number', value: i});
+            }
         }
-        // 添加默认特殊技太祖长拳
+        // 添加默认特殊技太祖长拳（一张）
         playerDeck.push({type: 'special', cardId: 'taizu_boxing'});
+        // TODO: 未来可以添加玩家已学会的其他特殊技
 
         // 洗牌
         playerDeck.sort(() => Math.random() - 0.5);
 
         // 敌人牌堆
-        const enemyDeck = this.buildEnemyDeck(enemy);
+        const enemyDeck = this.buildEnemyDeck();
 
         // 初始化游戏状态 - 敌人和玩家结构统一
         gameState.martialGame = {
@@ -51,7 +50,6 @@ window.MartialGame = {
                 hand: [],
                 deck: playerDeck,
                 discard: [],
-                handSize: handSize,
                 skillLevel: {martial: martialLevel}
             },
             enemy: {
@@ -60,34 +58,37 @@ window.MartialGame = {
                 hand: [],
                 deck: enemyDeck,
                 discard: [],
-                handSize: enemy.handSize,
                 skillLevel: enemy.skillLevel
             },
             round: 1,
-            phase: 'select', // select -> playing -> result -> next
             playerMove: null,
             enemyMove: null,
             enemyCombo: null,
             comboActivated: null,
-            dodgeNext: false,
-            gameOver: false
+            playerDodgeNext: false,
+            enemyDodgeNext: false,
+            playerNextPriorityBonus: 0,
+            enemyNextPriorityBonus: 0,
+            isPractice: title !== null // 是否是武馆拜师学艺（非主命任务）
         };
 
-        // 抽初始手牌
-        this.drawCardsToHand(gameState.martialGame.player, handSize, gameState);
-        this.drawCardsToHand(gameState.martialGame.enemy, enemy.handSize, gameState);
+        // 抽初始手牌 - 用户要求：双方初始都是5张
+        this.drawCardsToHand(gameState.martialGame.player, 5);
+        this.drawCardsToHand(gameState.martialGame.enemy, 5);
 
-        this.renderRound(gameState, gameView);
+        this.renderRound(gameState, gameView, title);
     },
 
     /**
      * 构建对手牌堆
      */
-    buildEnemyDeck(enemy) {
+    buildEnemyDeck() {
         let deck = [];
-        // 数字卡
+        // 数字卡 1-9 各三张
         for (let i = 1; i <= 9; i++) {
-            deck.push({type: 'number', value: i});
+            for (let j = 0; j < 3; j++) {
+                deck.push({type: 'number', value: i});
+            }
         }
         // 添加基础特殊技
         deck.push({type: 'special', cardId: 'taizu_boxing'});
@@ -99,7 +100,7 @@ window.MartialGame = {
     /**
      * 抽牌到手牌
      */
-    drawCardsToHand(fighter, handSize, gameState) {
+    drawCardsToHand(fighter, handSize) {
         while (fighter.hand.length < handSize && fighter.deck.length > 0) {
             const card = fighter.deck.shift();
             fighter.hand.push(card);
@@ -119,7 +120,7 @@ window.MartialGame = {
     /**
      * 渲染当前回合
      */
-    renderRound(gameState, gameView) {
+    renderRound(gameState, gameView, title = null) {
         const game = gameState.martialGame;
         const player = game.player;
         const enemy = game.enemy;
@@ -131,9 +132,10 @@ window.MartialGame = {
         const numberCards = player.hand.filter(c => c.type === 'number');
         const specialCards = player.hand.filter(c => c.type === 'special');
 
+        const headerTitle = title || (gameState.currentTask ? gameState.currentTask.name : '拜师学艺');
         let html = `
             <div class="personal-battle-header">
-                <h2>个人战 · ${gameState.currentTask.name}</h2>
+                <h2>个人战 · ${headerTitle}</h2>
                 <div class="battle-status" style="display: flex; justify-content: space-between; margin: 10px 0;">
                     <div class="player-status">
                         <p><strong>你</strong> (武艺Lv${player.skillLevel.martial})</p>
@@ -153,13 +155,13 @@ window.MartialGame = {
             </div>
             <div class="battle-rules" style="background: #f5f0e1; padding: 10px; border-radius: 8px; margin: 10px 0;">
                 <p><strong>回合 ${game.round}</strong> | 手牌：${player.hand.length} 张</p>
-                <p style="font-size: 14px; color: #666;">请选择：最多出 1 张特殊技 + 最多 3 张数字卡</p>
+                <p style="font-size: 14px; color: #666;">请选择：<strong>要么选 1 张特殊技，要么选 1-3 张数字卡</strong>，不能同时选</p>
             </div>
             <div class="player-hand" style="margin: 15px 0;">
                 <div class="special-cards" style="margin-bottom: 15px;">
-                    <p><strong>特殊技卡片（最多选1张）：</strong></p>
+                    <p><strong>特殊技卡片（选一张）：</strong></p>
                     <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
-                        <button class="btn special-card-btn" data-action="none" style="background: ${game.playerMove && game.playerMove.special === null ? '#e8dcc8' : ''};">不选</button>
+                        <button class="btn special-card-btn" data-action="none" style="background: ${game.playerMove && game.playerMove.special === null && game.playerMove.numbers.length === 0 ? '#e8dcc8' : ''};">不选</button>
                         ${specialCards.map(c => {
                             const spec = PERSONAL_SPECIALS.find(s => s.id === c.cardId);
                             const selected = game.playerMove && game.playerMove.special === c.cardId;
@@ -168,7 +170,7 @@ window.MartialGame = {
                     </div>
                 </div>
                 <div class="number-cards">
-                    <p><strong>数字卡片（最多选3张，点击选择/取消）：</strong></p>
+                    <p><strong>数字卡片（1-3张，点击选择/取消）：</strong></p>
                     <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
                         ${numberCards.map(c => {
                             const selected = game.playerMove && game.playerMove.numbers.includes(c.value);
@@ -207,13 +209,19 @@ window.MartialGame = {
                     });
                     btn.style.background = '#e8dcc8';
                 } else {
+                    // 选择了特殊卡，清空所有数字选择
                     game.playerMove.special = btn.dataset.card;
+                    game.playerMove.numbers = [];
                     document.querySelectorAll('.special-card-btn').forEach(b => {
                         b.style.background = b.dataset.action === 'none' ? '#e8dcc8' : '#fff';
                     });
                     btn.style.background = '#e8dcc8';
+                    // 取消数字卡样式
+                    document.querySelectorAll('.number-card-btn').forEach(b => {
+                        b.style.background = '';
+                    });
                 }
-                this.updateConfirmButton();
+                this.updateConfirmButton(gameState);
             });
         });
 
@@ -222,6 +230,13 @@ window.MartialGame = {
             btn.addEventListener('click', () => {
                 const game = gameState.martialGame;
                 if (!game.playerMove) game.playerMove = {special: null, numbers: []};
+
+                // 选择了数字卡，清空特殊卡选择
+                game.playerMove.special = null;
+                document.querySelectorAll('.special-card-btn').forEach(b => {
+                    b.style.background = '';
+                });
+                document.querySelector('.special-card-btn[data-action="none"]').style.background = '#e8dcc8';
 
                 const value = parseInt(btn.dataset.value);
                 const idx = game.playerMove.numbers.indexOf(value);
@@ -260,9 +275,11 @@ window.MartialGame = {
     updateConfirmButton(gameState) {
         const game = gameState.martialGame;
         const btn = document.getElementById('confirm-play-btn');
-        // 至少要有一张牌
-        const hasCard = (game.playerMove.special !== null) || (game.playerMove.numbers.length > 0);
-        btn.disabled = !hasCard;
+        // 新规则：要么选一张特殊卡，要么选1-3张数字卡，不能同时选
+        const hasSpecial = game.playerMove.special !== null;
+        const hasNumbers = game.playerMove.numbers.length > 0 && game.playerMove.numbers.length <= 3;
+        const valid = (hasSpecial && game.playerMove.numbers.length === 0) || (!hasSpecial && hasNumbers);
+        btn.disabled = !valid;
     },
 
     /**
@@ -280,16 +297,33 @@ window.MartialGame = {
         const playerCombo = this.identifyCombo(game.playerMove.numbers);
         if (playerCombo) {
             game.comboActivated = playerCombo;
+            // 处理特殊组合效果
+            if (playerCombo.dodgeNext) {
+                game.playerDodgeNext = true;
+            }
         }
         // 识别敌人数字组合
         const enemyCombo = this.identifyCombo(game.enemyMove.numbers);
         if (enemyCombo) {
             game.enemyCombo = enemyCombo;
+            // 处理特殊组合效果
+            if (enemyCombo.dodgeNext) {
+                game.enemyDodgeNext = true;
+            }
         }
 
-        // 计算双方优先度
-        const playerPriority = this.calculatePriority(game.playerMove, playerCombo, true);
-        const enemyPriority = this.calculatePriority(game.enemyMove, enemyCombo, false);
+        // 计算双方优先度（加上回合优先级奖励）
+        let playerPriority = this.calculatePriority(game.playerMove, playerCombo);
+        let enemyPriority = this.calculatePriority(game.enemyMove, enemyCombo);
+        if (game.playerNextPriorityBonus) {
+            playerPriority *= (1 + game.playerNextPriorityBonus);
+        }
+        if (game.enemyNextPriorityBonus) {
+            enemyPriority *= (1 + game.enemyNextPriorityBonus);
+        }
+        // 清除奖励，只生效一回合
+        game.playerNextPriorityBonus = 0;
+        game.enemyNextPriorityBonus = 0;
 
         let firstFighter, secondFighter;
         let firstMove, secondMove;
@@ -337,55 +371,37 @@ window.MartialGame = {
             }
         }
 
-        // 记录日志
-        let log = this.getRoundStartLog(playerPriority, enemyPriority, firstIsPlayer, gameState);
+        // 记录日志 - 添加对手出牌信息，不显示优先度
+        let log = this.getRoundStartLog(firstIsPlayer, gameState);
+        // 显示对手出了什么牌
+        log += this.getMoveDescription(game.enemyMove, game.enemyCombo);
+        // 如果有组合，添加组合说明
+        if (playerCombo && firstIsPlayer) {
+            log += `\n你触发组合技：${playerCombo.name} - ${playerCombo.description}`;
+        }
+        if (enemyCombo && !firstIsPlayer) {
+            log += `\n对手触发组合技：${enemyCombo.name} - ${enemyCombo.description}`;
+        }
         game.log = log;
 
-        // 第一人攻击第二人
-        this.performAttack(firstFighter, secondFighter, firstMove, firstCombo, game, firstIsPlayer);
+        // 只有优先度高的一方行动，低的一方本回合不能行动
+        if (firstIsPlayer) {
+            // 玩家优先度更高，玩家攻击对手
+            this.performAttack(game.player, game.enemy, game.playerMove, playerCombo, game, true);
+        } else {
+            // 对手优先度更高，对手攻击玩家
+            this.performAttack(game.enemy, game.player, game.enemyMove, enemyCombo, game, false);
+        }
 
-        if (secondFighter.hp <= 0) {
+        // 检查是否有人战败
+        if (game.player.hp <= 0 || game.enemy.hp <= 0) {
             this.finish(gameState, gameView);
             return;
         }
 
-        // 检查第二人是否完全防御
-        let secondCanAttack = true;
-        if (game.dodgeNext && firstIsPlayer) {
-            // 玩家八卦游身闪避了
-            game.log += '\n你施展八卦游身，闪避了对手攻击！';
-            game.dodgeNext = false;
-            secondCanAttack = false;
-        }
-
-        // 检查铁门闩完全防御
-        if (firstMove.special) {
-            const spec = PERSONAL_SPECIALS.find(s => s.id === firstMove.special);
-            if (spec && spec.fullDefense && firstIsPlayer) {
-                game.log += '\n你施展铁门闩，完全防御对手攻击！';
-                secondCanAttack = false;
-            }
-        }
-        if (firstMove.special && firstIsPlayer === false) {
-            const spec = PERSONAL_SPECIALS.find(s => s.id === firstMove.special);
-            if (spec && spec.fullDefense) {
-                game.log += '\n对手施展铁门闩，完全防御你的攻击！';
-                secondCanAttack = false;
-            }
-        }
-
-        if (secondCanAttack) {
-            this.performAttack(secondFighter, firstFighter, secondMove, secondCombo, game, !firstIsPlayer);
-        }
-
-        if (firstFighter.hp <= 0 || secondFighter.hp <= 0) {
-            this.finish(gameState, gameView);
-            return;
-        }
-
-        // 弃牌抽新牌
-        this.discardAndDraw(player, gameState);
-        this.discardAndDraw(enemy, gameState);
+        // 弃牌抽新牌 - 只丢弃打出的牌，保留未打出的
+        this.discardAndDraw(player, game.playerMove, gameState);
+        this.discardAndDraw(enemy, game.enemyMove, gameState);
 
         game.round++;
         game.playerMove = null;
@@ -401,27 +417,34 @@ window.MartialGame = {
 
     /**
      * AI出牌
+     * 遵循新规则：要么出一张特殊卡，要么出1-3张数字卡，不能同时出
      */
     aiEnemyPlay(gameState) {
         const game = gameState.martialGame;
         const enemy = game.enemy;
 
-        // AI简单策略：如果有特殊技就出，然后选1-3个数字卡
-        let special = null;
         const specialCards = enemy.hand.filter(c => c.type === 'special');
-        if (specialCards.length > 0 && Math.random() > 0.3) {
-            // 随机出一张
-            special = specialCards[Math.floor(Math.random() * specialCards.length)].cardId;
-        }
+        const numberCards = enemy.hand.filter(c => c.type === 'number');
 
-        // 选数字卡 - 随机选1-3张
-        const numberCards = enemy.hand.filter(c => c.type === 'number').map(c => c.value);
-        const count = Math.min(numberCards.length, Math.floor(Math.random() * 3) + 1);
-        const selectedNumbers = [];
-        for (let i = 0; i < count && numberCards.length > 0; i++) {
-            const idx = Math.floor(Math.random() * numberCards.length);
-            selectedNumbers.push(numberCards[idx]);
-            numberCards.splice(idx, 1);
+        // 70%概率出特殊卡如果有，否则出数字卡
+        let special = null;
+        let selectedNumbers = [];
+
+        if (specialCards.length > 0 && Math.random() < 0.7) {
+            // 出一张特殊卡，不出数字
+            special = specialCards[Math.floor(Math.random() * specialCards.length)].cardId;
+            selectedNumbers = [];
+        } else {
+            // 出数字卡，不出特殊，选1-3张
+            special = null;
+            const count = Math.min(numberCards.length, Math.floor(Math.random() * 3) + 1);
+            selectedNumbers = [];
+            const availableValues = numberCards.map(c => c.value);
+            for (let i = 0; i < count && availableValues.length > 0; i++) {
+                const idx = Math.floor(Math.random() * availableValues.length);
+                selectedNumbers.push(availableValues[idx]);
+                availableValues.splice(idx, 1);
+            }
         }
 
         game.enemyMove = {special, numbers: selectedNumbers};
@@ -449,7 +472,7 @@ window.MartialGame = {
     /**
      * 计算优先度
      */
-    calculatePriority(move, combo, isPlayer) {
+    calculatePriority(move, combo) {
         let priority = 0;
 
         // 秘传 > 特殊 > 组合
@@ -476,31 +499,65 @@ window.MartialGame = {
      */
     performAttack(attacker, defender, move, combo, game, attackerIsPlayer) {
         const baseDamage = Math.ceil((attacker.maxHp / 10) / 2);
+        const gameState = window.game.gameState;
+        const gameObj = gameState.martialGame;
+
+        // 检查八卦游身闪避
+        const defenderHasDodge = attackerIsPlayer ? gameObj.enemyDodgeNext : gameObj.playerDodgeNext;
+        if (defenderHasDodge) {
+            // 闪避，清除buff，并反击
+            if (attackerIsPlayer) {
+                gameObj.enemyDodgeNext = false;
+                game.log += `\n对手八卦游身闪开你的攻击，并反击！`;
+            } else {
+                gameObj.playerDodgeNext = false;
+                game.log += `\n你八卦游身闪开对手攻击，并反击！`;
+            }
+            // 反击
+            const counterDmg = Math.round(baseDamage);
+            attacker.hp -= counterDmg;
+            game.log += `\n反击造成 ${counterDmg} 点伤害`;
+            attacker.hp = Math.max(0, attacker.hp);
+            return;
+        }
 
         let damageList = [];
-        let totalDamage = 0;
         let hasHeal = false;
 
-        // 特殊技加成
+        // 攻击方特殊技加成
         let damageBonus = 0;
-        let fullDefense = false;
-        let counterAttack = false;
+        let noCounterAttack = false;
+        let attackerIgnoreDefense = false;
+        let skipAttack = false;
 
         if (move.special) {
             const spec = PERSONAL_SPECIALS.find(s => s.id === move.special);
             damageBonus += spec.damageBonus || 0;
-            if (spec.fullDefense) fullDefense = true;
-            if (spec.counterAttack) counterAttack = true;
+            if (spec.noCounterAttack) noCounterAttack = true;
             if (spec.heal) {
                 attacker.hp = Math.min(attacker.maxHp, attacker.hp + spec.heal);
                 game.log += `\n${attackerIsPlayer ? '你' : '对手'}使用${spec.name}，恢复 ${spec.heal} 点体力`;
                 hasHeal = true;
             }
+            if (spec.nextPriorityBonus) {
+                // 放弃本回合攻击，下回合优先度加成
+                if (attackerIsPlayer) {
+                    game.playerNextPriorityBonus = spec.nextPriorityBonus;
+                } else {
+                    game.enemyNextPriorityBonus = spec.nextPriorityBonus;
+                }
+                game.log += `\n${attackerIsPlayer ? '你' : '对手'}蓄力以待，下回合优先度+${Math.round(spec.nextPriorityBonus * 100)}%`;
+                skipAttack = true;
+            }
         }
-
-        // 组合效果处理
-        if (combo && combo.effect && !hasHeal) {
+        // 攻击方组合效果
+        if (skipAttack) {
+            // 放弃攻击（如后发制人）
+            damageList = [];
+        } else if (combo && combo.effect && !hasHeal) {
             damageList = combo.effect(combo, attacker.hp, baseDamage, attacker.maxHp, attacker, game);
+            if (combo.noCounterAttack) noCounterAttack = true;
+            if (combo.ignoreDefense) attackerIgnoreDefense = true;
         } else if (move.numbers.length > 0) {
             // 没有组合就是每一下正常伤害
             move.numbers.forEach(() => {
@@ -512,6 +569,25 @@ window.MartialGame = {
             damageList.push(baseDamage * (1 + damageBonus));
         }
 
+        // 防御方防御效果处理（如果攻击者不忽视防御）
+        let fullDefense = false;
+        let defenseMultiplier = 1;
+        let counterAttack = false;
+
+        if (!attackerIgnoreDefense) {
+            const defenderMove = attackerIsPlayer ? gameObj.enemyMove : gameObj.playerMove;
+            if (defenderMove.special) {
+                const defSpec = PERSONAL_SPECIALS.find(s => s.id === defenderMove.special);
+                if (defSpec.fullDefense) fullDefense = true;
+                if (defSpec.defenseBonus) {
+                    // 防御力+X% = 受到伤害 × (1 - defenseBonus/(1+defenseBonus))
+                    // 简化：防御加成 0.5 → 受到伤害 1/(1+0.5) = 0.666...
+                    defenseMultiplier = 1 / (1 + defSpec.defenseBonus);
+                }
+                if (defSpec.counterAttack) counterAttack = true;
+            }
+        }
+
         // 应用伤害
         let totalApplied = 0;
         damageList.forEach(dmg => {
@@ -519,16 +595,17 @@ window.MartialGame = {
                 game.log += `\n防御成功，不受伤害`;
                 return;
             }
-            defender.hp -= Math.round(dmg);
-            totalApplied += Math.round(dmg);
+            const finalDmg = Math.round(dmg * defenseMultiplier);
+            defender.hp -= finalDmg;
+            totalApplied += finalDmg;
         });
 
         if (totalApplied > 0) {
-            game.log += `\n${attackerIsPlayer ? '你' : '对手'}击中，${defender === game.player ? '你' : '对手'}总共受到 ${totalApplied} 点伤害`;
+            game.log += `\n${attackerIsPlayer ? '你' : '对手'}击中，${defender === gameObj.player ? '你' : '对手'}总共受到 ${totalApplied} 点伤害`;
         }
 
-        // 反击
-        if (counterAttack && defender.hp > 0) {
+        // 反击（如果攻击者不无视反击）
+        if (counterAttack && defender.hp > 0 && !noCounterAttack) {
             const counterDmg = Math.round(baseDamage * 0.5);
             attacker.hp -= counterDmg;
             game.log += `\n${attackerIsPlayer ? '对手' : '你'}四两拨千斤，反击造成 ${counterDmg} 点伤害`;
@@ -539,30 +616,85 @@ window.MartialGame = {
 
     /**
      * 弃牌并抽新牌
+     * 规则：保留未打出的牌，每回合额外抽 (武艺等级 + 1) 张
+     * 初始双方都是 5 张，手牌最大不超过 9 张
      */
-    discardAndDraw(fighter, gameState) {
-        // 所有打出的牌进入弃牌堆
-        // 这里简化：全部手牌弃掉，然后抽至上限
-        fighter.discard.push(...fighter.hand);
-        fighter.hand = [];
-        this.drawCardsToHand(fighter, fighter.handSize < fighter.handSize ? fighter.handSize : fighter.handSize, gameState);
+    discardAndDraw(fighter, move) {
+        // move = {special, numbers} - 打出的牌
+        // 移除打出的特殊卡
+        if (move.special) {
+            const specialIndex = fighter.hand.findIndex(c => c.type === 'special' && c.cardId === move.special);
+            if (specialIndex >= 0) {
+                fighter.discard.push(fighter.hand[specialIndex]);
+                fighter.hand.splice(specialIndex, 1);
+            }
+        }
+        // 移除打出的数字卡
+        move.numbers.forEach(value => {
+            const numIndex = fighter.hand.findIndex(c => c.type === 'number' && c.value === value);
+            if (numIndex >= 0) {
+                fighter.discard.push(fighter.hand[numIndex]);
+                fighter.hand.splice(numIndex, 1);
+            }
+        });
+        // 每回合抽 武艺等级 张，直到手牌达到上限 9 张
+        const drawCount = Math.min(
+            fighter.skillLevel.martial,
+            9 - fighter.hand.length
+        );
+
+        // 抽牌
+        let drawn = 0;
+        for (let i = 0; i < drawCount && fighter.deck.length > 0; i++) {
+            const card = fighter.deck.shift();
+            fighter.hand.push(card);
+            drawn++;
+        }
+        // 如果牌堆空了，洗牌继续抽
+        const remaining = drawCount - drawn;
+        if (remaining > 0 && fighter.discard.length > 0) {
+            fighter.deck = [...fighter.discard];
+            fighter.discard = [];
+            fighter.deck.sort(() => Math.random() - 0.5);
+            for (let i = 0; i < remaining && fighter.deck.length > 0; i++) {
+                const card = fighter.deck.shift();
+                fighter.hand.push(card);
+            }
+        }
     },
 
     /**
      * 获取回合开始日志
      */
-    getRoundStartLog(p1prio, p2prio, firstIsPlayer, gameState) {
+    getRoundStartLog(firstIsPlayer, gameState) {
         const game = gameState.martialGame;
         const existing = document.getElementById('battle-log') ? document.getElementById('battle-log').innerHTML : '';
         let log = existing ? existing + '\n\n' : '';
         log += `===== 回合 ${game.round} =====`;
-        log += `\n你的优先度 ${p1prio.toFixed(1)}，对手优先度 ${p2prio.toFixed(1)}`;
         if (firstIsPlayer) {
-            log += '\n你抢先出手！';
+            log += '\n你先手攻击！';
         } else {
-            log += '\n对手抢先出手！';
+            log += '\n对手先手攻击！';
         }
         return log;
+    },
+
+    /**
+     * 获取出牌描述日志
+     */
+    getMoveDescription(move, combo) {
+        let desc = '';
+        if (move.special) {
+            const spec = PERSONAL_SPECIALS.find(s => s.id === move.special);
+            desc += `\n对手打出特殊技：${spec.name}`;
+        }
+        if (move.numbers.length > 0) {
+            desc += `\n对手打出数字卡：${move.numbers.join(', ')}`;
+            if (combo) {
+                desc += `，触发组合：${combo.name}`;
+            }
+        }
+        return desc;
     },
 
     /**
@@ -572,55 +704,82 @@ window.MartialGame = {
         const game = gameState.martialGame;
         const playerWon = game.enemy.hp <= 0;
         const task = gameState.currentTask;
+        const ratio = playerWon ? 1 : Math.max(0.2, game.player.hp / (game.player.hp + game.enemy.hp));
 
-        let ratio;
-        if (playerWon) {
-            ratio = 1.0;
-        } else {
-            ratio = Math.max(0.2, game.player.hp / (game.player.hp + game.enemy.hp));
-        }
-
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(15 * ratio);
-
-        gameState.merit += finalMerit;
-        gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            gameState.addSkillExp(task.requiredSkill, expGained);
-        }
-
-        gameState.checkRolePromotion();
-
-        let resultLog = playerWon
-            ? `任务【${task.name}】完成！你击败武馆师傅获胜，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${getSkillById(task.requiredSkill)?.name || ''}经验。`
-            : `任务【${task.name}】你不敌武馆师傅，获得部分奖励：${finalMerit} 功勋，${finalMoney} 金钱。`;
-
-        gameState.addLog(resultLog);
-
-        // 显示结果页
-        let html = `
-            <div class="personal-result" style="text-align: center; padding: 30px;">
-                <h2 style="font-size: 28px; margin-bottom: 20px; color: #8b4513;">${playerWon ? '✔ 比武获胜' : '✘ 比试落败'}</h2>
-                <p style="font-size: 16px; margin-bottom: 20px;">${playerWon ? '你拳法进步，赢得师傅赞赏！' : '师傅武艺高超，你虽败犹荣。'}</p>
-                <div style="background: #f5f0e1; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-                    <p>你的剩余体力：${game.player.hp} / ${game.player.maxHp}</p>
-                    <p>师傅剩余体力：${game.enemy.hp} / ${game.enemy.maxHp}</p>
-                </div>
-                <p>获得：${finalMerit} 功勋，${finalMoney} 金钱</p>
-                <div style="margin-top: 30px;">
-                    <button class="btn primary-btn" id="personal-done-btn">返回</button>
-                </div>
-            </div>
-        `;
-
-        document.getElementById('farming-game-view').innerHTML = html;
-        document.getElementById('personal-done-btn').addEventListener('click', () => {
-            gameView.advanceTwoMonths();
-            gameState.currentTask = null;
+        if (game.isPractice) {
+            // 武馆拜师学艺 - 非任务，固定奖励武艺经验，消耗5天
+            const expGained = Math.round(15 * ratio);
+            gameState.addSkillExp('martial', expGained);
+            gameState.addLog(`拜师学艺完成！你${playerWon ? '获胜' : '战败'}，获得 ${expGained} 武艺经验，消耗5天时间。`);
+            gameState.advanceDays(5);
             gameState.martialGame = null;
-            gameState.currentScene = GameScene.CITY_VIEW;
-            gameView.renderAll();
-        });
+
+            // 显示结果页
+            let html = `
+                <div class="personal-result" style="text-align: center; padding: 30px;">
+                    <h2 style="font-size: 28px; margin-bottom: 20px; color: #8b4513;">${playerWon ? '✔ 比武获胜' : '✘ 比试落败'}</h2>
+                    <p style="font-size: 16px; margin-bottom: 20px;">${playerWon ? '你拳法进步，赢得师傅赞赏！' : '师傅武艺高超，你虽败犹荣。'}</p>
+                    <div style="background: #f5f0e1; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                        <p>你的剩余体力：${game.player.hp} / ${game.player.maxHp}</p>
+                        <p>师傅剩余体力：${game.enemy.hp} / ${game.enemy.maxHp}</p>
+                    </div>
+                    <p>获得：${expGained} 武艺经验</p>
+                    <div style="margin-top: 30px;">
+                        <button class="btn primary-btn" id="personal-done-btn">返回武馆</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('farming-game-view').innerHTML = html;
+            document.getElementById('personal-done-btn').addEventListener('click', () => {
+                // 返回设施场景
+                gameState.currentScene = GameScene.FACILITY;
+                gameView.renderAll();
+            });
+        } else {
+            // 正常任务结算
+            const finalMerit = Math.round(task.rewardMerit * ratio);
+            const finalMoney = Math.round(task.rewardMoney * ratio);
+            const expGained = Math.round(15 * ratio);
+
+            gameState.merit += finalMerit;
+            gameState.money += finalMoney;
+            if (task.requiredSkill) {
+                gameState.addSkillExp(task.requiredSkill, expGained);
+            }
+
+            gameState.checkRolePromotion();
+
+            let resultLog = playerWon
+                ? `任务【${task.name}】完成！你击败武馆师傅获胜，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${getSkillById(task.requiredSkill)?.name || ''}经验。`
+                : `任务【${task.name}】你不敌武馆师傅，获得部分奖励：${finalMerit} 功勋，${finalMoney} 金钱。`;
+
+            gameState.addLog(resultLog);
+
+            // 显示结果页
+            let html = `
+                <div class="personal-result" style="text-align: center; padding: 30px;">
+                    <h2 style="font-size: 28px; margin-bottom: 20px; color: #8b4513;">${playerWon ? '✔ 比武获胜' : '✘ 比试落败'}</h2>
+                    <p style="font-size: 16px; margin-bottom: 20px;">${playerWon ? '你拳法进步，赢得师傅赞赏！' : '师傅武艺高超，你虽败犹荣。'}</p>
+                    <div style="background: #f5f0e1; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                        <p>你的剩余体力：${game.player.hp} / ${game.player.maxHp}</p>
+                        <p>师傅剩余体力：${game.enemy.hp} / ${game.enemy.maxHp}</p>
+                    </div>
+                    <p>获得：${finalMerit} 功勋，${finalMoney} 金钱</p>
+                    <div style="margin-top: 30px;">
+                        <button class="btn primary-btn" id="personal-done-btn">返回</button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('farming-game-view').innerHTML = html;
+            document.getElementById('personal-done-btn').addEventListener('click', () => {
+                gameView.advanceTwoMonths();
+                gameState.currentTask = null;
+                gameState.martialGame = null;
+                gameState.currentScene = GameScene.CITY_VIEW;
+                gameView.renderAll();
+            });
+        }
     }
 };

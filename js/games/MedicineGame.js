@@ -7,12 +7,12 @@ window.MedicineGame = {
     /**
      * 启动游戏
      */
-    start(gameView, gameState) {
+    start(gameView, gameState, title = null) {
         const task = gameState.currentTask;
         const allHerbs = ['人参', '麻黄', '甘草', '芍药', '茯苓', '当归', '川芎', '大黄'];
 
-        // 根据难度决定药材数量，难度越大越多
-        const difficulty = task.baseDifficulty || 2;
+        // 根据难度决定药材数量，练习模式默认难度2
+        const difficulty = task ? (task.baseDifficulty || 2) : 2;
         const herbCount = 3 + difficulty; // 3 ~ 5种
 
         // 随机选N种药材并打乱顺序
@@ -23,13 +23,15 @@ window.MedicineGame = {
             sequence: selectedHerbs,
             playerSequence: [],
             totalCount: herbCount,
-            shown: false
+            shown: false,
+            isPractice: title !== null
         };
         const game = gameState.medicineGame;
 
+        const headerTitle = title || (task ? task.name : '学习医术');
         let html = `
             <div class="medicine-header">
-                <h2>${task.name}</h2>
+                <h2>${headerTitle}</h2>
                 <p>神医需要你按配方顺序抓药，请仔细记住药材顺序</p>
                 <div style="background: #f5f0e1; padding: 15px; border-radius: 8px; margin: 15px 0;">
                     <p><strong>药方顺序（5秒后消失）：</strong></p>
@@ -105,24 +107,38 @@ window.MedicineGame = {
         }
 
         const ratio = correct / game.sequence.length;
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(10 * ratio);
 
-        gameState.merit += finalMerit;
-        gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            gameState.addSkillExp(task.requiredSkill, expGained);
+        if (game.isPractice) {
+            // 寺庙/医馆练习 - 非任务，固定奖励医术经验，消耗5天
+            const expGained = Math.round(10 * ratio);
+            gameState.addSkillExp('medicine', expGained);
+            gameState.addLog(`学习医术完成！猜对 ${correct}/${game.sequence.length} 味药顺序，获得 ${expGained} 医术经验，消耗5天时间。`);
+            gameState.advanceDays(5);
+            gameState.medicineGame = null;
+            // 返回设施场景
+            gameState.currentScene = GameScene.FACILITY;
+            gameView.renderAll();
+        } else {
+            // 正常任务结算
+            const finalMerit = Math.round(task.rewardMerit * ratio);
+            const finalMoney = Math.round(task.rewardMoney * ratio);
+            const expGained = Math.round(10 * ratio);
+
+            gameState.merit += finalMerit;
+            gameState.money += finalMoney;
+            if (task.requiredSkill) {
+                gameState.addSkillExp(task.requiredSkill, expGained);
+            }
+
+            const skillName = getSkillById(task.requiredSkill)?.name || '';
+            gameState.checkRolePromotion();
+            gameState.addLog(`任务【${task.name}】完成！猜对 ${correct}/${game.sequence.length} 味药顺序，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
+
+            gameView.advanceTwoMonths();
+            gameState.currentTask = null;
+            gameState.medicineGame = null;
+            gameState.currentScene = GameScene.CITY_VIEW;
+            gameView.renderAll();
         }
-
-        const skillName = getSkillById(task.requiredSkill)?.name || '';
-        gameState.checkRolePromotion();
-        gameState.addLog(`任务【${task.name}】完成！猜对 ${correct}/${game.sequence.length} 味药顺序，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
-
-        gameView.advanceTwoMonths();
-        gameState.currentTask = null;
-        gameState.medicineGame = null;
-        gameState.currentScene = GameScene.CITY_VIEW;
-        gameView.renderAll();
     }
 };

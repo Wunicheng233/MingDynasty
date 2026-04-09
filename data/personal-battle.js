@@ -33,7 +33,7 @@ window.PERSONAL_COMBOS = [
     },
     {
         name: '常山蛇势',
-        numbers: [7, 6, 3],
+        numbers: [7, 8, 3],
         priority: 28,
         description: '高速攻击，忽视对手20%防御',
         effect: (combo, playerHp, baseDamage) => {

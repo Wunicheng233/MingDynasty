@@ -36,6 +36,7 @@ const CHARACTER_TEMPLATES = [
         id: 1,
         name: "朱元璋",
         emoji: "👨",
+        image: "images/characters/zhuyuanzhang3.png",
         portrait: "zhuyuanzhang",
         color: "#4a90e2",
         baseStats: {
@@ -77,6 +78,7 @@ const CHARACTER_TEMPLATES = [
         id: 2,
         name: "徐达",
         emoji: "🗡️",
+        image: "images/characters/xuda.png",
         portrait: "xuda",
         color: "#50c878",
         baseStats: {
@@ -118,6 +120,7 @@ const CHARACTER_TEMPLATES = [
         id: 3,
         name: "常遇春",
         emoji: "⚔️",
+        image: "images/characters/changyuchun.png",
         portrait: "changyuchun",
         color: "#e74c3c",
         baseStats: {
@@ -200,6 +203,7 @@ const CHARACTER_TEMPLATES = [
         id: 5,
         name: "郭子兴",
         emoji: "👴",
+        image: "images/characters/guozixing.png",
         portrait: "guozixing",
         color: "#808080",
         baseStats: {
@@ -229,6 +233,7 @@ const CHARACTER_TEMPLATES = [
         id: 6,
         name: "马秀英",
         emoji: "👩",
+        image: "images/characters/maxiuying.png",
         portrait: "maxiuying",
         color: "#ff69b4",
         baseStats: {
@@ -257,6 +262,7 @@ const CHARACTER_TEMPLATES = [
         id: 7,
         name: "李善长",
         emoji: "📜",
+        image: "images/characters/lishanchang.png",
         portrait: "lishanchang",
         color: "#9b59b6",
         baseStats: {
@@ -317,6 +323,7 @@ const CHARACTER_TEMPLATES = [
         id: 9,
         name: "陈友谅",
         emoji: "🐉",
+        image: "images/characters/chenyouliang.png",
         portrait: "chenyouliang",
         color: "#c0392b",
         baseStats: {

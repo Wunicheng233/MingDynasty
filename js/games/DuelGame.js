@@ -7,7 +7,7 @@ window.DuelGame = {
     /**
      * 启动游戏
      */
-    start(gameView, gameState) {
+    start(gameView, gameState, title = null) {
         const task = gameState.currentTask;
         // 玩家和对手各30血，每回合抽3张牌
         const playerDeck = drawNCards(15, getAllDuelCards());
@@ -16,14 +16,16 @@ window.DuelGame = {
             enemyHp: 30,
             playerHand: playerDeck.slice(0, 3),
             drawPile: playerDeck.slice(3),
-            combo: 0
+            combo: 0,
+            isPractice: title !== null // 是否是武馆切磋（非主命任务）
         };
 
         const game = gameState.duelGame;
+        const headerTitle = title || (task ? task.name : '个人切磋');
 
         let html = `
             <div class="duel-header">
-                <h2>${task.name}</h2>
+                <h2>${headerTitle}</h2>
                 <p>卡牌单挑，选一张打出，三张相同触发必杀</p>
             </div>
             <div class="duel-hp">
@@ -161,24 +163,36 @@ window.DuelGame = {
         const playerWin = game.enemyHp <= 0;
         const ratio = playerWin ? 1 : Math.max(0.3, game.playerHp / 30);
 
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(10 * ratio);
+        if (game.isPractice) {
+            // 武馆切磋 - 非任务，固定奖励武艺经验
+            const expGained = Math.round(10 * ratio);
+            gameState.addSkillExp('martial', expGained);
+            gameState.addLog(`武馆切磋完成！你${playerWin ? '获胜' : '战败'}，获得 ${expGained} 武艺经验。`);
+            gameState.duelGame = null;
+            // 返回设施场景
+            gameState.currentScene = GameScene.FACILITY;
+            gameView.renderAll();
+        } else {
+            // 正常任务结算
+            const finalMerit = Math.round(task.rewardMerit * ratio);
+            const finalMoney = Math.round(task.rewardMoney * ratio);
+            const expGained = Math.round(10 * ratio);
 
-        gameState.merit += finalMerit;
-        gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            gameState.addSkillExp(task.requiredSkill, expGained);
+            gameState.merit += finalMerit;
+            gameState.money += finalMoney;
+            if (task.requiredSkill) {
+                gameState.addSkillExp(task.requiredSkill, expGained);
+            }
+
+            const skillName = getSkillById(task.requiredSkill)?.name || '';
+            gameState.checkRolePromotion();
+            gameState.addLog(`单挑【${task.name}】完成！你${playerWin ? '获胜' : '战败'}，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
+
+            gameView.advanceTwoMonths();
+            gameState.currentTask = null;
+            gameState.duelGame = null;
+            gameState.currentScene = GameScene.CITY_VIEW;
+            gameView.renderAll();
         }
-
-        const skillName = getSkillById(task.requiredSkill)?.name || '';
-        gameState.checkRolePromotion();
-        gameState.addLog(`单挑【${task.name}】完成！你${playerWin ? '获胜' : '战败'}，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
-
-        gameView.advanceTwoMonths();
-        gameState.currentTask = null;
-        gameState.duelGame = null;
-        gameState.currentScene = GameScene.CITY_VIEW;
-        gameView.renderAll();
     }
 };

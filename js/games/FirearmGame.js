@@ -7,10 +7,10 @@ window.FirearmGame = {
     /**
      * 启动游戏
      */
-    start(gameView, gameState) {
+    start(gameView, gameState, title = null) {
         const task = gameState.currentTask;
-        // 根据难度调整速度，难度越大速度越快
-        const difficulty = task.baseDifficulty || 2;
+        // 根据难度调整速度，练习模式默认难度2
+        const difficulty = task ? (task.baseDifficulty || 2) : 2;
         // 初始化游戏状态：子弹十字准星在xy方向移动
         gameState.firearmGame = {
             x: 50,
@@ -18,12 +18,14 @@ window.FirearmGame = {
             directionX: Math.random() > 0.5 ? 1 : -1,
             directionY: Math.random() > 0.5 ? 1 : -1,
             speed: 0.5 + difficulty * 0.2, // 速度随难度增加
-            animationId: null
+            animationId: null,
+            isPractice: title !== null
         };
 
+        const headerTitle = title || (task ? task.name : '火器射击练习');
         let html = `
             <div class="firearm-header">
-                <h2>${task.name}</h2>
+                <h2>${headerTitle}</h2>
                 <p>准星会自动移动，在对准红心时点击射击</p>
                 <p>越靠近红心，得分越高</p>
             </div>
@@ -92,27 +94,40 @@ window.FirearmGame = {
         const score = Math.max(0, 100 - distance * 2);
         const ratio = score / 100;
 
-        const task = gameState.currentTask;
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(10 * ratio);
-
         cancelAnimationFrame(game.animationId);
 
-        gameState.merit += finalMerit;
-        gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            gameState.addSkillExp(task.requiredSkill, expGained);
+        if (game.isPractice) {
+            // 火器练习 - 非任务，固定奖励火器经验，消耗5天
+            const expGained = Math.round(10 * ratio);
+            gameState.addSkillExp('firearm', expGained);
+            gameState.addLog(`火器射击练习完成！距离靶心${Math.round(distance)}单位，得分${Math.round(score)}，获得 ${expGained} 火器经验，消耗5天时间。`);
+            gameState.advanceDays(5);
+            gameState.firearmGame = null;
+            // 返回设施场景
+            gameState.currentScene = GameScene.FACILITY;
+            gameView.renderAll();
+        } else {
+            // 正常任务结算
+            const task = gameState.currentTask;
+            const finalMerit = Math.round(task.rewardMerit * ratio);
+            const finalMoney = Math.round(task.rewardMoney * ratio);
+            const expGained = Math.round(10 * ratio);
+
+            gameState.merit += finalMerit;
+            gameState.money += finalMoney;
+            if (task.requiredSkill) {
+                gameState.addSkillExp(task.requiredSkill, expGained);
+            }
+
+            const skillName = getSkillById(task.requiredSkill)?.name || '';
+            gameState.checkRolePromotion();
+            gameState.addLog(`任务【${task.name}】完成！距离靶心${Math.round(distance)}单位，得分${Math.round(score)}，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
+
+            gameView.advanceTwoMonths();
+            gameState.currentTask = null;
+            gameState.firearmGame = null;
+            gameState.currentScene = GameScene.CITY_VIEW;
+            gameView.renderAll();
         }
-
-        const skillName = getSkillById(task.requiredSkill)?.name || '';
-        gameState.checkRolePromotion();
-        gameState.addLog(`任务【${task.name}】完成！距离靶心${Math.round(distance)}单位，得分${Math.round(score)}，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
-
-        gameView.advanceTwoMonths();
-        gameState.currentTask = null;
-        gameState.firearmGame = null;
-        gameState.currentScene = GameScene.CITY_VIEW;
-        gameView.renderAll();
     }
 };

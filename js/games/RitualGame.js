@@ -7,7 +7,7 @@ window.RitualGame = {
     /**
      * 启动游戏
      */
-    start(gameView, gameState) {
+    start(gameView, gameState, title = null) {
         const task = gameState.currentTask;
 
         // 题目题库
@@ -39,13 +39,15 @@ window.RitualGame = {
             question: question,
             correctOrder: question.items,
             shuffled: shuffled,
-            selected: []
+            selected: [],
+            isPractice: title !== null
         };
         const game = gameState.ritualGame;
 
+        const headerTitle = title || (task ? task.name : '演习礼乐');
         let html = `
             <div class="ritual-header">
-                <h2>${task.name}</h2>
+                <h2>${headerTitle}</h2>
                 <p><strong>${question.title}</strong></p>
                 <p>点击下方选项，按顺序填入上方，从左到右排序</p>
             </div>
@@ -132,27 +134,41 @@ window.RitualGame = {
      * 结算游戏
      */
     finish(correct, total, gameState, gameView) {
+        const game = gameState.ritualGame;
         const task = gameState.currentTask;
         const ratio = correct / total;
 
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(10 * ratio);
+        if (game.isPractice) {
+            // 国子监礼制练习 - 非任务，固定奖励礼制经验，消耗5天
+            const expGained = Math.round(10 * ratio);
+            gameState.addSkillExp('ritual', expGained);
+            gameState.addLog(`演习礼乐完成！正确排序 ${correct}/${total} 项，获得 ${expGained} 礼制经验，消耗5天时间。`);
+            gameState.advanceDays(5);
+            gameState.ritualGame = null;
+            // 返回设施场景
+            gameState.currentScene = GameScene.FACILITY;
+            gameView.renderAll();
+        } else {
+            // 正常任务结算
+            const finalMerit = Math.round(task.rewardMerit * ratio);
+            const finalMoney = Math.round(task.rewardMoney * ratio);
+            const expGained = Math.round(10 * ratio);
 
-        gameState.merit += finalMerit;
-        gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            gameState.addSkillExp(task.requiredSkill, expGained);
+            gameState.merit += finalMerit;
+            gameState.money += finalMoney;
+            if (task.requiredSkill) {
+                gameState.addSkillExp(task.requiredSkill, expGained);
+            }
+
+            const skillName = getSkillById(task.requiredSkill)?.name || '';
+            gameState.checkRolePromotion();
+            gameState.addLog(`任务【${task.name}】完成！正确排序 ${correct}/${total} 项，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
+
+            gameView.advanceTwoMonths();
+            gameState.currentTask = null;
+            gameState.ritualGame = null;
+            gameState.currentScene = GameScene.CITY_VIEW;
+            gameView.renderAll();
         }
-
-        const skillName = getSkillById(task.requiredSkill)?.name || '';
-        gameState.checkRolePromotion();
-        gameState.addLog(`任务【${task.name}】完成！正确排序 ${correct}/${total} 项，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
-
-        gameView.advanceTwoMonths();
-        gameState.currentTask = null;
-        gameState.ritualGame = null;
-        gameState.currentScene = GameScene.CITY_VIEW;
-        gameView.renderAll();
     }
 };

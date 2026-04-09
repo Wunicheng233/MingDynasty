@@ -9,7 +9,10 @@ window.GameScene = {
     FARMING_GAME: 'farming',
     CARD_COLLECTION: 'cards',
     SOCIAL_VIEW: 'social',
-    CHARACTER_LIST_VIEW: 'character_list'
+    CHARACTER_LIST_VIEW: 'character_list',
+    MARKET: 'market',
+    EVENT: 'event',
+    FACILITY: 'facility'
 };
 
 /**
@@ -66,34 +69,31 @@ window.GameState = class GameState {
         // 口才小游戏状态
         this.eloquenceGame = null;
 
+        // 获取玩家角色模板
+        const playerTemplate = getCharacterTemplateByNumId(this.playerCharacterId);
+
         // 技能等级与经验
         // { skillId: { level: number, exp: number } }
-        this.skills = this.initDefaultSkills();
+        this.skills = GameInitializer.initDefaultSkills(playerTemplate);
 
         // 身份 - 根据功勋自动晋升
-        this.currentRoleId = 'soldier'; // 开局士兵
+        this.currentRoleId = 'peasant'; // 开局放牛娃/游方僧
 
         // 卡片收集 - { cardId: true }
-        this.collectedCards = this.initCollectedCards();
+        this.collectedCards = GameInitializer.initCollectedCards(playerTemplate);
 
         // 当前佩戴的称号卡
         this.currentTitle = null;
 
         // 合战胜利次数统计（用于称号解锁）
-        this.battleWins = {
-            total: 0,
-            naval: 0,
-            field: 0,
-            siege: 0,
-            firearm: 0
-        };
+        this.battleWins = GameInitializer.initBattleWins();
         // 从localStorage加载
         this.loadBattleWins();
 
         // ========== 社交系统 ==========
         // 亲密度关系网 - { relationshipKey: intimacyValue }
         // relationshipKey格式: "player_characterId"
-        this.relationships = this.initDefaultRelationships();
+        this.relationships = GameInitializer.initDefaultRelationships();
 
         // 当前选中社交互动的NPC
         this.currentSocialTarget = null;
@@ -106,6 +106,34 @@ window.GameState = class GameState {
 
         // ========== 社交系统结束 ==========
 
+        // ========== 经济系统 ==========
+        // 玩家背包 - { goodsId: quantity } 存储持有商品
+        this.playerInventory = {};
+
+        // 城镇经济状态 - { cityId: { prosperity, taxRate, investmentLevel, atWar } }
+        // 每个城镇独立的经济数据
+        this.cityEconomies = {};
+
+        // 初始化所有城镇的经济状态
+        this.initAllCityEconomies();
+        // ========== 经济系统结束 ==========
+
+        // ========== 事件系统 ==========
+        // 事件标记 - { flagName: boolean } 用于分支剧情记录
+        const eventData = GameInitializer.initEventData();
+        this.eventFlags = eventData.eventFlags;
+        this.triggeredEvents = eventData.triggeredEvents;
+
+        // 当前正在进行的事件（多场景逐步展示）
+        this.currentEvent = null;
+
+        // 当前进行到事件的哪一个场景
+        this.currentEventScene = null;
+
+        // 当前进入的城乡设施
+        this.currentFacility = null;
+        // ========== 事件系统结束 ==========
+
         // 从localStorage加载全局卡片收集（跨存档继承）
         this.loadGlobalCollection();
 
@@ -114,18 +142,11 @@ window.GameState = class GameState {
 
         // 根据初始功勋检查晋升
         this.checkRolePromotion();
-    }
 
-    /**
-     * 初始化开局已经收集的卡片
-     * 使用新卡片库的ID规范
-     */
-    initCollectedCards() {
-        const cards = {};
-        getInitialCardIds().forEach(cardId => {
-            cards[cardId] = true;
-        });
-        return cards;
+        // 初始化完成后检测一次触发事件（处理开局事件）
+        if (typeof EventScheduler !== 'undefined') {
+            EventScheduler.checkAndTrigger(this);
+        }
     }
 
     /**
@@ -313,25 +334,6 @@ window.GameState = class GameState {
     }
 
     /**
-     * 初始化朱元璋开局默认技能
-     */
-    initDefaultSkills() {
-        const defaultSkills = {};
-        // 开局朱元璋基础技能
-        defaultSkills.agriculture = { level: 1, exp: 0 }; // 农政
-        defaultSkills.strategy = { level: 1, exp: 0 }; // 兵法
-        defaultSkills.martial = { level: 1, exp: 20 }; // 武艺
-        defaultSkills.infantry = { level: 1, exp: 10 }; // 步战
-        // 其他技能初始0级0经验
-        getAllSkills().forEach(skill => {
-            if (!defaultSkills[skill.id]) {
-                defaultSkills[skill.id] = { level: 0, exp: 0 };
-            }
-        });
-        return defaultSkills;
-    }
-
-    /**
      * 添加技能经验，处理升级
      * @param {string} skillId
      * @param {number} exp
@@ -395,11 +397,22 @@ window.GameState = class GameState {
                 this.month = 1;
                 this.year++;
             }
+
+            // 每年一月一日自然衰减亲密度
+            if (this.month === 1 && this.day === 1) {
+                this.decayAllIntimacies();
+            }
         }
 
         // 添加日志
         const yearTitle = this.year >= 1368 ? `洪武${this.year - 1368}年` : `至正${this.year - 1341 + 1}年`;
         this.addLog(`时间来到了${yearTitle}${this.month}月${this.day}日`);
+
+        // 每天推进后检测是否有事件触发
+        // 如果当前已经有事件在进行中，不重复检测
+        if (!this.currentEvent) {
+            EventScheduler.checkAndTrigger(this);
+        }
     }
 
     /**
@@ -706,16 +719,6 @@ window.GameState = class GameState {
     }
 
     // ========== 社交系统 - 亲密度关系管理 ==========
-
-    /**
-     * 初始化默认人际关系（开局预设）
-     */
-    initDefaultRelationships() {
-        const defaults = {};
-        // 开局朱元璋和郭子兴、汤和、徐达等有基础关系
-        // 实际关系会从localStorage加载，这里只留空对象
-        return defaults;
-    }
 
     /**
      * 获取关系key
@@ -1344,5 +1347,149 @@ window.GameState = class GameState {
      if (this.battleWins.firearm >= 30 && !this.hasCard('TITLE_BATTLE_FIREARM')) {
          this.acquireCard('TITLE_BATTLE_FIREARM');
      }
+ }
+
+
+// ========== 经济系统方法 ==========
+
+ /**
+  * 初始化所有城镇的经济状态
+  */
+ initAllCityEconomies() {
+     const allCities = getAllCityTemplates();
+     for (const city of allCities) {
+         this.initCityEconomy(city.cityId);
+     }
+ }
+
+ /**
+  * 初始化单个城镇的经济状态
+  * @param {string} cityId
+  */
+ initCityEconomy(cityId) {
+     if (!this.cityEconomies[cityId]) {
+         const cityTemplate = getCityTemplateByCityId(cityId);
+         // 初始繁荣度和规模成正比
+         const baseProsperity = (cityTemplate.baseScale || 3) * 10;
+         this.cityEconomies[cityId] = {
+             cityId: cityId,
+             prosperity: baseProsperity,
+             taxRate: 0.15, // 默认税率15%
+             investmentLevel: 0,
+             atWar: false // 是否处于战乱
+         };
+     }
+ }
+
+ /**
+  * 获取城镇经济状态
+  * @param {number|string} cityId - 可以是数字ID（来自 gameState.currentCityId）或字符串cityId
+  * @returns {Object}
+  */
+ getCityEconomy(cityId) {
+     // 如果传入的是数字ID，先获取城镇模板得到字符串cityId
+     if (typeof cityId === 'number') {
+         const cityTemplate = getCityTemplateById(cityId);
+         if (cityTemplate) {
+             cityId = cityTemplate.cityId;
+         }
+     }
+     this.initCityEconomy(cityId);
+     return this.cityEconomies[cityId];
+ }
+
+ /**
+  * 设置城镇战乱状态
+  * @param {string} cityId
+  * @param {boolean} atWar
+  */
+ setCityWarState(cityId, atWar) {
+     const economy = this.getCityEconomy(cityId);
+     economy.atWar = atWar;
+ }
+
+ /**
+  * 添加商品到玩家背包
+  * @param {string} goodsId
+  * @param {number} quantity
+  */
+ addToInventory(goodsId, quantity) {
+     if (!this.playerInventory[goodsId]) {
+         this.playerInventory[goodsId] = 0;
+     }
+     this.playerInventory[goodsId] += quantity;
+ }
+
+ /**
+  * 从玩家背包移除商品
+  * @param {string} goodsId
+  * @param {number} quantity
+  */
+ removeFromInventory(goodsId, quantity) {
+     if (!this.playerInventory[goodsId]) {
+         return;
+     }
+     this.playerInventory[goodsId] -= quantity;
+     if (this.playerInventory[goodsId] <= 0) {
+         delete this.playerInventory[goodsId];
+     }
+ }
+
+ /**
+  * 获取玩家持有商品数量
+  * @param {string} goodsId
+  * @returns {number}
+  */
+ getInventoryQuantity(goodsId) {
+     return this.playerInventory[goodsId] || 0;
+ }
+
+ // ========== 事件系统方法 ==========
+
+ /**
+  * 检查事件标记是否为真
+  * @param {string} flag
+  * @returns {boolean}
+  */
+ hasEventFlag(flag) {
+     return !!this.eventFlags[flag];
+ }
+
+ /**
+  * 设置事件标记
+  * @param {string} flag
+  * @param {boolean} value
+  */
+ setEventFlag(flag, value) {
+     this.eventFlags[flag] = value;
+ }
+
+ /**
+  * 检查事件是否已经触发过
+  * @param {string} eventId
+  * @returns {boolean}
+  */
+ isEventTriggered(eventId) {
+     return this.triggeredEvents.has(eventId);
+ }
+
+ /**
+  * 标记事件已经触发
+  * @param {string} eventId
+  */
+ markEventTriggered(eventId) {
+     this.triggeredEvents.add(eventId);
+ }
+
+ /**
+  * 开始执行一个事件
+  * @param {Object} event
+  */
+ startEvent(event) {
+     this.currentEvent = event;
+     // 从第一个场景开始
+     this.currentEventScene = event.scenes[0].sceneId;
+     // 切换到事件场景
+     this.currentScene = GameScene.EVENT;
  }
 };
