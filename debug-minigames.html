@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小游戏调试 - 大明王朝</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            padding-bottom: 100px;
+        }
+        .debug-header {
+            background: #f5f0e1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .debug-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            color: #8b4513;
+        }
+        .debug-header p {
+            margin: 0;
+            color: #666;
+        }
+        .minigame-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .minigame-item {
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .minigame-item:hover {
+            border-color: #8b4513;
+            background: #faf5e8;
+        }
+        .minigame-item h3 {
+            margin: 0 0 8px 0;
+            font-size: 18px;
+            color: #8b4513;
+        }
+        .minigame-item p {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .minigame-item .skill-name {
+            display: inline-block;
+            background: #e8dcc8;
+            padding: 3px 10px;
+            border-radius: 4px;
+            margin-top: 5px;
+            font-size: 13px;
+        }
+        .debug-menu-container {
+            padding: 15px 0;
+        }
+        .back-btn {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            background: #8b4513;
+            color: #fff !important;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .back-btn:hover {
+            background: #a0522d;
+        }
+        #debug-list-container {
+            padding: 0 15px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- 状态栏 -->
+        <div id="status-bar" class="status-bar">
+            <div class="status-date" id="status-date"></div>
+            <div class="status-actions">
+                <button id="next-day-btn" class="btn secondary-btn">次日</button>
+            </div>
+            <div class="status-stats">
+                <span class="stat-item">金钱: <span id="money">0</span></span>
+                <span class="stat-item">功勋: <span id="merit">0</span></span>
+            </div>
+        </div>
+
+        <!-- 中间主显示区 -->
+        <div id="main-display" class="main-display">
+            <div id="character-view" class="character-view" style="display: none;">
+                <!-- 角色属性视图 -->
+            </div>
+            <div id="city-view" class="scene-view" style="display: none;">
+                <!-- 城市视图 -->
+            </div>
+            <div id="task-list-view" class="scene-view" style="display: none;">
+                <!-- 任务列表视图 -->
+            </div>
+            <div id="farming-game-view" class="scene-view" style="display: none;">
+                <!-- 小游戏共享容器 -->
+            </div>
+            <div id="card-collection-view" class="scene-view" style="display: none;">
+                <!-- 卡片图鉴视图 -->
+            </div>
+            <div id="map-view" class="map-view" style="display: none;">
+                <!-- 城市地图视图 -->
+            </div>
+        </div>
+
+        <!-- 底部导航区 -->
+        <div id="navigation-bar" class="navigation-bar" style="display: none;">
+            <button id="nav-character" class="nav-btn">角色</button>
+            <button id="nav-city" class="nav-btn">城市</button>
+            <button id="nav-map" class="nav-btn">地图</button>
+            <button id="nav-task" class="nav-btn">任务</button>
+            <button id="nav-card" class="nav-btn">卡片</button>
+        </div>
+
+        <!-- 日志区域 -->
+        <div id="interaction-area" class="interaction-area">
+            <div id="log-area" class="log-area"></div>
+        </div>
+    </div>
+
+    <div class="debug-menu-container">
+        <div id="debug-list-container">
+            <div class="debug-header">
+                <h1>🎮 小游戏调试面板</h1>
+                <p>点击下方任意小游戏即可直接开始游戏，方便调试。<br>所有数据都是临时的，不会保存到主游戏。</p>
+            </div>
+            <div class="minigame-list" id="minigame-list">
+                <!-- 动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <button class="back-btn" onclick="window.location.href='index.html'">返回主游戏</button>
+
+    <!-- 数据文件 - 全部先加载 -->
+    <script src="data/characters.js"></script>
+    <script src="data/cities.js"></script>
+    <script src="data/forces.js"></script>
+    <script src="data/roles.js"></script>
+    <script src="data/skills.js"></script>
+    <script src="data/cards.js"></script>
+    <script src="data/battle-cards.js"></script>
+    <script src="data/tasks.js"></script>
+    <script src="data/personal-battle.js"></script>
+
+    <!-- 游戏模块 -->
+    <script src="js/GameState.js"></script>
+    <script src="js/GameView.js"></script>
+
+    <script>
+        // 调试小游戏
+        const MINIGAMES = [
+            {gameType: 'agriculture', skill: '农政', name: '劝课农桑', desc: '开垦荒地，力量停在红色区域得分'},
+            {gameType: 'eloquence', skill: '口才', name: '游说纵横', desc: '情绪博弈，说服目标'},
+            {gameType: 'infantry', skill: '步战', name: '步军演武', desc: '石头剪刀布，战术克制'},
+            {gameType: 'cavalry', skill: '骑战', name: '赛马争先', desc: '赛马竞速，策略选择'},
+            {gameType: 'engineering', skill: '工政', name: '筑城考工', desc: '放下石块，接近目标重量'},
+            {gameType: 'trade', skill: '商政', name: '珠算商贾', desc: '配对翻牌，记忆考验'},
+            {gameType: 'law', skill: '律政', name: '明律断案', desc: '找出相同证据，配对成功结案'},
+            {gameType: 'navy', skill: '水战', name: '楼船破浪', desc: '左右移动躲开暗礁'},
+            {gameType: 'strategy', skill: '兵法', name: '排兵布阵', desc: '选择克制阵型，推演前进'},
+            {gameType: 'martial', skill: '武艺', name: '武馆切磋', desc: '个人战切磋（框架完整）'},
+            {gameType: 'medicine', skill: '医术', name: '本草配方', desc: '记忆药材顺序，按序抓取'},
+            {gameType: 'calligraphy', skill: '文墨', name: '文墨填空', desc: '文墨填空'},
+            {gameType: 'spy', skill: '密探', name: '潜龙谍影', desc: '迷宫寻路，找到出口'},
+            {gameType: 'navigation', skill: '航海', name: '罗盘导航', desc: '罗盘导航'},
+            {gameType: 'ritual', skill: '礼制', name: '朝仪习礼', desc: '顺序排列礼仪步骤'},
+            {gameType: 'firearm', skill: '火器', name: '神机校射', desc: 'XY坐标瞄准射击'}
+        ];
+
+        // 初始化游戏状态
+        let gameState = new GameState();
+        let gameView = new GameView(gameState);
+
+        // 渲染小游戏列表
+        function renderList() {
+            const container = document.getElementById('minigame-list');
+            container.innerHTML = MINIGAMES.map(g => `
+                <div class="minigame-item" onclick="startGame('${g.gameType}')">
+                    <h3>${g.name}</h3>
+                    <p>${g.desc}</p>
+                    <span class="skill-name">${g.skill}</span>
+                </div>
+            `).join('');
+        }
+
+        // 开始一个小游戏
+        function startGame(gameType) {
+            // 创建一个假任务
+            const template = {
+                id: 999,
+                mission_id: 'DEBUG',
+                name: `[调试] ${MINIGAMES.find(g => g.gameType === gameType).name}`,
+                category: 'debug',
+                minRank: 'peasant',
+                requiredSkills: [],
+                baseDifficulty: 2,
+                baseReward: 50,
+                timeLimitDays: 30,
+                completionType: 'minigame',
+                gameType: gameType,
+                targetParam: null
+            };
+
+            // 设置当前任务
+            gameState.startMission(template);
+            gameState.currentScene = GameScene.FARMING_GAME;
+
+            // 初始化小游戏
+            gameView.initMinigame(template);
+
+            // 渲染
+            gameView.renderAll();
+
+            // 滚动到游戏
+            document.getElementById('main-display').scrollIntoView({behavior: 'smooth'});
+        }
+
+        // 初始化
+        renderList();
+        gameView.renderAll();
+    </script>
+</body>
+</html>
