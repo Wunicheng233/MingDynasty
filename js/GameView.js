@@ -258,6 +258,18 @@ window.GameView = class GameView {
             html += `<button class="btn primary-btn" id="enter-assessment-btn">进入评定厅</button>`;
         }
 
+        // 添加查看城中人物按钮
+        html += `<button class="btn primary-btn" id="view-characters-btn">城中人物</button>`;
+
+        // 列出城市设施
+        if (city.facilities && city.facilities.length > 0) {
+            html += `<div class="city-facilities"><h3>设施</h3><div class="facility-list">`;
+            city.facilities.forEach(facility => {
+                html += `<span class="facility-tag">${facility}</span>`;
+            });
+            html += `</div></div>`;
+        }
+
         html += `
             </div>
         `;
@@ -271,6 +283,11 @@ window.GameView = class GameView {
                 this.renderAll();
             });
         }
+
+        document.getElementById('view-characters-btn').addEventListener('click', () => {
+            this.gameState.currentScene = GameScene.CHARACTER_LIST_VIEW;
+            this.renderAll();
+        });
     }
 
     /**
@@ -283,7 +300,7 @@ window.GameView = class GameView {
 
         let html = `
             <div class="task-list-header">
-                <h2>${isEvaluationDay ? '评定会' : '任务列表'}</h2>
+                <h2>${isEvaluationDay ? '评定会' : '主命'}</h2>
                 ${this.gameState.currentTask ? `
                     <div class="current-task-info">
                         当前任务: <strong>${this.gameState.currentTask.name}</strong>
@@ -555,6 +572,10 @@ window.GameView = class GameView {
                 speed: 2 + (6 - template.baseDifficulty),
                 animationId: null
             };
+        } else if (gameType === 'battle') {
+            // 合战 - 完整军团对战
+            // 合战状态由BattleGame.start初始化
+            this.gameState.battleGame = null;
         } else if (gameType === 'duel') {
             // 缉拿/护送 - 个人战决斗
             // 个人战状态由renderDuelGame初始化
@@ -571,8 +592,6 @@ window.GameView = class GameView {
             this.startEngineeringAnimation();
         } else if (gameType === 'navy') {
             this.startNavyAnimation();
-        } else if (gameType === 'firearm') {
-            this.startFirearmAnimation();
         }
     }
 
@@ -692,404 +711,6 @@ window.GameView = class GameView {
      * 渲染耕地小游戏
      */
     /**
-     * 劝课农桑 - 资源分配型玩法 (按照策划设计)
-     * 10块荒地，需要投入资金开垦、修建水利、招募佃农
-     */
-    renderFarmingGame() {
-        const task = this.gameState.currentTask;
-        // 初始化游戏状态 - 按照策划设计
-        this.gameState.farmingGame = {
-            totalFields: 10,       // 总共10块荒地
-            clearedFields: 0,      // 已开垦
-            money: 50,            // 初始资金
-            labor: 3,             // 人力
-            irrigation: 1,        // 水利等级
-            eventLog: []          // 事件日志
-        };
-        const game = this.gameState.farmingGame;
-
-        this.renderFarmingRound();
-    }
-
-    /**
-     * 渲染当前回合
-     */
-    renderFarmingRound() {
-        const game = this.gameState.farmingGame;
-        const task = this.gameState.currentTask;
-
-        // 进度条
-        const progressBar = '■'.repeat(game.clearedFields) + '□'.repeat(game.totalFields - game.clearedFields);
-
-        let html = `
-            <div class="farming-header">
-                <h2>${task.name}</h2>
-                <p>你有 ${game.totalFields} 块荒地需要开垦，合理分配资金完成开垦</p>
-            </div>
-            <div class="farming-status">
-                <p>已开垦：${game.clearedFields}/${game.totalFields} 块 &nbsp; 剩余资金：<strong>${game.money}</strong> 贯</p>
-                <p>人力：${'■'.repeat(game.labor)}${'□'.repeat(5 - game.labor)} (${game.labor}/5) → 更高人力增加开垦收益</p>
-                <p>水利：${'■'.repeat(game.irrigation)}${'□'.repeat(5 - game.irrigation)} (${game.irrigation}/5) → 更高水利增加开垦收益</p>
-                <p>进度：${progressBar}</p>
-            </div>
-            <div class="farming-log" id="farming-log">
-                ${game.eventLog.map(entry => `<div class="farming-log-entry">${entry}</div>`).join('')}
-            </div>
-            <div class="farming-actions">
-                <p>请选择本次行动：</p>
-                <div class="farming-buttons" style="display: flex; flex-direction: column; gap: 10px; max-width: 500px; margin: 0 auto;">
-                    <button class="btn primary-btn farming-action-btn" data-action="clear">1. 开垦荒地 (耗费8贯)</button>
-                    <button class="btn primary-btn farming-action-btn" data-action="irrigate">2. 修建水利 (耗费10贯，提升产出)</button>
-                    <button class="btn primary-btn farming-action-btn" data-action="recruit">3. 招募佃农 (耗费5贯，提升人力)</button>
-                </div>
-            </div>
-        `;
-
-        document.getElementById('farming-game-view').innerHTML = html;
-        this.bindFarmingEvents();
-    }
-
-    /**
-     * 绑定事件
-     */
-    bindFarmingEvents() {
-        document.querySelectorAll('.farming-action-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                this.onFarmingAction(btn.dataset.action);
-            });
-        });
-    }
-
-    /**
-     * 处理玩家行动
-     */
-    onFarmingAction(action) {
-        const game = this.gameState.farmingGame;
-
-        switch(action) {
-            case 'clear':
-                if (game.money < 8) {
-                    game.eventLog.push('<span class="text-warning">资金不足，无法开垦！</span>');
-                    this.checkFarmingGameOver();
-                    return;
-                }
-                game.money -= 8;
-                // 根据人力和水利收获产出，增加资金
-                const baseIncome = 10;
-                const income = baseIncome + game.labor * 2 + game.irrigation * 3;
-                game.money += income;
-                game.clearedFields += 1;
-                game.eventLog.push(`开垦了一块新荒地，资金-8贯，产出+${income}贯。已开垦${game.clearedFields}/${game.totalFields}块。`);
-
-                // 每开垦3块触发随机事件
-                if (game.clearedFields % 3 === 0 && game.clearedFields < game.totalFields) {
-                    this.triggerFarmingRandomEvent();
-                }
-                break;
-
-            case 'irrigate':
-                if (game.money < 10) {
-                    game.eventLog.push('<span class="text-warning">资金不足，无法修建水利！</span>');
-                    this.checkFarmingGameOver();
-                    return;
-                }
-                if (game.irrigation >= 5) {
-                    game.eventLog.push('<span class="text-info">水利等级已经满了！</span>');
-                    this.renderFarmingRound();
-                    return;
-                }
-                game.money -= 10;
-                game.irrigation += 1;
-                game.eventLog.push(`修建了水利设施，资金-10贯。水利提升到${game.irrigation}。`);
-                break;
-
-            case 'recruit':
-                if (game.money < 5) {
-                    game.eventLog.push('<span class="text-warning">资金不足，无法招募佃农！</span>');
-                    this.checkFarmingGameOver();
-                    return;
-                }
-                if (game.labor >= 5) {
-                    game.eventLog.push('<span class="text-info">人力已经足够了！</span>');
-                    this.renderFarmingRound();
-                    return;
-                }
-                game.money -= 5;
-                game.labor += 1;
-                game.eventLog.push(`招募了新佃农，资金-5贯。人力提升到${game.labor}。`);
-                break;
-        }
-
-        this.checkFarmingGameOver();
-    }
-
-    /**
-     * 触发随机事件
-     */
-    triggerFarmingRandomEvent() {
-        const game = this.gameState.farmingGame;
-        const events = [
-            {text: '☀️ 遭遇旱灾，一块已开垦地干涸绝收，需要重新开垦。', effect: () => { game.clearedFields -= 1; }},
-            {text: '🦗 蝗灾爆发，损失了部分收成，资金减少5贯。', effect: () => { game.money -= 5; }},
-            {text: '🌾 今年风调雨顺，获得大丰收，额外获得10贯租金。', effect: () => { game.money += 10; }},
-            {text: '🌧️ 大雨冲垮了一段水渠，花费3贯修缮。', effect: () => { game.money -= 3; }}
-        ];
-
-        const event = events[Math.floor(Math.random() * events.length)];
-        event.effect();
-        game.eventLog.push(`<span class="event">【随机事件】${event.text}</span>`);
-    }
-
-    /**
-     * 检查游戏是否结束
-     */
-    checkFarmingGameOver() {
-        const game = this.gameState.farmingGame;
-
-        if (game.money <= 0) {
-            // 资金耗尽，失败
-            this.finishFarmingGame(false);
-            return;
-        }
-
-        if (game.clearedFields >= game.totalFields) {
-            // 全部开垦完成，结算
-            this.finishFarmingGame(true);
-            return;
-        }
-
-        // 继续
-        this.renderFarmingRound();
-
-        // 滚动到底部看最新日志
-        const logEl = document.getElementById('farming-log');
-        logEl.scrollTop = logEl.scrollHeight;
-    }
-
-    /**
-     * 结算游戏
-     */
-    finishFarmingGame(success) {
-        const game = this.gameState.farmingGame;
-        const task = this.gameState.currentTask;
-
-        let ratio;
-        let resultText;
-
-        if (!success) {
-            ratio = 0.3;
-            resultText = '资金耗尽，开垦失败。';
-        } else {
-            // 判定完胜/小胜
-            if (game.money >= 20) {
-                ratio = 1.0;
-                resultText = `🎉 全部${game.totalFields}块荒地开垦完成！剩余资金${game.money}贯，完胜！`;
-            } else {
-                ratio = 0.6;
-                resultText = `✅ 全部${game.totalFields}块荒地开垦完成，但剩余资金不足${game.money}贯，小胜。`;
-            }
-        }
-
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(10 * ratio);
-
-        this.gameState.merit += finalMerit;
-        this.gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            this.gameState.addSkillExp(task.requiredSkill, expGained);
-        }
-
-        this.gameState.checkRolePromotion();
-        this.gameState.addLog(`任务【${task.name}】完成：${resultText} 获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} 农政经验。`);
-
-        this.advanceTwoMonths();
-        this.gameState.currentTask = null;
-        this.gameState.farmingGame = null;
-        this.gameState.currentScene = GameScene.CITY_VIEW;
-        this.renderAll();
-    }
-
-    // ========== 口才小游戏：情绪博弈游说 ==========
-
-    /**
-     * 渲染口才小游戏 - 情绪值博弈游说 (按照策划设计)
-     * 6回合内将对方情绪值提升到100即可成功
-     */
-    renderEloquenceGame() {
-        const task = this.gameState.currentTask;
-        // 初始化游戏状态 - 按照策划设计
-        const targets = [
-            {name: '劝降陈友谅部将张定边', desc: '目标：劝降对方将领'},
-            {name: '说服濠州财主捐粮赈灾', desc: '目标：说服地主拿出粮食赈济灾民'},
-            {name: '劝说郭子兴重用朱元璋', desc: '目标：劝说主帅让出兵攻打元军'},
-            {name: '游说地方乡绅归顺吴王', desc: '目标：劝说地方势力投降'}
-        ];
-        const target = targets[Math.floor(Math.random() * targets.length)];
-
-        this.gameState.eloquenceGame = {
-            emotion: 0,          // 当前情绪值 0-100
-            remainingRounds: 6, // 剩余回合
-            lastFeedback: '对方平静地看着你...',
-            target: target
-        };
-        const game = this.gameState.eloquenceGame;
-
-        this.renderEloquenceRound();
-    }
-
-    /**
-     * 渲染当前回合
-     */
-    renderEloquenceRound() {
-        const game = this.gameState.eloquenceGame;
-        const emotionBar = '■'.repeat(Math.floor(game.emotion / 10)) + '□'.repeat(10 - Math.floor(game.emotion / 10));
-
-        let html = `
-            <div class="eloquence-header">
-                <h2>${this.gameState.currentTask.name}</h2>
-                <p>${game.target.desc}</p>
-                <p>当前情绪值：${emotionBar} ${game.emotion}/100 &nbsp; 剩余回合：${game.remainingRounds}</p>
-            </div>
-            <div class="eloquence-feedback">
-                <p>上一回合：${game.lastFeedback}</p>
-            </div>
-            <div class="eloquence-actions">
-                <p>请选择本轮话术：</p>
-                <button class="btn primary-btn eloquence-action" data-action="reason">
-                    1. 晓之以理<br>
-                    <span class="eloquence-desc" style="color: #ffd700;">讲道理，情绪平稳时效果好 (+10~15)<br>对方激动时可能激怒 (-5~10)</span>
-                </button>
-                <button class="btn primary-btn eloquence-action" data-action="emotion">
-                    2. 动之以情<br>
-                    <span class="eloquence-desc" style="color: #ffd700;">打感情牌，对方情绪低落时效果好 (+15~20)<br>对方得意时可能被视为软弱 (-10)</span>
-                </button>
-                <button class="btn primary-btn eloquence-action" data-action="bribe">
-                    3. 诱之以利<br>
-                    <span class="eloquence-desc" style="color: #ffd700;">许诺好处，对方摇摆时效果好 (+20~25)<br>对方警觉时可能起疑心 (-15)</span>
-                </button>
-            </div>
-        `;
-
-        document.getElementById('farming-game-view').innerHTML = html;
-        this.bindEloquenceEvents();
-    }
-
-    /**
-     * 绑定点击事件
-     */
-    bindEloquenceEvents() {
-        document.querySelectorAll('.eloquence-action').forEach(btn => {
-            btn.addEventListener('click', () => {
-                this.onEloquenceAction(btn.dataset.action);
-            });
-        });
-    }
-
-    /**
-     * 处理玩家选择话术
-     */
-    onEloquenceAction(action) {
-        const game = this.gameState.eloquenceGame;
-
-        // 根据情绪状态判断加成
-        let change;
-        let feedbackTpl;
-
-        // 根据话术+情绪随机给分
-        if (action === 'reason') {
-            // 晓之以理 - 情绪平稳 (30-70) 效果好
-            if (game.emotion >= 30 && game.emotion <= 70) {
-                change = Math.floor(Math.random() * 6) + 10; // 10-15
-                feedbackTpl = "对方若有所思地点点头，对你的话表示认同。";
-            } else if (game.emotion > 70) {
-                // 激动
-                change = - (Math.floor(Math.random() * 6) + 5); // -5 ~ -10
-                feedbackTpl = "对方眉头紧皱，冷哼一声，对你的说教很不耐烦。";
-            } else {
-                change = Math.floor(Math.random() * 6) + 5; // 5-10
-                feedbackTpl = "对方静静地听你说完，不置可否。";
-            }
-        } else if (action === 'emotion') {
-            // 动之以情 - 情绪低落 (<30) 效果好
-            if (game.emotion < 30) {
-                change = Math.floor(Math.random() * 6) + 15; // 15-20
-                feedbackTpl = "对方面露难色，长叹一声，被你的话触动了。";
-            } else if (game.emotion > 70) {
-                change = -10;
-                feedbackTpl = "对方觉得你在惺惺作态，内心更加戒备。";
-            } else {
-                change = Math.floor(Math.random() * 6) + 10; // 10-15
-                feedbackTpl = "对方神色有些触动，微微点头。";
-            }
-        } else { // bribe
-            // 诱之以利 - 摇摆 (30-70) 效果更好，但是风险也大
-            if (game.emotion >= 30 && game.emotion <= 70) {
-                change = Math.floor(Math.random() * 6) + 20; // 20-25
-                feedbackTpl = "对方目光闪烁，正在权衡利益，似乎有些心动。";
-            } else if (game.emotion > 70) {
-                change = -15;
-                feedbackTpl = "对方对你的诱惑很警觉，认为其中必有阴谋。";
-            } else {
-                change = Math.floor(Math.random() * 6) + 10; // 10-15
-                feedbackTpl = "对方对你的许诺将信将疑。";
-            }
-        }
-
-        game.emotion += change;
-        game.emotion = Math.max(0, Math.min(100, game.emotion));
-        game.lastFeedback = feedbackTpl;
-        game.remainingRounds--;
-
-        // 检查是否结束
-        if (game.emotion >= 100 || game.remainingRounds <= 0) {
-            this.finishEloquenceGame();
-        } else {
-            this.renderEloquenceRound();
-        }
-    }
-
-    /**
-     * 结算游戏
-     */
-    finishEloquenceGame() {
-        const game = this.gameState.eloquenceGame;
-        const task = this.gameState.currentTask;
-
-        let ratio;
-        let resultText;
-
-        if (game.emotion >= 100) {
-            ratio = 1.0;
-            resultText = '🎉 成功说服对方！情绪值达到100，完胜！';
-        } else if (game.emotion >= 60) {
-            ratio = 0.7;
-            resultText = `✅ 游说基本成功，情绪值${game.emotion}，小胜。`;
-        } else {
-            ratio = 0.3;
-            resultText = `❌ 游说失败，对方不为所动，情绪值仅${game.emotion}。`;
-        }
-
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(10 * ratio);
-
-        this.gameState.merit += finalMerit;
-        this.gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            this.gameState.addSkillExp(task.requiredSkill, expGained);
-        }
-
-        this.gameState.checkRolePromotion();
-        this.gameState.addLog(`任务【${task.name}】完成：${resultText} 获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} 口才经验。`);
-
-        this.advanceTwoMonths();
-        this.gameState.currentTask = null;
-        this.gameState.eloquenceGame = null;
-        this.gameState.currentScene = GameScene.CITY_VIEW;
-        this.renderAll();
-    }
-
     /**
      * 推进两个月（符合评定会周期）
      */
@@ -1114,7 +735,7 @@ window.GameView = class GameView {
                 break;
             case GameScene.MAP_VIEW:
                 this.showMapView();
-                this.renderMapView();
+                MapRenderer.render(this.gameState);
                 break;
             case GameScene.TASK_LIST:
                 this.showTaskListView();
@@ -1124,57 +745,65 @@ window.GameView = class GameView {
                 this.showFarmingGameView();
                 const gameType = this.gameState.currentTask.gameType;
                 if (gameType === 'agriculture') {
-                    this.renderFarmingGame();
+                    FarmingGame.start(this, this.gameState);
                     this.startFarmingAnimation();
                 } else if (gameType === 'eloquence') {
-                    this.renderEloquenceGame();
+                    EloquenceGame.start(this, this.gameState);
                 } else if (gameType === 'infantry') {
-                    this.renderInfantryGame();
+                    InfantryGame.start(this, this.gameState);
                 } else if (gameType === 'cavalry') {
-                    this.renderCavalryGame();
+                    CavalryGame.start(this, this.gameState);
                 } else if (gameType === 'engineering') {
-                    this.renderEngineeringGame();
+                    EngineeringGame.start(this, this.gameState);
                 } else if (gameType === 'trade') {
-                    this.renderTradeGame();
+                    TradeGame.start(this, this.gameState);
                 } else if (gameType === 'law') {
-                    this.renderLawGame();
+                    LawGame.start(this, this.gameState);
                 } else if (gameType === 'navy') {
-                    this.renderNavyGame();
+                    NavyGame.start(this, this.gameState);
                 } else if (gameType === 'strategy') {
                     const taskId = this.gameState.currentTask.templateId;
                     if (taskId === 17) {
-                        this.renderBattleGame();
+                        BattleGame.start(this, this.gameState);
                     } else {
-                        this.renderStrategyGame();
+                        StrategyGame.start(this, this.gameState);
                     }
                 } else if (gameType === 'martial') {
                     const taskId = this.gameState.currentTask.templateId;
                     if (taskId === 10) {
-                        this.renderDuelGame();
+                        DuelGame.start(this, this.gameState);
                     } else {
-                        this.renderMartialGame();
+                        MartialGame.start(this, this.gameState);
                     }
                 } else if (gameType === 'medicine') {
-                    this.renderMedicineGame();
+                    MedicineGame.start(this, this.gameState);
                 } else if (gameType === 'calligraphy') {
-                    this.renderCalligraphyGame();
+                    CalligraphyGame.start(this, this.gameState);
                 } else if (gameType === 'spy') {
-                    this.renderSpyGame();
+                    SpyGame.start(this, this.gameState);
                 } else if (gameType === 'navigation') {
-                    this.renderNavigationGame();
+                    NavigationGame.start(this, this.gameState);
                 } else if (gameType === 'ritual') {
-                    this.renderRitualGame();
+                    RitualGame.start(this, this.gameState);
                 } else if (gameType === 'firearm') {
-                    this.renderFirearmGame();
+                    FirearmGame.start(this, this.gameState);
                 } else if (gameType === 'duel') {
-                    this.renderDuelGame();
+                    DuelGame.start(this, this.gameState);
                 } else if (gameType === 'battle') {
-                    this.renderBattleGame();
+                    BattleGame.start(this, this.gameState);
                 }
                 break;
             case GameScene.CARD_COLLECTION:
                 this.showCardCollectionView();
-                this.renderCardCollection();
+                CardCollectionRenderer.render(this.gameState);
+                break;
+            case GameScene.CHARACTER_LIST_VIEW:
+                this.showCharacterListView();
+                CharacterListRenderer.render(this.gameState);
+                break;
+            case GameScene.SOCIAL_VIEW:
+                this.showSocialView();
+                SocialRenderer.render(this.gameState);
                 break;
         }
     }
@@ -1189,6 +818,8 @@ window.GameView = class GameView {
         document.getElementById('task-list-view').style.display = 'none';
         document.getElementById('farming-game-view').style.display = 'none';
         document.getElementById('card-collection-view').style.display = 'none';
+        document.getElementById('character-list-view').style.display = 'none';
+        document.getElementById('social-view').style.display = 'none';
     }
 
     /**
@@ -1201,6 +832,8 @@ window.GameView = class GameView {
         document.getElementById('task-list-view').style.display = 'none';
         document.getElementById('farming-game-view').style.display = 'none';
         document.getElementById('card-collection-view').style.display = 'none';
+        document.getElementById('character-list-view').style.display = 'none';
+        document.getElementById('social-view').style.display = 'none';
     }
 
     /**
@@ -1213,6 +846,8 @@ window.GameView = class GameView {
         document.getElementById('task-list-view').style.display = 'block';
         document.getElementById('farming-game-view').style.display = 'none';
         document.getElementById('card-collection-view').style.display = 'none';
+        document.getElementById('character-list-view').style.display = 'none';
+        document.getElementById('social-view').style.display = 'none';
     }
 
     /**
@@ -1225,6 +860,8 @@ window.GameView = class GameView {
         document.getElementById('task-list-view').style.display = 'none';
         document.getElementById('farming-game-view').style.display = 'block';
         document.getElementById('card-collection-view').style.display = 'none';
+        document.getElementById('character-list-view').style.display = 'none';
+        document.getElementById('social-view').style.display = 'none';
     }
 
     /**
@@ -1237,6 +874,8 @@ window.GameView = class GameView {
         document.getElementById('task-list-view').style.display = 'none';
         document.getElementById('farming-game-view').style.display = 'none';
         document.getElementById('card-collection-view').style.display = 'block';
+        document.getElementById('character-list-view').style.display = 'none';
+        document.getElementById('social-view').style.display = 'none';
     }
 
     /**
@@ -1249,161 +888,36 @@ window.GameView = class GameView {
         document.getElementById('farming-game-view').style.display = 'none';
         document.getElementById('card-collection-view').style.display = 'none';
         document.getElementById('map-view').style.display = 'block';
+        document.getElementById('character-list-view').style.display = 'none';
+        document.getElementById('social-view').style.display = 'none';
     }
 
     /**
-     * 渲染大地图移动视图
+     * 切换显示 - 城中人物列表
      */
-    renderMapView() {
-        const currentCity = this.gameState.getCurrentCity();
-        if (!currentCity) return;
-
-        let html = `
-            <div class="map-header">
-                <h2>大地图移动</h2>
-                <p>当前位置：<strong>${currentCity.name}</strong></p>
-            </div>
-            <div class="map-destinations">
-                <h3>可前往的城镇：</h3>
-                <div class="destination-list">
-        `;
-
-        if (!currentCity.connections || currentCity.connections.length === 0) {
-            html += `<p class="no-destinations">当前城镇没有连接其他道路。</p>`;
-        } else {
-            currentCity.connections.forEach(conn => {
-                const targetCity = getCityTemplateById(conn.target);
-                if (!targetCity) return;
-                const days = this.gameState.getMoveDaysToCity(conn.target);
-                const cavalryLevel = this.gameState.getSkillLevel('cavalry');
-                let bonusInfo = '';
-                if (cavalryLevel > 0) {
-                    bonusInfo += `<span class="move-bonus">（骑战Lv${cavalryLevel} 减少移动时间）</span>`;
-                }
-                if (this.gameState.month >= 10 && this.gameState.month <= 12) {
-                    bonusInfo += `<span class="move-penalty">（冬季 增加移动时间）</span>`;
-                }
-                html += `
-                    <div class="destination-item">
-                        <div class="destination-info">
-                            <span class="destination-name">${targetCity.name}</span>
-                            <span class="destination-days">预计 ${days} 天</span>
-                            ${bonusInfo}
-                        </div>
-                        <button class="btn primary-btn move-btn" data-target="${conn.target}">出发</button>
-                    </div>
-                `;
-            });
-        }
-
-        html += `
-                </div>
-            </div>
-            ${this.gameState.isEvaluationDay() ? `
-                <div class="evaluation-notice">
-                    📅 今天是评定会日，返回主城参加评定会！
-                </div>
-            ` : ''}
-        `;
-
-        this.mapViewEl.innerHTML = html;
-
-        // 绑定移动按钮事件
-        document.querySelectorAll('.move-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const targetId = parseInt(btn.dataset.target);
-                this.onMoveClick(targetId);
-            });
-        });
+    showCharacterListView() {
+        document.getElementById('character-view').style.display = 'none';
+        document.getElementById('city-view').style.display = 'none';
+        document.getElementById('map-view').style.display = 'none';
+        document.getElementById('task-list-view').style.display = 'none';
+        document.getElementById('farming-game-view').style.display = 'none';
+        document.getElementById('card-collection-view').style.display = 'none';
+        document.getElementById('social-view').style.display = 'none';
+        document.getElementById('character-list-view').style.display = 'block';
     }
 
     /**
-     * 处理移动点击
+     * 切换显示 - 社交互动
      */
-    onMoveClick(targetCityId) {
-        const days = this.gameState.moveToCity(targetCityId);
-        this.renderAll();
-    }
-
-    /**
-     * 渲染卡片图鉴
-     */
-    renderCardCollection() {
-        const container = document.getElementById('card-collection-view');
-        const collectedIds = Object.keys(this.gameState.collectedCards);
-        const allCards = getAllCards();
-        const stats = this.gameState.getCollectionStats();
-
-        // 按类型分组 - 使用正确的字段名 card.card_id
-        const grouped = {};
-        allCards.forEach(card => {
-            const collected = this.gameState.collectedCards[card.card_id];
-            if (!grouped[card.type]) {
-                grouped[card.type] = [];
-            }
-            grouped[card.type].push({card, collected});
-        });
-
-        let html = `
-            <div class="card-collection-header">
-                <h2>卡片图鉴</h2>
-                <p>总进度: ${stats.total} / ${stats.totalPossible} (${Math.round(stats.total * 100 / stats.totalPossible)}%)</p>
-            </div>
-        `;
-
-        // 按策划设计的类型顺序显示
-        const typeOrder = [
-            CardTypes.CHARACTER,
-            CardTypes.TITLE,
-            CardTypes.TACTIC_BATTLE,
-            CardTypes.MARTIAL_DUEL,
-            CardTypes.SECRET,
-            CardTypes.SKILL,
-            CardTypes.PLACE,
-            CardTypes.EVENT,
-            CardTypes.TREASURE
-        ];
-
-        typeOrder.forEach(type => {
-            if (!grouped[type]) return;
-            const cards = grouped[type];
-            const typeName = getCardTypeName(type);
-            const collectedCount = cards.filter(c => c.collected).length;
-            const totalCount = cards.length;
-            html += `
-                <div class="card-group">
-                    <h3 class="card-group-title">${typeName} <span class="collection-count">${collectedCount}/${totalCount}</span></h3>
-                    <div class="cards-grid">
-            `;
-
-            cards.forEach(({card, collected}) => {
-                const cardClass = collected ? 'card-item collected rarity-' + card.rarity : 'card-item uncollected';
-                const cardContent = collected
-                    ? `${card.emoji}<div class="card-name">${card.name}</div>`
-                    : `<div class="card-question">?</div><div class="card-name">???</div>`;
-
-                let extraInfo = '';
-                if (collected) {
-                    extraInfo = `<p class="card-desc">${card.description}</p>`;
-                } else if (card.acquire_hint && !card.is_hidden) {
-                    extraInfo = `<p class="card-hint">💡 ${card.acquire_hint}</p>`;
-                }
-
-                html += `
-                    <div class="${cardClass}">
-                        <div class="card-content">${cardContent}</div>
-                        ${extraInfo}
-                    </div>
-                `;
-            });
-
-            html += `
-                    </div>
-                </div>
-            `;
-        });
-
-        container.innerHTML = html;
+    showSocialView() {
+        document.getElementById('character-view').style.display = 'none';
+        document.getElementById('city-view').style.display = 'none';
+        document.getElementById('map-view').style.display = 'none';
+        document.getElementById('task-list-view').style.display = 'none';
+        document.getElementById('farming-game-view').style.display = 'none';
+        document.getElementById('card-collection-view').style.display = 'none';
+        document.getElementById('character-list-view').style.display = 'none';
+        document.getElementById('social-view').style.display = 'block';
     }
 
     // ========== 步兵训练小游戏 ==========
@@ -3841,661 +3355,12 @@ window.GameView = class GameView {
         });
     }
 
-    // ========== 航海找方位 ==========
-
-    /**
-     * 航海 - 罗盘找目标方位
-     */
-    renderNavigationGame() {
-        const task = this.gameState.currentTask;
-        // 初始化游戏状态
-        this.gameState.navigationGame = {
-            targetDegree: Math.floor(Math.random() * 360),
-            attempts: 0
-        };
-
-        let html = `
-            <div class="navigation-header">
-                <h2>${task.name}</h2>
-                <p>目标方位：未知，请猜测方向，点击指针对齐</p>
-                <p>提示会告诉你偏左还是偏右</p>
-            </div>
-            <div class="compass" id="compass" style="padding: 20px; text-align: center;">
-                <div class="compass-circle" style="width: 200px; height: 200px; border: 3px solid #8b4513; border-radius: 50%; margin: 0 auto; position: relative;">
-                    <div class="compass-needle" id="compass-needle" style="position: absolute; top: 50%; left: 50%; width: 90px; height: 3px; background: #c0392b; transform-origin: left center; transform: rotate(0deg);"></div>
-                    <div style="position: absolute; top: 5px; left: 50%; transform: translateX(-50%); font-weight: bold;">北</div>
-                    <div style="position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); font-weight: bold;">南</div>
-                    <div style="position: absolute; left: 5px; top: 50%; transform: translateY(-50%); font-weight: bold;">西</div>
-                    <div style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); font-weight: bold;">东</div>
-                </div>
-            </div>
-            <div class="navigation-guess" style="text-align: center; margin: 20px 0;">
-                <input type="range" id="degree-slider" min="0" max="359" value="0" style="width: 300px;">
-                <p>当前度数: <span id="degree-value">0</span>° (0°=北，顺时针增加)</p>
-                <button class="btn primary-btn" id="check-degree-btn" style="margin-top: 10px;">确认方位</button>
-                <div id="navigation-hint" style="margin-top: 15px; font-weight: bold; font-size: 16px;"></div>
-            </div>
-                <button class="btn primary-btn" id="check-degree-btn">确认方位</button>
-                <div id="navigation-hint"></div>
-            </div>
-        `;
-
-        document.getElementById('farming-game-view').innerHTML = html;
-
-        document.getElementById('degree-slider').addEventListener('input', (e) => {
-            const deg = e.target.value;
-            document.getElementById('degree-value').textContent = deg;
-            document.getElementById('compass-needle').style.transform = `rotate(${deg}deg)`;
-        });
-
-        document.getElementById('check-degree-btn').addEventListener('click', () => {
-            this.checkNavigationDegree();
-        });
-    }
-
-    checkNavigationDegree() {
-        const game = this.gameState.navigationGame;
-        const slider = document.getElementById('degree-slider');
-        const guess = parseInt(slider.value);
-        const target = game.targetDegree;
-        const diff = Math.abs(guess - target);
-        const minDiff = Math.min(diff, 360 - diff);
-
-        game.attempts++;
-        const hintEl = document.getElementById('navigation-hint');
-
-        if (minDiff <= 5) {
-            this.finishNavigationGame(minDiff);
-        } else {
-            const direction = (guess < target && (target - guess < 180)) || (guess > target && (guess - target > 180))
-                ? "偏右了，再大一点"
-                : "偏左了，再小一点";
-            hintEl.textContent = direction;
-        }
-    }
-
-    finishNavigationGame(diff) {
-        const task = this.gameState.currentTask;
-        const ratio = Math.max(0.2, 1 - (diff / 10) - (this.gameState.navigationGame.attempts * 0.1));
-
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(10 * ratio);
-
-        this.gameState.merit += finalMerit;
-        this.gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            this.gameState.addSkillExp(task.requiredSkill, expGained);
-        }
-
-        this.gameState.checkRolePromotion();
-        this.gameState.addLog(`任务【${task.name}】完成！偏差${diff}度，尝试${this.gameState.navigationGame.attempts}次，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${getSkillById(task.requiredSkill)?.name || ''}经验。`);
-
-        this.advanceTwoMonths();
-        this.gameState.currentTask = null;
-        this.gameState.navigationGame = null;
-        this.gameState.currentScene = GameScene.CITY_VIEW;
-        this.renderAll();
-    }
-
-    // ========== 礼制排序 ==========
-
-    /**
-     * 朝仪习礼 - 礼制小游戏
-     * 将事物按照礼制尊卑/步骤顺序排列
-     */
-    renderRitualGame() {
-        const task = this.gameState.currentTask;
-
-        // 题目题库
-        const questionPool = [
-            {
-                title: '将下列礼器按尊卑从高到低排列',
-                items: ['玉玺', '玉圭', '玉璧', '铜爵']
-            },
-            {
-                title: '将下列官阶从高到低排列',
-                items: ['尚书', '侍郎', '郎中', '主事']
-            },
-            {
-                title: '将以下册封大典按先后步骤排列',
-                items: ['斋戒', '受玺', '祭天', '宣诏']
-            },
-            {
-                title: '将下列爵位从高到低排列',
-                items: ['国公', '郡公', '县侯', '亭侯']
-            }
-        ];
-
-        // 随机选一题
-        const question = questionPool[Math.floor(Math.random() * questionPool.length)];
-        const shuffled = [...question.items].sort(() => Math.random() - 0.5);
-
-        // 初始化游戏状态
-        this.gameState.ritualGame = {
-            question: question,
-            correctOrder: question.items,
-            shuffled: shuffled,
-            selected: []
-        };
-        const game = this.gameState.ritualGame;
-
-        let html = `
-            <div class="ritual-header">
-                <h2>${task.name}</h2>
-                <p><strong>${question.title}</strong></p>
-                <p>点击下方选项，按顺序填入上方，从左到右排序</p>
-            </div>
-            <div class="ritual-target" style="margin: 20px 0;">
-                <h4>排序结果：</h4>
-                <div class="ritual-slots" id="ritual-slots" style="display: flex; gap: 10px; margin-top: 10px;">
-                    ${game.correctOrder.map((_, i) => `<div class="ritual-slot" style="border: 2px solid #8b4513; border-radius: 5px; width: 100px; height: 50px; display: flex; align-items: center; justify-content: center; font-weight: bold;"></div>`).join('')}
-                </div>
-            </div>
-            <div class="ritual-options" style="margin: 20px 0;">
-                <h4>可选项目：</h4>
-                <div class="ritual-items" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
-                    ${game.shuffled.map(item => `<button class="btn primary-btn ritual-item" style="padding: 10px 15px;">${item}</button>`).join('')}
-                </div>
-            </div>
-            <div class="ritual-actions" style="margin: 20px 0; display: flex; gap: 10px;">
-                <button class="btn secondary-btn" id="ritual-clear-btn">清空重排</button>
-                <button class="btn primary-btn" id="ritual-check-btn" disabled>检查顺序</button>
-            </div>
-        `;
-
-        document.getElementById('farming-game-view').innerHTML = html;
-        this.bindRitualEvents();
-    }
-
-    bindRitualEvents() {
-        const game = this.gameState.ritualGame;
-        let selectedCount = document.querySelectorAll('.ritual-slot:not(:empty)').length;
-
-        document.querySelectorAll('.ritual-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const name = item.textContent;
-                const emptySlot = document.querySelector('.ritual-slot:empty');
-                if (emptySlot) {
-                    emptySlot.textContent = name;
-                    item.style.display = 'none';
-                }
-            });
-        });
-
-        document.getElementById('ritual-clear-btn').addEventListener('click', () => {
-            document.querySelectorAll('.ritual-slot').forEach(slot => {
-                slot.textContent = '';
-            });
-            document.querySelectorAll('.ritual-item').forEach(item => {
-                item.style.display = 'inline-block';
-            });
-        });
-
-        document.getElementById('ritual-check-btn').addEventListener('click', () => {
-            this.checkRitualOrder();
-        });
-    }
-
-    checkRitualOrder() {
-        const game = this.gameState.ritualGame;
-        const slots = document.querySelectorAll('.ritual-slot');
-        let correct = 0;
-
-        slots.forEach((slot, i) => {
-            if (slot.textContent === game.correctOrder[i]) {
-                correct++;
-            }
-        });
-
-        this.finishRitualGame(correct, game.correctOrder.length);
-    }
-
-    finishRitualGame(correct, total) {
-        const task = this.gameState.currentTask;
-        const ratio = correct / total;
-
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(10 * ratio);
-
-        this.gameState.merit += finalMerit;
-        this.gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            this.gameState.addSkillExp(task.requiredSkill, expGained);
-        }
-
-        this.gameState.checkRolePromotion();
-        this.gameState.addLog(`任务【${task.name}】完成！正确排序 ${correct}/${total} 件礼器，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${getSkillById(task.requiredSkill)?.name || ''}经验。`);
-
-        this.advanceTwoMonths();
-        this.gameState.currentTask = null;
-        this.gameState.ritualGame = null;
-        this.gameState.currentScene = GameScene.CITY_VIEW;
-        this.renderAll();
-    }
-
-    // ========== 火器射击 ==========
 
     /**
      * 神机校射 - 火器小游戏
      * XY坐标自动移动准星，点击射击，越靠近中心得分越高
      */
-    renderFirearmGame() {
-        const task = this.gameState.currentTask;
-        // 根据难度调整速度，难度越大速度越快
-        const difficulty = task.baseDifficulty || 2;
-        // 初始化游戏状态：子弹十字准星在xy方向移动
-        this.gameState.firearmGame = {
-            x: 50,
-            y: 50,
-            directionX: Math.random() > 0.5 ? 1 : -1,
-            directionY: Math.random() > 0.5 ? 1 : -1,
-            speed: 0.5 + difficulty * 0.2, // 速度随难度增加
-            animationId: null
-        };
 
-        let html = `
-            <div class="firearm-header">
-                <h2>${task.name}</h2>
-                <p>准星会自动移动，在对准红心时点击射击</p>
-                <p>越靠近红心，得分越高</p>
-            </div>
-            <div class="firearm-target" style="position: relative; width: 400px; height: 400px; border: 2px solid #8b4513; border-radius: 50%; margin: 20px auto; background: linear-gradient(45deg, #eee 0%, #fff 100%);">
-                <div style="position: absolute; top: 10%; left: 10%; right: 10%; bottom: 10%; border: 3px solid #e74c3c; border-radius: 50%;"></div>
-                <div style="position: absolute; top: 25%; left: 25%; right: 25%; bottom: 25%; border: 3px solid #f39c12; border-radius: 50%;"></div>
-                <div style="position: absolute; top: 40%; left: 40%; right: 40%; bottom: 40%; border: 3px solid #f1c40f; border-radius: 50%;"></div>
-                <div style="position: absolute; top: 45%; left: 45%; right: 45%; bottom: 45%; background: #e74c3c; border-radius: 50%;"></div>
-                <div id="bullet-marker" style="position: absolute; width: 10px; height: 10px; background: #2c3e50; border-radius: 50%; transform: translate(-50%, -50%);"></div>
-            </div>
-            <div class="firearm-actions" style="text-align: center; margin: 20px 0;">
-                <button class="btn primary-btn" id="fire-btn" style="padding: 12px 30px; font-size: 18px;">射击!</button>
-            </div>
-        `;
-
-        document.getElementById('farming-game-view').innerHTML = html;
-        this.startFirearmAnimation();
-        document.getElementById('fire-btn').addEventListener('click', () => {
-            this.fireShot();
-        });
-    }
-
-    startFirearmAnimation() {
-        const game = this.gameState.firearmGame;
-
-        const animate = () => {
-            game.x += game.directionX * game.speed;
-            game.y += game.directionY * game.speed;
-
-            if (game.x >= 90) { game.x = 90; game.directionX = -1; }
-            else if (game.x <= 10) { game.x = 10; game.directionX = 1; }
-            if (game.y >= 90) { game.y = 90; game.directionY = -1; }
-            else if (game.y <= 10) { game.y = 10; game.directionY = 1; }
-
-            const marker = document.getElementById('bullet-marker');
-            if (marker) {
-                marker.style.left = `${game.x}%`;
-                marker.style.top = `${game.y}%`;
-            }
-            game.animationId = requestAnimationFrame(animate);
-        };
-
-        game.animationId = requestAnimationFrame(animate);
-    }
-
-    fireShot() {
-        const game = this.gameState.firearmGame;
-        const dx = game.x - 50;
-        const dy = game.y - 50;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        // 距离中心越近分数越高
-        const score = Math.max(0, 100 - distance * 2);
-        const ratio = score / 100;
-
-        const task = this.gameState.currentTask;
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(10 * ratio);
-
-        cancelAnimationFrame(game.animationId);
-
-        this.gameState.merit += finalMerit;
-        this.gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            this.gameState.addSkillExp(task.requiredSkill, expGained);
-        }
-
-        this.gameState.checkRolePromotion();
-        this.gameState.addLog(`任务【${task.name}】完成！距离靶心${Math.round(distance)}单位，得分${Math.round(score)}，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${getSkillById(task.requiredSkill)?.name || ''}经验。`);
-
-        this.advanceTwoMonths();
-        this.gameState.currentTask = null;
-        this.gameState.firearmGame = null;
-        this.gameState.currentScene = GameScene.CITY_VIEW;
-        this.renderAll();
-    }
-
-    // ========== 合战系统 - 军团对战 ==========
-
-    /**
-     * 渲染合战界面
-     */
-    renderBattleGame() {
-        const task = this.gameState.currentTask;
-        // 玩家初始100兵力，敌方100兵力
-        // 玩家每回合抽3张卡，选一张出
-        const playerDeck = drawNCards(10, getAllBattleCards());
-        this.gameState.battleGame = {
-            playerTroops: 100,
-            enemyTroops: 100,
-            playerHand: playerDeck.slice(0, 3),
-            drawPile: playerDeck.slice(3),
-            round: 1
-        };
-
-        let html = `
-            <div class="battle-header">
-                <h2>${task.name}</h2>
-                <p>卡片驱动军团对战，每回合抽选一张卡片打出</p>
-            </div>
-            <div class="battle-troops">
-                <div class="troop-row">
-                    <div class="troop-info">
-                        <span>我军</span>
-                        <span><strong id="player-troops">${this.gameState.battleGame.playerTroops}</strong> / 100</span>
-                    </div>
-                    <div class="hp-bar"><div class="hp-fill player" style="width: ${this.gameState.battleGame.playerTroops}%"></div></div>
-                </div>
-                <div class="troop-row">
-                    <div class="troop-info">
-                        <span>敌军</span>
-                        <span><strong id="enemy-troops">${this.gameState.battleGame.enemyTroops}</strong> / 100</span>
-                    </div>
-                    <div class="hp-bar"><div class="hp-fill enemy" style="width: ${this.gameState.battleGame.enemyTroops}%"></div></div>
-                </div>
-            </div>
-            <div class="battle-hand">
-                <h3>你的手牌（选一张打出）</h3>
-                <div class="battle-cards" id="player-cards">
-                </div>
-            </div>
-            <div class="battle-log" id="battle-log"></div>
-        `;
-
-        document.getElementById('farming-game-view').innerHTML = html;
-        this.renderBattleHand();
-    }
-
-    renderBattleHand() {
-        const game = this.gameState.battleGame;
-        const container = document.getElementById('player-cards');
-        container.innerHTML = '';
-
-        game.playerHand.forEach(card => {
-            const cardEl = document.createElement('div');
-            cardEl.className = 'battle-card';
-            cardEl.dataset.type = card.type;
-            cardEl.innerHTML = `
-                <div class="battle-card-header">
-                    <span class="battle-card-name">${card.emoji} ${card.name}</span>
-                    <span class="battle-card-damage">伤害: ${card.damage}</span>
-                </div>
-                <div class="battle-card-desc">${card.description}</div>
-            `;
-            cardEl.addEventListener('click', () => {
-                this.playBattleCard(card);
-            });
-            container.appendChild(cardEl);
-        });
-    }
-
-    playBattleCard(playerCard) {
-        const game = this.gameState.battleGame;
-        const task = this.gameState.currentTask;
-
-        // AI抽卡
-        const allCards = getAllBattleCards();
-        const aiCard = allCards[Math.floor(Math.random() * allCards.length)];
-
-        // 计算伤害 - 阵法提供加成，攻击直接伤害
-        let playerDamage = playerCard.damage;
-        let aiDamage = aiCard.damage;
-
-        // 阵法减伤效果
-        if (playerCard.type === BattleCardTypes.BATTLE_FORMATION) {
-            playerDamage = 0;
-            game.playerTroops = Math.round(game.playerTroops * 0.9);
-        }
-        if (aiCard.type === BattleCardTypes.BATTLE_FORMATION) {
-            aiDamage = 0;
-            game.enemyTroops = Math.round(game.enemyTroops * 0.9);
-        }
-
-        game.enemyTroops -= playerDamage;
-        game.playerTroops -= aiDamage;
-
-        // 记录日志
-        const log = document.getElementById('battle-log');
-        log.innerHTML += `<div class="battle-log-entry">你打出【${playerCard.name}】，对敌军造成${playerDamage}伤害<br>敌军打出【${aiCard.name}】，对我军造成${aiDamage}伤害</div>`;
-        log.scrollTop = log.scrollHeight;
-
-        // 更新UI
-        document.getElementById('player-troops').textContent = game.playerTroops;
-        document.getElementById('enemy-troops').textContent = game.enemyTroops;
-        document.querySelector('.hp-fill.player').style.width = `${game.playerTroops}%`;
-        document.querySelector('.hp-fill.enemy').style.width = `${game.enemyTroops}%`;
-
-        // 检查游戏结束
-        if (game.playerTroops <= 0 || game.enemyTroops <= 0) {
-            this.finishBattleGame();
-            return;
-        }
-
-        // 抽新卡
-        if (game.drawPile.length > 0) {
-            const newCard = game.drawPile.shift();
-            game.playerHand = game.playerHand.filter(c => c.id !== playerCard.id);
-            game.playerHand.push(newCard);
-        }
-
-        game.round++;
-        this.renderBattleHand();
-    }
-
-    finishBattleGame() {
-        const game = this.gameState.battleGame;
-        const task = this.gameState.currentTask;
-        const playerWin = game.enemyTroops <= 0;
-        const ratio = playerWin ? 1 : Math.max(0.3, game.playerTroops / 100);
-
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(10 * ratio);
-
-        this.gameState.merit += finalMerit;
-        this.gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            this.gameState.addSkillExp(task.requiredSkill, expGained);
-        }
-
-        this.gameState.checkRolePromotion();
-        this.gameState.addLog(`合战【${task.name}】完成！你${playerWin ? '获胜' : '战败'}，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${getSkillById(task.requiredSkill)?.name || ''}经验。`);
-
-        this.advanceTwoMonths();
-        this.gameState.currentTask = null;
-        this.gameState.battleGame = null;
-        this.gameState.currentScene = GameScene.CITY_VIEW;
-        this.renderAll();
-    }
-
-    // ========== 个人战 - 单挑对战 ==========
-
-    /**
-     * 渲染个人战界面
-     */
-    renderDuelGame() {
-        const task = this.gameState.currentTask;
-        // 玩家和对手各30血，每回合抽3张牌
-        const playerDeck = drawNCards(15, getAllDuelCards());
-        this.gameState.duelGame = {
-            playerHp: 30,
-            enemyHp: 30,
-            playerHand: playerDeck.slice(0, 3),
-            drawPile: playerDeck.slice(3),
-            combo: 0
-        };
-
-        let html = `
-            <div class="duel-header">
-                <h2>${task.name}</h2>
-                <p>卡牌单挑，选一张打出，三张相同触发必杀</p>
-            </div>
-            <div class="duel-hp">
-                <div class="hp-row">
-                    <div class="troop-info">
-                        <span>你</span>
-                        <span><strong id="duel-player-hp">${this.gameState.duelGame.playerHp}</strong> / 30</span>
-                    </div>
-                    <div class="hp-bar"><div class="hp-fill player" style="width: ${this.gameState.duelGame.playerHp * 100 / 30}%"></div></div>
-                </div>
-                <div class="hp-row">
-                    <div class="troop-info">
-                        <span>对手</span>
-                        <span><strong id="duel-enemy-hp">${this.gameState.duelGame.enemyHp}</strong> / 30</span>
-                    </div>
-                    <div class="hp-bar"><div class="hp-fill enemy" style="width: ${this.gameState.duelGame.enemyHp * 100 / 30}%"></div></div>
-                </div>
-            </div>
-            <div class="duel-hand">
-                <h3>你的手牌</h3>
-                <div class="battle-cards" id="duel-cards">
-                </div>
-            </div>
-            <div class="battle-log" id="duel-log"></div>
-        `;
-
-        document.getElementById('farming-game-view').innerHTML = html;
-        this.renderDuelHand();
-    }
-
-    renderDuelHand() {
-        const game = this.gameState.duelGame;
-        const container = document.getElementById('duel-cards');
-        container.innerHTML = '';
-
-        game.playerHand.forEach(card => {
-            const cardEl = document.createElement('div');
-            cardEl.className = 'battle-card';
-            cardEl.dataset.type = card.type;
-            cardEl.innerHTML = `
-                <div class="battle-card-header">
-                    <span class="battle-card-name">${card.emoji} ${card.name}</span>
-                    <span class="battle-card-damage">伤害: ${card.damage}</span>
-                </div>
-                <div class="battle-card-desc">${card.description}</div>
-            `;
-            cardEl.addEventListener('click', () => {
-                this.playDuelCard(card);
-            });
-            container.appendChild(cardEl);
-        });
-    }
-
-    playDuelCard(playerCard) {
-        const game = this.gameState.duelGame;
-        const task = this.gameState.currentTask;
-
-        // AI抽卡
-        const allCards = getAllDuelCards();
-        const aiCard = allCards[Math.floor(Math.random() * allCards.length)];
-
-        // 检查是否触发必杀 - 三张同类型
-        const typeCount = game.playerHand.filter(c => c.type === playerCard.type).length;
-        let playerDamage = playerCard.damage;
-        let isSpecial = false;
-        if (typeCount >= 3 && playerCard.type !== BattleCardTypes.DUEL_SPECIAL) {
-            // 触发必杀
-            const specials = getAllDuelCards().filter(c => c.type === BattleCardTypes.DUEL_SPECIAL);
-            // 根据类型找对应必杀
-            let special = null;
-            if (playerCard.type === BattleCardTypes.DUEL_ATTACK) {
-                // 随机一个攻击必杀
-                special = specials[Math.floor(Math.random() * specials.length)];
-            }
-            if (special) {
-                playerDamage += special.damage;
-                isSpecial = true;
-            }
-        }
-
-        // AI伤害计算
-        let aiDamage = aiCard.damage;
-
-        // 防御减伤
-        if (playerCard.type === BattleCardTypes.DUEL_DEFENSE) {
-            playerDamage = 0;
-            aiDamage = Math.round(aiDamage * 0.5);
-        }
-
-        game.enemyHp -= playerDamage;
-        game.playerHp -= aiDamage;
-
-        // 日志
-        const log = document.getElementById('duel-log');
-        let logText = `<div class="battle-log-entry">你打出【${playerCard.name}】`;
-        if (isSpecial) logText += `，触发必杀【${special.name}】`;
-        logText += `，对对手造成${playerDamage}伤害<br>对手打出【${aiCard.name}】，对你造成${aiDamage}伤害</div>`;
-        log.innerHTML += logText;
-        log.scrollTop = log.scrollHeight;
-
-        // 更新UI
-        document.getElementById('duel-player-hp').textContent = game.playerHp;
-        document.getElementById('duel-enemy-hp').textContent = game.enemyHp;
-        document.querySelector('.hp-fill.player').style.width = `${game.playerHp * 100 / 30}%`;
-        document.querySelector('.hp-fill.enemy').style.width = `${game.enemyHp * 100 / 30}%`;
-
-        // 检查结束
-        if (game.playerHp <= 0 || game.enemyHp <= 0) {
-            this.finishDuelGame();
-            return;
-        }
-
-        // 抽新卡
-        if (game.drawPile.length > 0) {
-            const newCard = game.drawPile.shift();
-            game.playerHand = game.playerHand.filter(c => c.id !== playerCard.id);
-            game.playerHand.push(newCard);
-        }
-
-        this.renderDuelHand();
-    }
-
-    finishDuelGame() {
-        const game = this.gameState.duelGame;
-        const task = this.gameState.currentTask;
-        const playerWin = game.enemyHp <= 0;
-        const ratio = playerWin ? 1 : Math.max(0.3, game.playerHp / 30);
-
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(10 * ratio);
-
-        this.gameState.merit += finalMerit;
-        this.gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            this.gameState.addSkillExp(task.requiredSkill, expGained);
-        }
-
-        this.gameState.checkRolePromotion();
-        this.gameState.addLog(`单挑【${task.name}】完成！你${playerWin ? '获胜' : '战败'}，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${getSkillById(task.requiredSkill)?.name || ''}经验。`);
-
-        this.advanceTwoMonths();
-        this.gameState.currentTask = null;
-        this.gameState.duelGame = null;
-        this.gameState.currentScene = GameScene.CITY_VIEW;
-        this.renderAll();
-    }
 
     /**
      * 渲染日志区域
@@ -4515,5 +3380,286 @@ window.GameView = class GameView {
         this.logAreaEl.innerHTML = html;
         // 滚动到底部
         this.logAreaEl.scrollTop = this.logAreaEl.scrollHeight;
+    }
+
+    // ========== 社交系统 - 视图渲染 ==========
+
+    /**
+     * 渲染当前城市中的人物列表
+     */
+    renderCharacterListView() {
+        const container = document.getElementById('character-list-view');
+        if (!container) return;
+
+        const characters = this.gameState.getCharactersInCurrentCity();
+        const playerId = this.gameState.playerCharacterId;
+        // 过滤掉玩家自己
+        const npcs = characters.filter(c => c.id !== playerId);
+
+        if (npcs.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <p>当前城中没有可互动的人物。</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = `
+            <div class="character-list-container">
+                <h2 class="view-title">城中人物</h2>
+                <div class="character-list">
+        `;
+
+        npcs.forEach(npc => {
+            const intimacy = this.gameState.getIntimacy(npc.id);
+            const intimacyText = this.gameState.getIntimacyDescription(intimacy);
+            const intimacyHearts = this.gameState.getIntimacyHearts(intimacy);
+            const card = getCardById(`CHAR_${npc.templateId}`);
+            const unlocked = card ? this.gameState.hasCard(`CHAR_${npc.templateId}`) : false;
+
+            html += `
+                <div class="character-item">
+                    <div class="character-info">
+                        <div class="character-header">
+                            <span class="character-emoji">${npc.emoji || '👤'}</span>
+                            <span class="character-name">${npc.name}</span>
+                            <span class="character-rank">${npc.initialRank}</span>
+                        </div>
+                        <p class="character-desc">${npc.description}</p>
+                        <p class="character-relationship">关系：${intimacyHearts} ${intimacyText} ${unlocked ? '✓ 已获得人物卡' : ''}</p>
+                    </div>
+                    <button class="btn primary-btn interact-btn" data-char-id="${npc.id}">交谈</button>
+                </div>
+            `;
+        });
+
+        html += `
+                </div>
+            </div>
+        `;
+
+        container.innerHTML = html;
+        container.style.display = 'block';
+
+        // 绑定事件
+        container.querySelectorAll('.interact-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const charId = parseInt(e.target.dataset.charId);
+                this.gameState.startSocialInteraction(charId);
+                this.renderAll();
+            });
+        });
+    }
+
+    /**
+     * 渲染社交互动视图
+     */
+    renderSocialView() {
+        const container = document.getElementById('social-view');
+        if (!container) {
+            // 如果容器不存在，先创建
+            const mainDisplay = document.getElementById('main-display');
+            const div = document.createElement('div');
+            div.id = 'social-view';
+            div.className = 'scene-view';
+            div.style.display = 'block';
+            mainDisplay.appendChild(div);
+        }
+
+        const targetId = this.gameState.currentSocialTarget;
+        if (targetId === null) {
+            container.innerHTML = '<p class="error">没有选中的人物，返回上一页。</p>';
+            return;
+        }
+
+        const npc = getCharacterTemplateByNumId(targetId);
+        if (!npc) {
+            container.innerHTML = '<p class="error">人物不存在。</p>';
+            return;
+        }
+
+        const intimacy = this.gameState.getIntimacy(targetId);
+        const intimacyText = this.gameState.getIntimacyDescription(intimacy);
+        const intimacyHearts = this.gameState.getIntimacyHearts(intimacy);
+
+        // 获取玩家的宝物卡列表
+        const treasureCards = [];
+        for (const cardId in this.gameState.collectedCards) {
+            const card = getCardById(cardId);
+            if (card && card.type === CardTypes.TREASURE) {
+                treasureCards.push(card);
+            }
+        }
+
+        let html = `
+            <div class="social-container">
+                <div class="social-header">
+                    <div class="npc-info">
+                        <span class="npc-emoji">${npc.emoji || '👤'}</span>
+                        <div class="npc-basic">
+                            <h2>${npc.name}</h2>
+                            <p>${npc.initialRank} · ${npc.personality} · ${intimacyHearts} ${intimacyText}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="social-description">
+                    <p>${npc.description}</p>
+                </div>
+                <div class="social-actions">
+                    <h3>可进行的互动</h3>
+                    <div class="action-list">
+        `;
+
+        // 送礼 - 需要有宝物
+        if (treasureCards.length > 0) {
+            html += `
+                <div class="action-group">
+                    <h4>赠送宝物</h4>
+                    <div class="gift-list">
+            `;
+            treasureCards.forEach(card => {
+                html += `
+                    <button class="btn secondary-btn gift-btn" data-card-id="${card.card_id}">
+                        ${card.name} <span class="rarity">${'⭐'.repeat(card.rarity)}</span>
+                    </button>
+                `;
+            });
+            html += `
+                    </div>
+                </div>
+            `;
+        }
+
+        // 茶会
+        const canTea = intimacy >= -1 && this.gameState.money >= 5;
+        html += `
+            <div class="action-item">
+                <button class="btn secondary-btn tea-btn" ${!canTea ? 'disabled' : ''}>
+                    🍵 邀请茶会 (5贯)
+                </button>
+                <p class="action-desc">一起喝茶聊天，提升亲密度。</p>
+            </div>
+        `;
+
+        // 宴饮
+        const canFeast = intimacy >= 0 && this.gameState.money >= 15;
+        html += `
+            <div class="action-item">
+                <button class="btn secondary-btn feast-btn" ${!canFeast ? 'disabled' : ''}>
+                    🍲 邀请宴饮 (15贯)
+                </button>
+                <p class="action-desc">设宴饮酒，提升更多亲密度。</p>
+            </div>
+        `;
+
+        // 切磋武艺
+        const canDuel = intimacy >= 1;
+        html += `
+            <div class="action-item">
+                <button class="btn secondary-btn duel-btn" ${!canDuel ? 'disabled' : ''}>
+                    ⚔️ 请求切磋
+                </button>
+                <p class="action-desc">切磋武艺，胜利增加亲密度，可能习得秘传。</p>
+            </div>
+        `;
+
+        // 结义
+        const canBrother = this.gameState.canSwearBrotherhood(targetId);
+        if (canBrother) {
+            html += `
+                <div class="action-item special-action">
+                    <button class="btn primary-btn brother-btn">
+                        🎯 结为异姓兄弟
+                    </button>
+                    <p class="action-desc">亲密度达到4心可以结义，结义后关系锁定永不背叛。</p>
+                </div>
+            `;
+        }
+
+        // 求婚
+        const canMarry = this.gameState.canProposeMarriage(targetId);
+        if (canMarry) {
+            html += `
+                <div class="action-item special-action">
+                    <button class="btn primary-btn marry-btn">
+                        💍 求婚
+                    </button>
+                    <p class="action-desc">亲密度达到4心可以求婚，婚后关系锁定永不分离。</p>
+                </div>
+            `;
+        }
+
+        // 请求指导技能 - 需要亲密度 >= 2
+        if (intimacy >= 2) {
+            html += `
+                <div class="action-item">
+                    <button class="btn secondary-btn practice-btn">
+                        📖 请求指导
+                    </button>
+                    <p class="action-desc">请对方指导你的某项技能，提升技能经验。</p>
+                </div>
+            `;
+        }
+
+        html += `
+                    </div>
+                </div>
+                <div class="social-footer">
+                    <button class="btn secondary-btn back-btn">返回人物列表</button>
+                </div>
+            </div>
+        `;
+
+        container.innerHTML = html;
+        container.style.display = 'block';
+
+        // 绑定事件
+        container.querySelector('.back-btn')?.addEventListener('click', () => {
+            this.gameState.currentSocialTarget = null;
+            this.gameState.currentScene = GameScene.CHARACTER_LIST_VIEW;
+            this.renderAll();
+        });
+
+        container.querySelector('.tea-btn')?.addEventListener('click', () => {
+            this.gameState.inviteTea(targetId);
+            this.renderAll();
+        });
+
+        container.querySelector('.feast-btn')?.addEventListener('click', () => {
+            this.gameState.inviteFeast(targetId);
+            this.renderAll();
+        });
+
+        container.querySelector('.duel-btn')?.addEventListener('click', () => {
+            if (this.gameState.requestDuel(targetId)) {
+                // 这里应该进入个人战，现在先简单处理
+                // TODO: 启动个人战
+                this.gameState.addLog(`个人战系统尚未完成，敬请期待。`);
+                this.renderAll();
+            }
+        });
+
+        container.querySelector('.brother-btn')?.addEventListener('click', () => {
+            if (confirm(`确定要与${npc.name}结为异姓兄弟吗？`)) {
+                this.gameState.doSwearBrotherhood(targetId);
+                this.renderAll();
+            }
+        });
+
+        container.querySelector('.marry-btn')?.addEventListener('click', () => {
+            if (confirm(`确定要向${npc.name}求婚吗？需要100贯聘礼和一件宝物。`)) {
+                this.gameState.proposeMarriage(targetId);
+                this.renderAll();
+            }
+        });
+
+        container.querySelectorAll('.gift-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const cardId = e.target.dataset.cardId;
+                this.gameState.giftTreasure(targetId, cardId);
+                this.renderAll();
+            });
+        });
     }
 };

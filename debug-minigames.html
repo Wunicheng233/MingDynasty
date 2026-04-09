@@ -8,78 +8,117 @@
     <style>
         body {
             padding-bottom: 100px;
+            background-color: #efe6d5;
         }
         .debug-header {
-            background: #f5f0e1;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            background: #8b4513;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         .debug-header h1 {
             margin: 0 0 10px 0;
-            font-size: 24px;
-            color: #8b4513;
+            font-size: 28px;
+            color: #fff;
         }
         .debug-header p {
             margin: 0;
-            color: #666;
+            color: #f8e9d8;
+            font-size: 16px;
+            line-height: 1.5;
         }
         .minigame-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
         }
         .minigame-item {
             background: #fff;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            padding: 18px;
+            border: 2px solid #d4c4a8;
+            border-radius: 12px;
+            padding: 22px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(139, 69, 19, 0.08);
         }
         .minigame-item:hover {
             border-color: #8b4513;
             background: #faf5e8;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(139, 69, 19, 0.15);
         }
         .minigame-item h3 {
-            margin: 0 0 8px 0;
-            font-size: 18px;
+            margin: 0 0 10px 0;
+            font-size: 20px;
             color: #8b4513;
         }
         .minigame-item p {
-            margin: 0 0 10px 0;
-            font-size: 14px;
-            color: #666;
+            margin: 0 0 12px 0;
+            font-size: 15px;
+            color: #6b5b45;
+            line-height: 1.4;
         }
         .minigame-item .skill-name {
             display: inline-block;
-            background: #e8dcc8;
-            padding: 3px 10px;
-            border-radius: 4px;
-            margin-top: 5px;
+            background: #8b4513;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-top: 8px;
             font-size: 13px;
         }
         .debug-menu-container {
-            padding: 15px 0;
+            padding: 20px 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: block;
         }
         .back-btn {
             position: fixed;
-            top: 12px;
-            right: 12px;
-            background: #8b4513;
-            color: #fff !important;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
+            top: 15px;
+            right: 15px;
+            background: #fff;
+            color: #8b4513 !important;
+            border: 2px solid #8b4513;
+            padding: 10px 16px;
+            border-radius: 8px;
             cursor: pointer;
             z-index: 1000;
+            font-weight: bold;
+            transition: all 0.2s;
+            display: none;
         }
         .back-btn:hover {
-            background: #a0522d;
+            background: #8b4513;
+            color: #fff;
         }
         #debug-list-container {
             padding: 0 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: block;
+        }
+        #game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            overflow: hidden;
+            margin-bottom: 30px;
+            display: none;
+        }
+        /* 游戏开始后切换布局 */
+        .game-running #debug-list-container {
+            display: none;
+        }
+        .game-running #game-container {
+            display: block;
+        }
+        .game-running .back-btn {
+            display: block;
         }
     </style>
 </head>
@@ -104,6 +143,12 @@
             </div>
             <div id="city-view" class="scene-view" style="display: none;">
                 <!-- 城市视图 -->
+            </div>
+            <div id="character-list-view" class="scene-view" style="display: none;">
+                <!-- 城中人物列表视图 -->
+            </div>
+            <div id="social-view" class="scene-view" style="display: none;">
+                <!-- 社交互动视图 -->
             </div>
             <div id="task-list-view" class="scene-view" style="display: none;">
                 <!-- 任务列表视图 -->
@@ -146,7 +191,7 @@
         </div>
     </div>
 
-    <button class="back-btn" onclick="window.location.href='index.html'">返回主游戏</button>
+    <button class="back-btn" id="back-to-list-btn" onclick="backToList()">返回调试列表</button>
 
     <!-- 数据文件 - 全部先加载 -->
     <script src="data/characters.js"></script>
@@ -156,11 +201,41 @@
     <script src="data/skills.js"></script>
     <script src="data/cards.js"></script>
     <script src="data/battle-cards.js"></script>
+    <script src="data/battle-formations.js"></script>
+    <script src="data/battle-troops.js"></script>
     <script src="data/tasks.js"></script>
     <script src="data/personal-battle.js"></script>
 
+    <!-- 工具模块 -->
+    <script src="js/utils/BattleCalculator.js"></script>
+    <script src="js/utils/BattleAI.js"></script>
+
     <!-- 游戏模块 -->
     <script src="js/GameState.js"></script>
+    <!-- 渲染模块 - 拆分出去保持代码整洁 -->
+    <script src="js/modules/CharacterListRenderer.js"></script>
+    <script src="js/modules/SocialRenderer.js"></script>
+    <script src="js/modules/CardCollectionRenderer.js"></script>
+    <script src="js/modules/MapRenderer.js"></script>
+    <!-- 小游戏模块 - 每个小游戏独立文件 -->
+    <script src="js/games/FarmingGame.js"></script>
+    <script src="js/games/EloquenceGame.js"></script>
+    <script src="js/games/InfantryGame.js"></script>
+    <script src="js/games/CavalryGame.js"></script>
+    <script src="js/games/EngineeringGame.js"></script>
+    <script src="js/games/TradeGame.js"></script>
+    <script src="js/games/LawGame.js"></script>
+    <script src="js/games/NavyGame.js"></script>
+    <script src="js/games/StrategyGame.js"></script>
+    <script src="js/games/MartialGame.js"></script>
+    <script src="js/games/MedicineGame.js"></script>
+    <script src="js/games/CalligraphyGame.js"></script>
+    <script src="js/games/SpyGame.js"></script>
+    <script src="js/games/NavigationGame.js"></script>
+    <script src="js/games/RitualGame.js"></script>
+    <script src="js/games/FirearmGame.js"></script>
+    <script src="js/games/DuelGame.js"></script>
+    <script src="js/games/BattleGame.js"></script>
     <script src="js/GameView.js"></script>
 
     <script>
@@ -181,7 +256,8 @@
             {gameType: 'spy', skill: '密探', name: '潜龙谍影', desc: '迷宫寻路，找到出口'},
             {gameType: 'navigation', skill: '航海', name: '罗盘导航', desc: '罗盘导航'},
             {gameType: 'ritual', skill: '礼制', name: '朝仪习礼', desc: '顺序排列礼仪步骤'},
-            {gameType: 'firearm', skill: '火器', name: '神机校射', desc: 'XY坐标瞄准射击'}
+            {gameType: 'firearm', skill: '火器', name: '神机校射', desc: 'XY坐标瞄准射击'},
+            {gameType: 'battle', skill: '兵法', name: '合战演习', desc: '完整军团对战，卡牌组合+阵型相克'}
         ];
 
         // 初始化游戏状态
@@ -202,6 +278,9 @@
 
         // 开始一个小游戏
         function startGame(gameType) {
+            // 切换布局：隐藏列表，显示游戏
+            document.body.classList.add('game-running');
+
             // 创建一个假任务
             const template = {
                 id: 999,
@@ -229,7 +308,18 @@
             gameView.renderAll();
 
             // 滚动到游戏
-            document.getElementById('main-display').scrollIntoView({behavior: 'smooth'});
+            document.getElementById('game-container').scrollIntoView({behavior: 'smooth'});
+        }
+
+        // 返回调试列表
+        function backToList() {
+            // 切换布局：显示列表，隐藏游戏
+            document.body.classList.remove('game-running');
+            // 重置游戏状态
+            gameState = new GameState();
+            gameView = new GameView(gameState);
+            renderList();
+            gameView.renderAll();
         }
 
         // 初始化

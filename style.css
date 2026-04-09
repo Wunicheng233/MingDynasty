@@ -299,17 +299,21 @@ body {
 
 .cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
 }
 
 .card-item {
     background-color: #efe6d5;
     border-radius: 8px;
-    padding: 15px 10px;
+    padding: 10px 6px;
     text-align: center;
     border: 2px solid #d4c4a8;
     transition: all 0.2s ease;
+    aspect-ratio: 2/3;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .card-item.uncollected {
@@ -350,15 +354,15 @@ body {
 }
 
 .card-content {
-    font-size: 24px;
-    margin-bottom: 5px;
+    font-size: 18px;
+    margin-bottom: 4px;
 }
 
 .card-desc {
-    font-size: 12px;
+    font-size: 10px;
     color: #5d4e37;
-    margin-top: 8px;
-    line-height: 1.4;
+    margin-top: 6px;
+    line-height: 1.3;
 }
 
 .card-actions {
@@ -369,6 +373,105 @@ body {
 /* 地图移动视图 */
 .map-view {
     padding: 15px;
+}
+
+.map-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.map-container .view-title {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #5d4e37;
+}
+
+.map-info {
+    font-size: 16px;
+    color: #5d4e37;
+    margin-bottom: 20px;
+}
+
+.city-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.city-card {
+    background: #f5ecd8;
+    border: 2px solid #d4c4a8;
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.city-card.current {
+    border-color: #e74c3c;
+    background: #fdecea;
+}
+
+.city-card.connected {
+    opacity: 1;
+}
+
+.city-card.disconnected {
+    opacity: 0.5;
+}
+
+.city-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.city-emoji {
+    font-size: 32px;
+    width: 40px;
+    text-align: center;
+}
+
+.city-info {
+    flex: 1;
+}
+
+.city-name {
+    margin: 0;
+    font-size: 18px;
+    color: #5d4e37;
+}
+
+.city-type {
+    margin: 2px 0 0 0;
+    font-size: 14px;
+    color: #8b7355;
+}
+
+.city-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-top: 1px solid #d4c4a8;
+    border-bottom: 1px solid #d4c4a8;
+}
+
+.city-stats .stat {
+    font-size: 14px;
+    color: #5d4e37;
+}
+
+.city-stats .move-days {
+    font-size: 14px;
+    color: #8b4513;
+    font-weight: bold;
+}
+
+.city-card .move-btn {
+    margin-top: 5px;
+    width: 100%;
 }
 
 .map-header h2 {
@@ -1662,12 +1765,16 @@ body {
 }
 
 .battle-log {
-    max-height: 150px;
+    max-height: 220px;
     overflow-y: auto;
+    overflow-x: hidden;
     border: 1px solid #ddd;
     border-radius: 5px;
-    padding: 10px;
+    padding: 12px;
     background: #fafafa;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
 }
 
 .battle-log-entry {
@@ -1743,5 +1850,647 @@ body {
 .battle-card[data-type="duel_special"] {
     border-color: #f39c12;
     background: linear-gradient(145deg, #fff9e6, #ffeaa7);
+}
+
+/* ========== 社交系统样式 ========== */
+
+.character-list-container {
+    padding: 10px;
+}
+
+.character-list-container .view-title {
+    margin: 0 0 15px 0;
+    color: #5d4e37;
+    border-bottom: 2px solid #d4a574;
+    padding-bottom: 8px;
+}
+
+.character-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.character-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background-color: #f8f5f0;
+    border: 1px solid #d4a574;
+    border-radius: 6px;
+}
+
+.character-info {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.character-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.character-emoji {
+    font-size: 24px;
+}
+
+.character-name {
+    font-weight: bold;
+    font-size: 16px;
+    color: #2c3e50;
+}
+
+.character-rank {
+    font-size: 12px;
+    color: #8b7355;
+    background-color: #e8ded0;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.character-desc {
+    margin: 4px 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.character-relationship {
+    font-size: 12px;
+    color: #5d4e37;
+}
+
+/* 社交互动视图 */
+
+.social-container {
+    padding: 15px;
+}
+
+.social-header {
+    margin-bottom: 15px;
+}
+
+.npc-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.npc-emoji {
+    font-size: 48px;
+}
+
+.npc-basic h2 {
+    margin: 0 0 4px 0;
+    color: #5d4e37;
+}
+
+.npc-basic p {
+    margin: 0;
+    color: #666;
+}
+
+.social-description {
+    margin: 10px 0 20px 0;
+    padding: 10px;
+    background-color: #f8f5f0;
+    border-radius: 6px;
+}
+
+.social-description p {
+    margin: 0;
+    color: #5d4e37;
+    line-height: 1.5;
+}
+
+.social-actions h3 {
+    margin: 0 0 10px 0;
+    color: #5d4e37;
+}
+
+.action-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.action-item {
+    padding: 10px;
+    background-color: #f8f5f0;
+    border-radius: 6px;
+}
+
+.action-item.special-action {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+}
+
+.action-desc {
+    margin: 4px 0 0 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.action-group h4 {
+    margin: 0 0 8px 0;
+    color: #5d4e37;
+}
+
+.gift-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.gift-btn .rarity {
+    margin-left: 4px;
+    opacity: 0.7;
+}
+
+.social-footer {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #d4a574;
+}
+
+.city-facilities {
+    margin-top: 15px;
+}
+
+.city-facilities h3 {
+    margin: 0 0 8px 0;
+    color: #5d4e37;
+    font-size: 14px;
+}
+
+.facility-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.facility-tag {
+    padding: 3px 8px;
+    background-color: #e8ded0;
+    border-radius: 3px;
+    font-size: 12px;
+    color: #5d4e37;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #8b7355;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 16px;
+}
+
+/* ========== 合战系统样式 ========== */
+
+/* 战前布阵 */
+.battle-pre-setup {
+    padding: 15px;
+    background: #f8f5f0;
+    border-radius: 8px;
+}
+
+.pre-battle-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.pre-battle-header h2 {
+    margin: 0 0 5px 0;
+    color: #5d4e37;
+}
+
+.pre-battle-header p {
+    margin: 0;
+    color: #8b7355;
+}
+
+.player-info-pre {
+    background: #efe6d5;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.player-info-pre p {
+    margin: 5px 0;
+    color: #5d4e37;
+}
+
+.formation-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.formation-item {
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    background: #fff;
+    transition: all 0.2s;
+}
+
+.formation-item:hover {
+    border-color: #3498db;
+    background: #f0f8ff;
+}
+
+.formation-item.selected {
+    border-color: #3498db;
+    background: #e8f4fd;
+}
+
+.formation-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 3px;
+    color: #5d4e37;
+}
+
+.formation-desc {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+}
+
+.pre-battle-footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* 主战斗容器 */
+.battle-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.battle-header {
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #d4c4a8;
+}
+
+.battle-header h2 {
+    margin: 0 0 5px 0;
+    color: #5d4e37;
+}
+
+.battle-header p {
+    margin: 0;
+    color: #8b7355;
+}
+
+/* 双方状态栏 */
+.battle-status {
+    display: flex;
+    gap: 15px;
+}
+
+.side-panel {
+    flex: 1;
+    border: 2px solid #5d4e37;
+    border-radius: 8px;
+    padding: 10px;
+    background: #f8f5f0;
+}
+
+.side-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    color: #2c3e50;
+}
+
+.player-side .side-title {
+    color: #27ae60;
+}
+
+.enemy-side .side-title {
+    color: #c0392b;
+}
+
+.status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    color: #5d4e37;
+}
+
+.status-row .hp-bar {
+    flex: 1;
+    height: 16px;
+    background-color: #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #ccc;
+}
+
+.morale-bar {
+    flex: 1;
+    height: 16px;
+    background-color: #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #ccc;
+}
+
+.morale-fill.player {
+    height: 100%;
+    background: linear-gradient(90deg, #f39c12, #f1c40f);
+}
+
+.morale-fill.enemy {
+    height: 100%;
+    background: linear-gradient(90deg, #e67e22, #e67e22);
+}
+
+.formation-name, .permanent-name {
+    font-weight: bold;
+}
+
+/* 环境信息 */
+.battle-environment {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 15px;
+    background: #efe6d5;
+    border-radius: 6px;
+    color: #5d4e37;
+    font-weight: 500;
+}
+
+/* 出牌区域 */
+.battle-play-area {
+    background: #f8f5f0;
+    border-radius: 8px;
+    padding: 15px;
+    overflow-x: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.battle-play-area h3 {
+    margin: 0 0 15px 0;
+    color: #5d4e37;
+}
+
+.hand-area {
+    margin: 15px 0;
+}
+
+.hand-area h4 {
+    margin: 0 0 10px 0;
+    color: #5d4e37;
+}
+
+/* 已选区域 */
+.selected-cards {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #efe6d5;
+    border-radius: 6px;
+}
+
+.selected-section {
+    margin-bottom: 10px;
+}
+
+.selected-section:last-child {
+    margin-bottom: 0;
+}
+
+.selected-section label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #5d4e37;
+}
+
+.selected-slots {
+    display: flex;
+    gap: 8px;
+}
+
+.selected-slot {
+    width: 80px;
+    height: 45px;
+    border: 2px dashed #95a5a6;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+    background: #fff;
+}
+
+.selected-slot.filled {
+    border-color: #3498db;
+}
+
+.selected-slot.green {
+    background: #d4efdf;
+    border-color: #27ae60;
+}
+
+.selected-slot.red {
+    background: #fadbd8;
+    border-color: #e74c3c;
+}
+
+/* 手牌卡片 */
+.battle-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.battle-card {
+    border: 2px solid #bdc3c7;
+    border-radius: 8px;
+    padding: 8px;
+    background: #fff;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.battle-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.battle-card.selected {
+    box-shadow: 0 0 10px #3498db;
+    border-color: #3498db;
+    transform: translateY(-4px);
+}
+
+.battle-card.green {
+    border-color: #27ae60;
+    background: linear-gradient(145deg, #eafaf1, #d4efdf);
+}
+
+.battle-card.red {
+    border-color: #e74c3c;
+    background: linear-gradient(145deg, #fdedec, #fadbd8);
+}
+
+.battle-card.selectable:active {
+    transform: translateY(0);
+}
+
+.battle-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.battle-card-name {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.battle-card-damage {
+    font-size: 0.85rem;
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.battle-card-desc {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+}
+
+/* 操作按钮 */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.battle-btn {
+    padding: 8px 16px;
+    border: 2px solid #5d4e37;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.battle-btn.primary {
+    background: #8b4513;
+    color: white;
+}
+
+.battle-btn.primary:hover {
+    background: #a0522d;
+}
+
+.battle-btn.secondary {
+    background: #efe6d5;
+    color: #5d4e37;
+}
+
+.battle-btn.secondary:hover {
+    background: #f5ecd8;
+}
+
+.battle-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 战斗日志 */
+.battle-log {
+    background: #fff;
+    border: 1px solid #d4c4a8;
+    border-radius: 6px;
+    padding: 12px;
+    max-height: 450px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.battle-log-entry {
+    padding: 4px 0;
+    border-bottom: 1px solid #eee;
+    color: #5d4e37;
+    font-size: 0.9rem;
+}
+
+.battle-log-entry:last-child {
+    border-bottom: none;
+}
+
+/* 弹窗遮罩 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-dialog {
+    background: #fff;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #5d4e37;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+    text-align: right;
+}
+
+.secret-replace-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
 }
 

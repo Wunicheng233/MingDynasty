@@ -28,6 +28,12 @@
             <div id="city-view" class="scene-view" style="display: none;">
                 <!-- 城市视图 -->
             </div>
+            <div id="character-list-view" class="scene-view" style="display: none;">
+                <!-- 城中人物列表视图 -->
+            </div>
+            <div id="social-view" class="scene-view" style="display: none;">
+                <!-- 社交互动视图 -->
+            </div>
             <div id="task-list-view" class="scene-view" style="display: none;">
                 <!-- 任务列表视图 -->
             </div>
@@ -47,7 +53,7 @@
             <button id="nav-character" class="nav-btn active">角色</button>
             <button id="nav-city" class="nav-btn">城市</button>
             <button id="nav-map" class="nav-btn">地图</button>
-            <button id="nav-task" class="nav-btn">任务</button>
+            <button id="nav-task" class="nav-btn">主命</button>
             <button id="nav-card" class="nav-btn">卡片</button>
         </div>
 
@@ -65,11 +71,41 @@
     <script src="data/skills.js"></script>
     <script src="data/cards.js"></script>
     <script src="data/battle-cards.js"></script>
+    <script src="data/battle-formations.js"></script>
+    <script src="data/battle-troops.js"></script>
     <script src="data/tasks.js"></script>
     <script src="data/personal-battle.js"></script>
 
+    <!-- 工具模块 -->
+    <script src="js/utils/BattleCalculator.js"></script>
+    <script src="js/utils/BattleAI.js"></script>
+
     <!-- 游戏模块 -->
     <script src="js/GameState.js"></script>
+    <!-- 渲染模块 - 拆分出去保持代码整洁 -->
+    <script src="js/modules/CharacterListRenderer.js"></script>
+    <script src="js/modules/SocialRenderer.js"></script>
+    <script src="js/modules/CardCollectionRenderer.js"></script>
+    <script src="js/modules/MapRenderer.js"></script>
+    <!-- 小游戏模块 - 每个小游戏独立文件 -->
+    <script src="js/games/FarmingGame.js"></script>
+    <script src="js/games/EloquenceGame.js"></script>
+    <script src="js/games/InfantryGame.js"></script>
+    <script src="js/games/CavalryGame.js"></script>
+    <script src="js/games/EngineeringGame.js"></script>
+    <script src="js/games/TradeGame.js"></script>
+    <script src="js/games/LawGame.js"></script>
+    <script src="js/games/NavyGame.js"></script>
+    <script src="js/games/StrategyGame.js"></script>
+    <script src="js/games/MartialGame.js"></script>
+    <script src="js/games/MedicineGame.js"></script>
+    <script src="js/games/CalligraphyGame.js"></script>
+    <script src="js/games/SpyGame.js"></script>
+    <script src="js/games/NavigationGame.js"></script>
+    <script src="js/games/RitualGame.js"></script>
+    <script src="js/games/FirearmGame.js"></script>
+    <script src="js/games/DuelGame.js"></script>
+    <script src="js/games/BattleGame.js"></script>
     <script src="js/GameView.js"></script>
 
     <!-- 主游戏入口 -->
