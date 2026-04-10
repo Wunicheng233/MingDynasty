@@ -34,6 +34,7 @@ const IntimacyLevel = {
 
 /**
  * 游戏状态管理类
+ * 重构后：核心状态管理，通过委托调用各子系统
  */
 window.GameState = class GameState {
     constructor() {
@@ -87,8 +88,6 @@ window.GameState = class GameState {
 
         // 合战胜利次数统计（用于称号解锁）
         this.battleWins = GameInitializer.initBattleWins();
-        // 从localStorage加载
-        this.loadBattleWins();
 
         // ========== 社交系统 ==========
         // 亲密度关系网 - { relationshipKey: intimacyValue }
@@ -103,7 +102,6 @@ window.GameState = class GameState {
 
         // 结义兄弟列表 - characterId[]
         this.brothers = [];
-
         // ========== 社交系统结束 ==========
 
         // ========== 经济系统 ==========
@@ -113,9 +111,6 @@ window.GameState = class GameState {
         // 城镇经济状态 - { cityId: { prosperity, taxRate, investmentLevel, atWar } }
         // 每个城镇独立的经济数据
         this.cityEconomies = {};
-
-        // 初始化所有城镇的经济状态
-        this.initAllCityEconomies();
         // ========== 经济系统结束 ==========
 
         // ========== 事件系统 ==========
@@ -135,13 +130,22 @@ window.GameState = class GameState {
         // ========== 事件系统结束 ==========
 
         // 从localStorage加载全局卡片收集（跨存档继承）
-        this.loadGlobalCollection();
+        CardSystem.loadGlobalCollection(this);
 
         // 从localStorage加载亲密度关系（跨存档保留人际关系）
-        this.loadRelationships();
+        SocialSystem.loadRelationships(this);
+
+        // 从localStorage加载合战胜利次数
+        CardSystem.loadBattleWins(this);
+
+        // 初始化所有城镇的经济状态
+        SaveSystem.initAllCityEconomies(this);
 
         // 根据初始功勋检查晋升
-        this.checkRolePromotion();
+        SkillSystem.checkRolePromotion(this);
+
+        // 淮西集团同乡加成
+        SocialSystem.applyHuaixiGroupBonus(this);
 
         // 初始化完成后检测一次触发事件（处理开局事件）
         if (typeof EventScheduler !== 'undefined') {
@@ -149,114 +153,36 @@ window.GameState = class GameState {
         }
     }
 
+    // ========== 卡片系统委托 ==========
+
     /**
      * 检查并收集新卡片 - 统一入口
      * @param {string} cardId
      * @returns {boolean} true表示是新收集的，false表示已经有了
      */
     acquireCard(cardId) {
-        if (this.collectedCards[cardId]) {
-            return false;
-        }
-
-        this.collectedCards[cardId] = true;
-        const card = getCardById(cardId);
-
-        if (card) {
-            this.addLog(`获得新卡片：${getCardTypeName(card.type)}【${card.name}】`);
-
-            // 根据卡片类型执行附加效果
-            this.processCardAcquired(card);
-        }
-
-        // 保存到全局收集（跨存档继承）
-        this.saveGlobalCollection();
-
-        return true;
-    };
+        return CardSystem.acquireCard(this, cardId);
+    }
 
     /**
      * 别名兼容
      */
     collectCard(cardId) {
-        return this.acquireCard(cardId);
-    }
-
-    /**
-     * 卡片获取后的附加处理
-     * @param {Card} card
-     */
-    processCardAcquired(card) {
-        switch (card.type) {
-            case CardTypes.TITLE:
-                // 称号卡，如果玩家当前没有佩戴主称号，可以自动佩戴
-                if (!this.currentTitle && card.effect) {
-                    this.currentTitle = card.card_id;
-                }
-                break;
-            case CardTypes.CHARACTER:
-                // 人物卡，解锁可扮演，不需要即时处理，新游戏时读取即可
-                break;
-            case CardTypes.TACTIC_BATTLE:
-            case CardTypes.MARTIAL_DUEL:
-            case CardTypes.SECRET:
-                // 战术/武技/秘传，玩家已经收集，战斗时会自动读取可用列表
-                break;
-            default:
-                break;
-        }
+        return CardSystem.collectCard(this, cardId);
     }
 
     /**
      * 从localStorage加载全局卡片收集（跨存档继承）
      */
     loadGlobalCollection() {
-        try {
-            const saved = localStorage.getItem('hongwu_card_collection');
-            if (saved) {
-                const data = JSON.parse(saved);
-                if (data.collectedCards && typeof data.collectedCards === 'object') {
-                    // 合并到当前收集 - 当前存档已收集的保留，全局收集的也添加
-                    for (const cardId in data.collectedCards) {
-                        if (!this.collectedCards[cardId]) {
-                            this.collectedCards[cardId] = data.collectedCards[cardId];
-                        }
-                    }
-                }
-            }
-        } catch (e) {
-            console.warn('加载全局卡片收集失败', e);
-        }
+        return CardSystem.loadGlobalCollection(this);
     }
 
     /**
      * 保存全局卡片收集到localStorage（跨存档继承）
      */
     saveGlobalCollection() {
-        try {
-            // 统计收集信息
-            const stats = {
-                total_collected: Object.keys(this.collectedCards).length,
-                by_type: {}
-            };
-            for (const cardId in this.collectedCards) {
-                const card = getCardById(cardId);
-                if (card) {
-                    const typeName = getCardTypeName(card.type);
-                    stats.by_type[typeName] = (stats.by_type[typeName] || 0) + 1;
-                }
-            }
-
-            const data = {
-                collectedCards: this.collectedCards,
-                collection_stats: stats,
-                updated_at: new Date().toISOString()
-            };
-
-            localStorage.setItem('hongwu_card_collection', JSON.stringify(data));
-        } catch (e) {
-            console.warn('保存全局卡片收集失败', e);
-        }
+        return CardSystem.saveGlobalCollection(this);
     }
 
     /**
@@ -264,17 +190,7 @@ window.GameState = class GameState {
      * @returns {Object} {type: cards[]}
      */
     getCollectedCardsByType() {
-        const result = {};
-        for (const cardId in this.collectedCards) {
-            const card = getCardById(cardId);
-            if (card) {
-                if (!result[card.type]) {
-                    result[card.type] = [];
-                }
-                result[card.type].push(card);
-            }
-        }
-        return result;
+        return CardSystem.getCollectedCardsByType(this);
     }
 
     /**
@@ -282,31 +198,7 @@ window.GameState = class GameState {
      * @returns {Object} {total: number, totalPossible: number, byType: {type: {collected: number, total: number}}}
      */
     getCollectionStats() {
-        const allCards = getAllCards();
-        const collectedByType = this.getCollectedCardsByType();
-
-        const stats = {
-            total: Object.keys(this.collectedCards).length,
-            totalPossible: allCards.length,
-            byType: {}
-        };
-
-        const allByType = {};
-        allCards.forEach(card => {
-            if (!allByType[card.type]) {
-                allByType[card.type] = 0;
-            }
-            allByType[card.type]++;
-        });
-
-        for (const type in allByType) {
-            stats.byType[type] = {
-                collected: (collectedByType[type] || []).length,
-                total: allByType[type]
-            };
-        }
-
-        return stats;
+        return CardSystem.getCollectionStats(this);
     }
 
     /**
@@ -315,7 +207,7 @@ window.GameState = class GameState {
      * @returns {boolean}
      */
     hasCard(cardId) {
-        return !!this.collectedCards[cardId];
+        return CardSystem.hasCard(this, cardId);
     }
 
     /**
@@ -323,15 +215,39 @@ window.GameState = class GameState {
      * @returns {Object} {attribute: bonusValue}
      */
     getCurrentTitleBonus() {
-        if (!this.currentTitle) {
-            return {};
-        }
-        const titleCard = getCardById(this.currentTitle);
-        if (titleCard && titleCard.type === CardTypes.TITLE && titleCard.effect) {
-            return titleCard.effect;
-        }
-        return {};
+        return CardSystem.getCurrentTitleBonus(this);
     }
+
+    /**
+     * 增加合战胜利次数
+     * @param {string} battleType - 'field'|'siege'|'naval'
+     */
+    incrementBattleWinCount(battleType) {
+        return CardSystem.incrementBattleWinCount(this, battleType);
+    }
+
+    /**
+     * 保存合战胜利次数到localStorage
+     */
+    saveBattleWins() {
+        return CardSystem.saveBattleWins(this);
+    }
+
+    /**
+     * 检查是否解锁合战相关称号
+     */
+    checkBattleTitles() {
+        return CardSystem.checkBattleTitles(this);
+    }
+
+    /**
+     * 统计玩家持有的宝物卡数量
+     */
+    countTreasures() {
+        return CardSystem.countTreasures(this);
+    }
+
+    // ========== 技能系统委托 ==========
 
     /**
      * 添加技能经验，处理升级
@@ -340,33 +256,302 @@ window.GameState = class GameState {
      * @returns {boolean} 是否升级成功
      */
     addSkillExp(skillId, exp) {
-        const skillData = this.skills[skillId];
-        const skillConfig = getSkillById(skillId);
-        if (!skillData || !skillConfig || skillData.level >= skillConfig.maxLevel) {
-            return false;
-        }
-
-        skillData.exp += exp;
-        let leveledUp = false;
-
-        // 检查是否升级
-        while (skillData.level < skillConfig.maxLevel && skillData.exp >= skillConfig.expPerLevel) {
-            skillData.exp -= skillConfig.expPerLevel;
-            skillData.level++;
-            leveledUp = true;
-            const skillName = skillConfig.name;
-            this.addLog(`${skillName} 升级了！当前等级：${skillData.level}`);
-        }
-
-        return leveledUp;
+        return SkillSystem.addSkillExp(this, skillId, exp);
     }
 
     /**
      * 获取玩家技能等级
      */
     getSkillLevel(skillId) {
-        return this.skills[skillId]?.level || 0;
+        return SkillSystem.getSkillLevel(this, skillId);
     }
+
+    /**
+     * 检查身份晋升，如果功勋够了自动晋升
+     * @returns {Role|null} 新身份，如果没晋升返回null
+     */
+    checkRolePromotion() {
+        return SkillSystem.checkRolePromotion(this);
+    }
+
+    /**
+     * 获取当前身份
+     */
+    getCurrentRole() {
+        return SkillSystem.getCurrentRole(this);
+    }
+
+    /**
+     * 检查今天是否是评定会日
+     * 评定会规则：每隔两个月召开一次，固定在奇数月一日
+     * @returns {boolean}
+     */
+    isEvaluationDay() {
+        return SkillSystem.isEvaluationDay(this);
+    }
+
+    /**
+     * 检查玩家是否在主公居城（评定会需要身处居城才能参加）
+     * @returns {boolean}
+     */
+    isAtMainCity() {
+        return SkillSystem.isAtMainCity(this);
+    }
+
+    /**
+     * 根据任务模板和玩家技能计算目标值
+     * @param {MissionTemplate} missionTemplate
+     * @returns {number}
+     */
+    calculateMissionTarget(missionTemplate) {
+        return SkillSystem.calculateMissionTarget(this, missionTemplate);
+    }
+
+    // ========== 社交系统委托 ==========
+
+    /**
+     * 获取玩家与某NPC的亲密度
+     * @param {number} characterId
+     * @returns {number} 亲密度 -4 ~ +5
+     */
+    getIntimacy(characterId) {
+        return SocialSystem.getIntimacy(this, characterId);
+    }
+
+    /**
+     * 设置玩家与某NPC的亲密度
+     * @param {number} characterId
+     * @param {number} value
+     */
+    setIntimacy(characterId, value) {
+        return SocialSystem.setIntimacy(this, characterId, value);
+    }
+
+    /**
+     * 增加亲密度
+     * @param {number} characterId
+     * @param {number} delta
+     */
+    addIntimacy(characterId, delta) {
+        return SocialSystem.addIntimacy(this, characterId, delta);
+    }
+
+    /**
+     * 获取亲密度等级的文字描述
+     * @param {number} intimacy
+     */
+    getIntimacyDescription(intimacy) {
+        return SocialSystem.getIntimacyDescription(intimacy);
+    }
+
+    /**
+     * 获取亲密度的心形图标表示
+     * @param {number} intimacy
+     */
+    getIntimacyHearts(intimacy) {
+        return SocialSystem.getIntimacyHearts(intimacy);
+    }
+
+    /**
+     * 检查是否可以拜师（请求指导技能）
+     * @param {number} characterId
+     */
+    canInvitePractice(characterId) {
+        return SocialSystem.canInvitePractice(this, characterId);
+    }
+
+    /**
+     * 检查是否可以劝诱加入己方势力
+     * @param {number} characterId
+     */
+    canPersuade(characterId) {
+        return SocialSystem.canPersuade(this, characterId);
+    }
+
+    /**
+     * 检查是否可以结义
+     * @param {number} characterId
+     */
+    canSwearBrotherhood(characterId) {
+        return SocialSystem.canSwearBrotherhood(this, characterId);
+    }
+
+    /**
+     * 检查是否可以求婚
+     * @param {number} characterId
+     */
+    canProposeMarriage(characterId) {
+        return SocialSystem.canProposeMarriage(this, characterId);
+    }
+
+    /**
+     * 执行送礼操作
+     * @param {number} characterId - NPC ID
+     * @param {string} treasureCardId - 宝物卡ID
+     * @returns {boolean} 是否成功
+     */
+    giftTreasure(characterId, treasureCardId) {
+        return SocialSystem.giftTreasure(this, characterId, treasureCardId);
+    }
+
+    /**
+     * 邀请茶会
+     * @param {number} characterId
+     * @returns {boolean} 是否成功
+     */
+    inviteTea(characterId) {
+        return SocialSystem.inviteTea(this, characterId);
+    }
+
+    /**
+     * 邀请宴饮
+     * @param {number} characterId
+     * @returns {boolean} 是否成功
+     */
+    inviteFeast(characterId) {
+        return SocialSystem.inviteFeast(this, characterId);
+    }
+
+    /**
+     * 请求切磋武艺
+     * @param {number} characterId
+     * @returns {boolean} 是否同意切磋
+     */
+    requestDuel(characterId) {
+        return SocialSystem.requestDuel(this, characterId);
+    }
+
+    /**
+     * 切磋完成后处理亲密度
+     */
+    onDuelComplete(characterId, playerWon) {
+        return SocialSystem.onDuelComplete(this, characterId, playerWon);
+    }
+
+    /**
+     * 执行结义
+     */
+    doSwearBrotherhood(characterId) {
+        return SocialSystem.doSwearBrotherhood(this, characterId);
+    }
+
+    /**
+     * 求婚
+     */
+    proposeMarriage(characterId) {
+        return SocialSystem.proposeMarriage(this, characterId);
+    }
+
+    /**
+     * 获取当前城市中的所有NPC
+     * 根据人物模板的locationCityId匹配
+     */
+    getCharactersInCurrentCity() {
+        return SocialSystem.getCharactersInCurrentCity(this);
+    }
+
+    /**
+     * 自然衰减：每半年无互动亲密度-2
+     * 应该在时间推进半年时调用
+     */
+    decayIntimacy() {
+        return SocialSystem.decayIntimacy(this);
+    }
+
+    /**
+     * 从localStorage加载亲密度关系
+     */
+    loadRelationships() {
+        return SocialSystem.loadRelationships(this);
+    }
+
+    /**
+     * 保存亲密度关系到localStorage
+     */
+    saveRelationships() {
+        return SocialSystem.saveRelationships(this);
+    }
+
+    /**
+     * 开始与某个NPC的社交互动
+     */
+    startSocialInteraction(characterId) {
+        return SocialSystem.startSocialInteraction(this, characterId);
+    }
+
+    // ========== 经济/存档系统委托 ==========
+
+    /**
+     * 获取城镇经济状态
+     */
+    getCityEconomy(cityId) {
+        return SaveSystem.getCityEconomy(this, cityId);
+    }
+
+    /**
+     * 设置城镇战乱状态
+     */
+    setCityWarState(cityId, atWar) {
+        return SaveSystem.setCityWarState(this, cityId, atWar);
+    }
+
+    /**
+     * 添加商品到玩家背包
+     */
+    addToInventory(goodsId, quantity) {
+        return SaveSystem.addToInventory(this, goodsId, quantity);
+    }
+
+    /**
+     * 从玩家背包移除商品
+     */
+    removeFromInventory(goodsId, quantity) {
+        return SaveSystem.removeFromInventory(this, goodsId, quantity);
+    }
+
+    /**
+     * 获取玩家持有商品数量
+     */
+    getInventoryQuantity(goodsId) {
+        return SaveSystem.getInventoryQuantity(this, goodsId);
+    }
+
+    /**
+     * 检查事件标记是否为真
+     */
+    hasEventFlag(flag) {
+        return SaveSystem.hasEventFlag(this, flag);
+    }
+
+    /**
+     * 设置事件标记
+     */
+    setEventFlag(flag, value) {
+        return SaveSystem.setEventFlag(this, flag, value);
+    }
+
+    /**
+     * 检查事件是否已经触发过
+     */
+    isEventTriggered(eventId) {
+        return SaveSystem.isEventTriggered(this, eventId);
+    }
+
+    /**
+     * 标记事件已经触发
+     */
+    markEventTriggered(eventId) {
+        return SaveSystem.markEventTriggered(this, eventId);
+    }
+
+    /**
+     * 开始执行一个事件
+     */
+    startEvent(event) {
+        return SaveSystem.startEvent(this, event);
+    }
+
+    // ========== 核心基础方法（保留在GameState中） ==========
 
     /**
      * 获取当前玩家角色对象
@@ -400,7 +585,7 @@ window.GameState = class GameState {
 
             // 每年一月一日自然衰减亲密度
             if (this.month === 1 && this.day === 1) {
-                this.decayAllIntimacies();
+                this.decayIntimacy();
             }
         }
 
@@ -437,61 +622,6 @@ window.GameState = class GameState {
             yearStr = `至正 ${this.year - 1341 + 1}年`;
         }
         return `${yearStr} ${this.month}月${this.day}日`;
-    }
-
-    /**
-     * 检查身份晋升，如果功勋够了自动晋升
-     * @returns {Role|null} 新身份，如果没晋升返回null
-     */
-    checkRolePromotion() {
-        const currentRole = getRoleById(this.currentRoleId);
-        const newRole = getCurrentRoleByMerit(this.merit);
-        if (newRole && newRole.order > currentRole.order) {
-            // 晋升了
-            this.currentRoleId = newRole.id;
-            // 更新人物数据里的身份
-            const player = this.getPlayerCharacter();
-            if (player) {
-                player.role = newRole.name;
-            }
-            this.addLog(`身份晋升！现在你是：${newRole.name}`);
-            return newRole;
-        }
-        return null;
-    }
-
-    /**
-     * 获取当前身份
-     */
-    getCurrentRole() {
-        return getRoleById(this.currentRoleId);
-    }
-
-    /**
-     * 检查今天是否是评定会日
-     * 评定会规则：每隔两个月召开一次，固定在奇数月一日
-     * @returns {boolean}
-     */
-    isEvaluationDay() {
-        return this.day === 1 && (this.month % 2) === 1;
-    }
-
-    /**
-     * 检查玩家是否在主公居城（评定会需要身处居城才能参加）
-     * @returns {boolean}
-     */
-    isAtMainCity() {
-        // 开局玩家在濠州，这是郭子兴军的本城
-        // 后续可以根据玩家势力动态判断
-        const player = this.getPlayerCharacter();
-        if (player && player.faction) {
-            const faction = getForceTemplateByFactionId(player.faction);
-            if (faction && faction.initialCities.length > 0) {
-                return this.currentCityId === faction.initialCities[0];
-            }
-        }
-        // 默认判断：初始在濠州就是本城
-        return this.currentCityId === 1;
     }
 
     /**
@@ -578,28 +708,6 @@ window.GameState = class GameState {
 
         this.addLog(`接受主命：${missionTemplate.name}，限时${missionTemplate.timeLimitDays}天完成`);
         this.currentScene = GameScene.TASK_LIST;
-    }
-
-    /**
-     * 根据任务模板和玩家技能计算目标值
-     * @param {MissionTemplate} missionTemplate
-     * @returns {number}
-     */
-    calculateMissionTarget(missionTemplate) {
-        // 基础目标 = 基础难度 * (1 + 技能加成)
-        let baseTarget = missionTemplate.baseDifficulty * 10;
-
-        // 根据关联技能等级加成目标
-        if (missionTemplate.requiredSkills && missionTemplate.requiredSkills.length > 0) {
-            let totalSkillLevel = 0;
-            missionTemplate.requiredSkills.forEach(skillId => {
-                totalSkillLevel += this.getSkillLevel(skillId);
-            });
-            // 每级技能增加5%目标（也增加完成后的经验奖励）
-            baseTarget = Math.round(baseTarget * (1 + totalSkillLevel * 0.05));
-        }
-
-        return baseTarget;
     }
 
     /**
@@ -717,779 +825,4 @@ window.GameState = class GameState {
         const allAvailable = this.getAvailableMissions();
         return allAvailable.filter(m => m.category === category);
     }
-
-    // ========== 社交系统 - 亲密度关系管理 ==========
-
-    /**
-     * 获取关系key
-     */
-    getRelationshipKey(characterId) {
-        return `${this.playerCharacterId}_${characterId}`;
-    }
-
-    /**
-     * 获取玩家与某NPC的亲密度
-     * @param {number} characterId
-     * @returns {number} 亲密度 -4 ~ +5
-     */
-    getIntimacy(characterId) {
-        const key = this.getRelationshipKey(characterId);
-        return this.relationships[key] || 0;
-    }
-
-    /**
-     * 设置玩家与某NPC的亲密度
-     * @param {number} characterId
-     * @param {number} value
-     */
-    setIntimacy(characterId, value) {
-        // 限制范围 -4 ~ +5
-        const clamped = Math.max(-4, Math.min(5, value));
-        const key = this.getRelationshipKey(characterId);
-        this.relationships[key] = clamped;
-
-        // 检查是否达到3心，自动解锁人物卡
-        if (clamped >= 3) {
-            this.tryUnlockCharacterCard(characterId);
-        }
-
-        this.saveRelationships();
-        return clamped;
-    }
-
-    /**
-     * 增加亲密度
-     * @param {number} characterId
-     * @param {number} delta
-     */
-    addIntimacy(characterId, delta) {
-        const current = this.getIntimacy(characterId);
-        return this.setIntimacy(characterId, current + delta);
-    }
-
-    /**
-     * 尝试解锁人物卡（亲密度达到3心时）
-     */
-    tryUnlockCharacterCard(characterId) {
-        const character = getCharacterTemplateByNumId(characterId);
-        if (!character) return false;
-
-        // 查找对应的人物卡
-        const cardId = `CHAR_${character.templateId}`;
-        const card = getCardById(cardId);
-
-        if (card && !this.hasCard(cardId)) {
-            this.acquireCard(cardId);
-            this.addLog(`因为亲密度提升，${character.name}赠予了你他的人物卡！`);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 获取亲密度等级的文字描述
-     * @param {number} intimacy
-     */
-    getIntimacyDescription(intimacy) {
-        switch (intimacy) {
-            case -4: return '不共戴天';
-            case -3: return '仇敌';
-            case -2: return '交恶';
-            case -1: return '冷淡';
-            case 0: return '中立';
-            case 1: return '一面之缘';
-            case 2: return '略有交情';
-            case 3: return '推心置腹';
-            case 4: return '莫逆之交';
-            case 5: return '生死相随';
-            default: return '中立';
-        }
-    }
-
-    /**
-     * 获取亲密度的心形图标表示
-     * @param {number} intimacy
-     */
-    getIntimacyHearts(intimacy) {
-        // 正数显示实心心，负数显示空心
-        let hearts = '';
-        if (intimacy > 0) {
-            for (let i = 1; i <= 5; i++) {
-                hearts += i <= intimacy ? '❤️' : '♡';
-            }
-        } else {
-            for (let i = -4; i <= 0; i++) {
-                if (i <= intimacy) {
-                    hearts += '💔';
-                } else {
-                    hearts += '♡';
-                }
-            }
-        }
-        return hearts;
-    }
-
-    /**
-     * 检查是否可以拜师（请求指导技能）
-     * @param {number} characterId
-     */
-    canInvitePractice(characterId) {
-        // 需要亲密度 >= 2心
-        return this.getIntimacy(characterId) >= 2;
-    }
-
-    /**
-     * 检查是否可以劝诱加入己方势力
-     * @param {number} characterId
-     */
-    canPersuade(characterId) {
-        // 需要亲密度 >= 2心
-        return this.getIntimacy(characterId) >= 2;
-    }
-
-    /**
-     * 检查是否可以结义
-     * @param {number} characterId
-     */
-    canSwearBrotherhood(characterId) {
-        // 需要亲密度 >= 4心，且同性，且不超过2个结义兄弟
-        const character = getCharacterTemplateByNumId(characterId);
-        const player = this.getPlayerCharacter();
-        if (!character || !player) return false;
-
-        // 性别判断简化：名字最后一个字不判断，假设朱元璋是男，马秀英是女
-        // 实际：玩家和NPC性别不同不能结义（需要婚姻）
-        // 这里简化：已结婚偶不影响，只要不同性别就是婚姻候选
-        const isPlayerMale = player.name !== '马秀英';
-        const isNpcMale = character.name !== '马秀英';
-
-        if (isPlayerMale !== isNpcMale) {
-            return false; // 不同性别应该结婚，不是结义
-        }
-
-        return this.getIntimacy(characterId) >= 4 && this.brothers.length < 2;
-    }
-
-    /**
-     * 检查是否可以求婚
-     * @param {number} characterId
-     */
-    canProposeMarriage(characterId) {
-        const character = getCharacterTemplateByNumId(characterId);
-        const player = this.getPlayerCharacter();
-        if (!character || !player) return false;
-
-        // 已经有配偶了不能再求婚
-        if (this.spouse !== null) return false;
-
-        // 需要亲密度 >= 4心
-        if (this.getIntimacy(characterId) < 4) return false;
-
-        // 不同性别
-        const isPlayerMale = player.name !== '马秀英';
-        const isNpcMale = character.name !== '马秀英';
-
-        return isPlayerMale !== isNpcMale;
-    }
-
-    /**
-     * 执行送礼操作
-     * @param {number} characterId - NPC ID
-     * @param {string} treasureCardId - 宝物卡ID
-     * @returns {boolean} 是否成功
-     */
-    giftTreasure(characterId, treasureCardId) {
-        if (!this.hasCard(treasureCardId)) {
-            this.addLog('你没有这件宝物，无法赠送。');
-            return false;
-        }
-
-        const character = getCharacterTemplateByNumId(characterId);
-        if (!character) return false;
-
-        // 移除玩家的宝物卡
-        delete this.collectedCards[treasureCardId];
-
-        // 根据宝物稀有度增加亲密度
-        const card = getCardById(treasureCardId);
-        let intimacyIncrease = 5;
-        if (card && card.rarity) {
-            intimacyIncrease = card.rarity * 5;
-        }
-
-        const newIntimacy = this.addIntimacy(characterId, intimacyIncrease);
-        this.addLog(`你赠送给${character.name}一件宝物，亲密度增加了${intimacyIncrease}点。`);
-        this.addLog(`现在你和${character.name}的关系：${this.getIntimacyDescription(newIntimacy)} ${this.getIntimacyHearts(newIntimacy)}`);
-
-        this.saveRelationships();
-        return true;
-    }
-
-    /**
-     * 邀请茶会
-     * @param {number} characterId
-     * @returns {boolean} 是否成功
-     */
-    inviteTea(characterId) {
-        const cost = 5; // 5贯
-        if (this.money < cost) {
-            this.addLog('金钱不足，无法支付茶会费用。');
-            return false;
-        }
-
-        const character = getCharacterTemplateByNumId(characterId);
-        if (!character) return false;
-
-        const currentIntimacy = this.getIntimacy(characterId);
-        if (currentIntimacy < -1) {
-            this.addLog(`${character.name}拒绝了你的茶会邀请。`);
-            return false;
-        }
-
-        this.money -= cost;
-
-        // 简单成功判定，根据口才技能提高成功率
-        const eloquenceLevel = this.getSkillLevel('eloquence');
-        const successChance = 0.5 + eloquenceLevel * 0.15;
-        const success = Math.random() < successChance;
-
-        if (success) {
-            const increase = 10 + Math.floor(Math.random() * 6);
-            const newIntimacy = this.addIntimacy(characterId, increase);
-            this.addLog(`茶会愉快，你和${character.name}相谈甚欢，亲密度+${increase}。`);
-            this.addLog(`现在关系：${this.getIntimacyDescription(newIntimacy)} ${this.getIntimacyHearts(newIntimacy)}`);
-        } else {
-            this.addLog(`谈话不太投机，${character.name}早早告辞，亲密度没有变化。`);
-        }
-
-        // 消耗1天时间
-        this.advanceDays(1);
-        this.saveRelationships();
-        return true;
-    }
-
-    /**
-     * 邀请宴饮
-     * @param {number} characterId
-     * @returns {boolean} 是否成功
-     */
-    inviteFeast(characterId) {
-        const cost = 15; // 15贯
-        if (this.money < cost) {
-            this.addLog('金钱不足，无法支付宴饮费用。');
-            return false;
-        }
-
-        const character = getCharacterTemplateByNumId(characterId);
-        if (!character) return false;
-
-        const currentIntimacy = this.getIntimacy(characterId);
-        if (currentIntimacy < 0) {
-            this.addLog(`${character.name}拒绝了你的宴饮邀请。`);
-            return false;
-        }
-
-        this.money -= cost;
-
-        const eloquenceLevel = this.getSkillLevel('eloquence');
-        const successChance = 0.6 + eloquenceLevel * 0.1;
-        const success = Math.random() < successChance;
-
-        if (success) {
-            const increase = 15 + Math.floor(Math.random() * 11);
-            const newIntimacy = this.addIntimacy(characterId, increase);
-            this.addLog(`宴饮尽兴，你和${character.name}开怀畅饮，亲密度+${increase}。`);
-            this.addLog(`现在关系：${this.getIntimacyDescription(newIntimacy)} ${this.getIntimacyHearts(newIntimacy)}`);
-        } else {
-            this.addLog(`${character.name}因有事提前离去，亲密度只增加了一点。`);
-            this.addIntimacy(characterId, 5);
-        }
-
-        // 消耗1天时间
-        this.advanceDays(1);
-        this.saveRelationships();
-        return true;
-    }
-
-    /**
-     * 请求切磋武艺
-     * @param {number} characterId
-     * @returns {boolean} 是否同意切磋
-     */
-    requestDuel(characterId) {
-        const character = getCharacterTemplateByNumId(characterId);
-        if (!character) return false;
-
-        const intimacy = this.getIntimacy(characterId);
-        if (intimacy < 1) {
-            this.addLog(`${character.name}不愿意和你切磋。`);
-            return false;
-        }
-
-        // 性格判断：豪勇性格更容易同意
-        if (character.personality === '豪勇' || character.personality === '勇猛') {
-            this.addLog(`${character.name}欣然同意了你的切磋邀请！`);
-        } else if (character.personality === '慎重') {
-            if (Math.random() > 0.5) {
-                this.addLog(`${character.name}稍加犹豫后，同意了切磋。`);
-            } else {
-                this.addLog(`${character.name}今日无心比武，拒绝了你。`);
-                return false;
-            }
-        }
-
-        // 切磋会进入个人战，这里只记录状态，实际战斗由个人战系统处理
-        this.addLog(`你准备和${character.name}切磋武艺。`);
-        this.currentSocialTarget = characterId;
-
-        // 不消耗时间，进入个人战界面后再计算
-        return true;
-    }
-
-    /**
-     * 切磋完成后处理亲密度
-     */
-    onDuelComplete(characterId, playerWon) {
-        const character = getCharacterTemplateByNumId(characterId);
-        if (!character) return;
-
-        let increase = 2;
-        if (playerWon) {
-            increase = character.personality === '豪勇' ? 10 : 5;
-            this.addLog(`你战胜了${character.name}，亲密度+${increase}。`);
-
-            // 有几率习得对方的秘传卡
-            this.tryLearnSecretFromCharacter(characterId);
-        } else {
-            this.addLog(`${character.name}战胜了你，但也指点了你几招，亲密度+${increase}。`);
-        }
-
-        this.addIntimacy(characterId, increase);
-        this.advanceDays(1);
-        this.saveRelationships();
-    }
-
-    /**
-     * 尝试从NPC习得秘传卡
-     */
-    tryLearnSecretFromCharacter(characterId) {
-        const character = getCharacterTemplateByNumId(characterId);
-        if (!character || !character.exclusiveSecretCard) return false;
-
-        // 需要拥有该人物卡
-        const cardId = `CHAR_${character.templateId}`;
-        if (!this.hasCard(cardId)) return false;
-
-        // 需要武艺达到一定等级
-        const martialLevel = this.getSkillLevel('martial');
-        if (martialLevel < 3) return false;
-
-        const secretCardId = character.exclusiveSecretCard;
-        if (this.hasCard(secretCardId)) return false;
-
-        // 50%几率习得
-        if (Math.random() > 0.5) return false;
-
-        this.acquireCard(secretCardId);
-        this.addLog(`🎉 你在切磋中领悟了${character.name}的秘传【${getCardById(secretCardId).name}】！`);
-        return true;
-    }
-
-    /**
-     * 执行结义
-     */
-    doSwearBrotherhood(characterId) {
-        if (!this.canSwearBrotherhood(characterId)) {
-            this.addLog('无法结义，条件不满足。');
-            return false;
-        }
-
-        const character = getCharacterTemplateByNumId(characterId);
-        this.brothers.push(characterId);
-        this.setIntimacy(characterId, 5); // 锁定为5心
-        this.addLog(`🎯 你和${character.name}桃园结义，从此结为异姓兄弟！`);
-        this.addLog('你们关系锁定为生死相随，永不背叛。');
-
-        // 消耗50贯和1天
-        this.money -= 50;
-        this.advanceDays(1);
-        this.saveRelationships();
-        return true;
-    }
-
-    /**
-     * 求婚
-     */
-    proposeMarriage(characterId) {
-        if (!this.canProposeMarriage(characterId)) {
-            this.addLog('无法求婚，条件不满足。');
-            return false;
-        }
-
-        const character = getCharacterTemplateByNumId(characterId);
-        // 需要聘礼
-        const hasEnoughTreasure = this.countTreasures() >= 1;
-        if (this.money < 100 || !hasEnoughTreasure) {
-            this.addLog('你需要至少100贯和一件宝物作为聘礼。');
-            return false;
-        }
-
-        // 扣除聘礼
-        this.money -= 100;
-        // TODO: 扣除一件宝物，这里简化
-
-        this.spouse = characterId;
-        this.setIntimacy(characterId, 5); // 锁定为5心
-        this.addLog(`💍 你和${character.name}成婚了！婚礼举办了三天，宾主尽欢。`);
-        this.addLog('你们关系锁定为生死相随，永不分离。');
-
-        // 消耗3天
-        this.advanceDays(3);
-        this.saveRelationships();
-        return true;
-    }
-
-    /**
-     * 统计玩家持有的宝物卡数量
-     */
-    countTreasures() {
-        let count = 0;
-        for (const cardId in this.collectedCards) {
-            const card = getCardById(cardId);
-            if (card && card.type === CardTypes.TREASURE) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    /**
-     * 获取当前城市中的所有NPC
-     * 根据人物模板的locationCityId匹配
-     */
-    getCharactersInCurrentCity() {
-        const allCharacters = getAllCharacterTemplates();
-        return allCharacters.filter(c => c.locationCityId === this.currentCityId);
-    }
-
-    /**
-     * 自然衰减：每半年无互动亲密度-2
-     * 应该在时间推进半年时调用
-     */
-    decayIntimacy() {
-        // 每半年（6个月）衰减一次
-        for (const key in this.relationships) {
-            if (this.relationships[key] > 0) {
-                this.relationships[key] -= 2;
-                if (this.relationships[key] < 0) {
-                    this.relationships[key] = 0;
-                }
-            }
-        }
-        this.addLog('长时间未互动的人际关系略有疏远。');
-        this.saveRelationships();
-    }
-
-    /**
-     * 从localStorage加载亲密度关系
-     */
-    loadRelationships() {
-        try {
-            const saved = localStorage.getItem('hongwu_relationships');
-            if (saved) {
-                const data = JSON.parse(saved);
-                if (data.relationships && typeof data.relationships === 'object') {
-                    this.relationships = data.relationships;
-                }
-            }
-            // 加载配偶和结义
-            const savedMarriage = localStorage.getItem('hongwu_marriage_brothers');
-            if (savedMarriage) {
-                const data = JSON.parse(savedMarriage);
-                if (data.spouse !== undefined) {
-                    this.spouse = data.spouse;
-                }
-                if (data.brothers && Array.isArray(data.brothers)) {
-                    this.brothers = data.brothers;
-                }
-            }
-        } catch (e) {
-            console.warn('加载人际关系失败', e);
-        }
-    }
-
-    /**
-     * 保存亲密度关系到localStorage
-     */
-    saveRelationships() {
-        try {
-            const data = {
-                relationships: this.relationships,
-                updated_at: new Date().toISOString()
-            };
-            localStorage.setItem('hongwu_relationships', JSON.stringify(data));
-
-            const marriageData = {
-                spouse: this.spouse,
-                brothers: this.brothers
-            };
-            localStorage.setItem('hongwu_marriage_brothers', JSON.stringify(marriageData));
-        } catch (e) {
-            console.warn('保存人际关系失败', e);
-        }
-    }
-
-    /**
-     * 开始与某个NPC的社交互动
-     */
-    startSocialInteraction(characterId) {
-        this.currentSocialTarget = characterId;
-        this.currentScene = GameScene.SOCIAL_VIEW;
-        const character = getCharacterTemplateByNumId(characterId);
-        this.addLog(`你开始与${character.name}交谈。`);
-    }
-
-    /**
-     * 淮西集团同乡加成 - 预设初始关系
-     * 这个在游戏初始化时调用，给同乡们加好感
-     */
-    applyHuaixiGroupBonus() {
-        // 淮西集团核心人物ID列表
-        const huaixiIds = [
-            1, // 朱元璋自己不算
-            2, // 徐达
-            3, // 常遇春
-            4, // 汤和
-            // ... 更多可以后续添加
-        ];
-
-        const playerId = this.playerCharacterId;
-        // 如果玩家是朱元璋，给他的同乡加好感
-        if (playerId === 1) {
-            huaixiIds.forEach(id => {
-                if (id !== playerId) {
-                    this.addIntimacy(id, 20); // +20 = 2心
-                }
-            });
-        }
-    }
-
- /**
-  * 从localStorage加载合战胜利次数
-  */
- loadBattleWins() {
-     try {
-         const saved = localStorage.getItem('hongwu_battle_wins');
-         if (saved) {
-             const data = JSON.parse(saved);
-             this.battleWins.total = data.total || 0;
-             this.battleWins.naval = data.naval || 0;
-             this.battleWins.field = data.field || 0;
-             this.battleWins.siege = data.siege || 0;
-             this.battleWins.firearm = data.firearm || 0;
-         }
-     } catch (e) {
-         console.warn('加载合战胜利次数失败', e);
-     }
- }
-
- /**
-  * 保存合战胜利次数到localStorage
-  */
- saveBattleWins() {
-     try {
-         localStorage.setItem('hongwu_battle_wins', JSON.stringify(this.battleWins));
-     } catch (e) {
-         console.warn('保存合战胜利次数失败', e);
-     }
- }
-
- /**
-  * 增加合战胜利次数
-  * @param {string} battleType - 'field'|'siege'|'naval'
-  */
- incrementBattleWinCount(battleType) {
-     this.battleWins.total++;
-     if (typeof this.battleWins[battleType] !== 'undefined') {
-         this.battleWins[battleType]++;
-     }
-     this.saveBattleWins();
-
-     // 检查是否解锁称号
-     this.checkBattleTitles();
- }
-
- /**
-  * 检查是否解锁合战相关称号
-  */
- checkBattleTitles() {
-     // 策士 - 合战胜利10次
-     if (this.battleWins.total >= 10 && !this.hasCard('TITLE_BATTLE_1')) {
-         this.acquireCard('TITLE_BATTLE_1');
-     }
-     // 军师 - 合战胜利20次
-     if (this.battleWins.total >= 20 && !this.hasCard('TITLE_BATTLE_2')) {
-         this.acquireCard('TITLE_BATTLE_2');
-     }
-     // 智将 - 合战胜利40次
-     if (this.battleWins.total >= 40 && !this.hasCard('TITLE_BATTLE_3')) {
-         this.acquireCard('TITLE_BATTLE_3');
-     }
-     // 军神 - 合战胜利80次
-     if (this.battleWins.total >= 80 && !this.hasCard('TITLE_BATTLE_4')) {
-         this.acquireCard('TITLE_BATTLE_4');
-     }
-     // 水战都督 - 水战胜利20次
-     if (this.battleWins.naval >= 20 && !this.hasCard('TITLE_BATTLE_NAVAL')) {
-         this.acquireCard('TITLE_BATTLE_NAVAL');
-     }
-     // 火器专家 - 使用火器胜利30次
-     if (this.battleWins.firearm >= 30 && !this.hasCard('TITLE_BATTLE_FIREARM')) {
-         this.acquireCard('TITLE_BATTLE_FIREARM');
-     }
- }
-
-
-// ========== 经济系统方法 ==========
-
- /**
-  * 初始化所有城镇的经济状态
-  */
- initAllCityEconomies() {
-     const allCities = getAllCityTemplates();
-     for (const city of allCities) {
-         this.initCityEconomy(city.cityId);
-     }
- }
-
- /**
-  * 初始化单个城镇的经济状态
-  * @param {string} cityId
-  */
- initCityEconomy(cityId) {
-     if (!this.cityEconomies[cityId]) {
-         const cityTemplate = getCityTemplateByCityId(cityId);
-         // 初始繁荣度和规模成正比
-         const baseProsperity = (cityTemplate.baseScale || 3) * 10;
-         this.cityEconomies[cityId] = {
-             cityId: cityId,
-             prosperity: baseProsperity,
-             taxRate: 0.15, // 默认税率15%
-             investmentLevel: 0,
-             atWar: false // 是否处于战乱
-         };
-     }
- }
-
- /**
-  * 获取城镇经济状态
-  * @param {number|string} cityId - 可以是数字ID（来自 gameState.currentCityId）或字符串cityId
-  * @returns {Object}
-  */
- getCityEconomy(cityId) {
-     // 如果传入的是数字ID，先获取城镇模板得到字符串cityId
-     if (typeof cityId === 'number') {
-         const cityTemplate = getCityTemplateById(cityId);
-         if (cityTemplate) {
-             cityId = cityTemplate.cityId;
-         }
-     }
-     this.initCityEconomy(cityId);
-     return this.cityEconomies[cityId];
- }
-
- /**
-  * 设置城镇战乱状态
-  * @param {string} cityId
-  * @param {boolean} atWar
-  */
- setCityWarState(cityId, atWar) {
-     const economy = this.getCityEconomy(cityId);
-     economy.atWar = atWar;
- }
-
- /**
-  * 添加商品到玩家背包
-  * @param {string} goodsId
-  * @param {number} quantity
-  */
- addToInventory(goodsId, quantity) {
-     if (!this.playerInventory[goodsId]) {
-         this.playerInventory[goodsId] = 0;
-     }
-     this.playerInventory[goodsId] += quantity;
- }
-
- /**
-  * 从玩家背包移除商品
-  * @param {string} goodsId
-  * @param {number} quantity
-  */
- removeFromInventory(goodsId, quantity) {
-     if (!this.playerInventory[goodsId]) {
-         return;
-     }
-     this.playerInventory[goodsId] -= quantity;
-     if (this.playerInventory[goodsId] <= 0) {
-         delete this.playerInventory[goodsId];
-     }
- }
-
- /**
-  * 获取玩家持有商品数量
-  * @param {string} goodsId
-  * @returns {number}
-  */
- getInventoryQuantity(goodsId) {
-     return this.playerInventory[goodsId] || 0;
- }
-
- // ========== 事件系统方法 ==========
-
- /**
-  * 检查事件标记是否为真
-  * @param {string} flag
-  * @returns {boolean}
-  */
- hasEventFlag(flag) {
-     return !!this.eventFlags[flag];
- }
-
- /**
-  * 设置事件标记
-  * @param {string} flag
-  * @param {boolean} value
-  */
- setEventFlag(flag, value) {
-     this.eventFlags[flag] = value;
- }
-
- /**
-  * 检查事件是否已经触发过
-  * @param {string} eventId
-  * @returns {boolean}
-  */
- isEventTriggered(eventId) {
-     return this.triggeredEvents.has(eventId);
- }
-
- /**
-  * 标记事件已经触发
-  * @param {string} eventId
-  */
- markEventTriggered(eventId) {
-     this.triggeredEvents.add(eventId);
- }
-
- /**
-  * 开始执行一个事件
-  * @param {Object} event
-  */
- startEvent(event) {
-     this.currentEvent = event;
-     // 从第一个场景开始
-     this.currentEventScene = event.scenes[0].sceneId;
-     // 切换到事件场景
-     this.currentScene = GameScene.EVENT;
- }
 };

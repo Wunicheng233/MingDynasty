@@ -51,7 +51,7 @@ const CARD_LIBRARY = [
         is_hidden: false,
         unlock_condition: null,
         emoji: "👨",
-        portrait: "zhuyuanzhang",
+        portrait: "zhuyuanzhang3",
         base_stats: { leadership: 85, strength: 78, politics: 72, intelligence: 80, charm: 82 },
         initial_skills: { infantry: 2, cavalry: 1, strategy: 2, martial: 2, engineering: 1, spy: 1 },
         faction: "朱元璋军",
@@ -229,33 +229,36 @@ const CARD_LIBRARY = [
         name: "步战·一级",
         type: CardTypes.SKILL,
         rarity: 1,
-        description: "步战技能一级，解锁基础阵型。",
+        description: "解锁基础阵型。",
         acquire_hint: "步战技能升级到一级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "👟"
+        emoji: "👟",
+        image: "images/cards/skills/buzhan.png"
     },
     {
         card_id: "SKILL_INFANTRY_2",
         name: "步战·二级",
         type: CardTypes.SKILL,
         rarity: 2,
-        description: "步战技能二级，解锁高级阵型。",
+        description: "解锁高级阵型。",
         acquire_hint: "步战技能升级到二级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "👟"
+        emoji: "👟",
+        image: "images/cards/skills/buzhan.png"
     },
     {
         card_id: "SKILL_INFANTRY_3",
         name: "步战·三级",
         type: CardTypes.SKILL,
         rarity: 3,
-        description: "步战技能三级，解锁顶级阵型。",
+        description: "解锁顶级阵型。",
         acquire_hint: "步战技能升级到三级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "👟"
+        emoji: "👟",
+        image: "images/cards/skills/buzhan.png"
     },
     // 骑战
     {
@@ -263,33 +266,36 @@ const CARD_LIBRARY = [
         name: "骑战·一级",
         type: CardTypes.SKILL,
         rarity: 1,
-        description: "骑战技能一级。",
+        description: "统领骑兵，追击奔袭。",
         acquire_hint: "骑战技能升级到一级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🐎"
+        emoji: "🐎",
+        image: "images/cards/skills/qizhan.png"
     },
     {
         card_id: "SKILL_CAVALRY_2",
         name: "骑战·二级",
         type: CardTypes.SKILL,
         rarity: 2,
-        description: "骑战技能二级。",
+        description: "提升骑兵部队属性。",
         acquire_hint: "骑战技能升级到二级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🐎"
+        emoji: "🐎",
+        image: "images/cards/skills/qizhan.png"
     },
     {
         card_id: "SKILL_CAVALRY_3",
         name: "骑战·三级",
         type: CardTypes.SKILL,
         rarity: 3,
-        description: "骑战技能三级。",
+        description: "顶级骑兵指挥能力。",
         acquire_hint: "骑战技能升级到三级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🐎"
+        emoji: "🐎",
+        image: "images/cards/skills/qizhan.png"
     },
     // 水战
     {
@@ -297,33 +303,36 @@ const CARD_LIBRARY = [
         name: "水战·一级",
         type: CardTypes.SKILL,
         rarity: 1,
-        description: "水战技能一级。",
+        description: "基础水军指挥。",
         acquire_hint: "水战技能升级到一级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🚢"
+        emoji: "🚢",
+        image: "images/cards/skills/shuizhan.png"
     },
     {
         card_id: "SKILL_NAVY_2",
         name: "水战·二级",
         type: CardTypes.SKILL,
         rarity: 2,
-        description: "水战技能二级。",
+        description: "解锁高阶水战战术。",
         acquire_hint: "水战技能升级到二级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🚢"
+        emoji: "🚢",
+        image: "images/cards/skills/shuizhan.png"
     },
     {
         card_id: "SKILL_NAVY_3",
         name: "水战·三级",
         type: CardTypes.SKILL,
         rarity: 3,
-        description: "水战技能三级。",
+        description: "鄱阳湖决战决胜能力。",
         acquire_hint: "水战技能升级到三级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🚢"
+        emoji: "🚢",
+        image: "images/cards/skills/shuizhan.png"
     },
     // 火器
     {
@@ -331,33 +340,36 @@ const CARD_LIBRARY = [
         name: "火器·一级",
         type: CardTypes.SKILL,
         rarity: 1,
-        description: "火器使用技能一级。",
+        description: "基础火铳火炮使用。",
         acquire_hint: "火器技能升级到一级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "💥"
+        emoji: "💥",
+        image: "images/cards/skills/huoqi.png"
     },
     {
         card_id: "SKILL_FIREARM_2",
         name: "火器·二级",
         type: CardTypes.SKILL,
         rarity: 2,
-        description: "火器使用技能二级。",
+        description: "提升火器部队伤害。",
         acquire_hint: "火器技能升级到二级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "💥"
+        emoji: "💥",
+        image: "images/cards/skills/huoqi.png"
     },
     {
         card_id: "SKILL_FIREARM_3",
         name: "火器·三级",
         type: CardTypes.SKILL,
         rarity: 3,
-        description: "火器使用技能三级。",
+        description: "明朝后期核心军事技能。",
         acquire_hint: "火器技能升级到三级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "💥"
+        emoji: "💥",
+        image: "images/cards/skills/huoqi.png"
     },
     // 兵法
     {
@@ -365,33 +377,36 @@ const CARD_LIBRARY = [
         name: "兵法·一级",
         type: CardTypes.SKILL,
         rarity: 1,
-        description: "兵法技能一级，增加秘策使用次数。",
+        description: "增加秘策使用次数。",
         acquire_hint: "兵法技能升级到一级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "📜"
+        emoji: "📜",
+        image: "images/cards/skills/bingfa.png"
     },
     {
         card_id: "SKILL_STRATEGY_2",
         name: "兵法·二级",
         type: CardTypes.SKILL,
         rarity: 2,
-        description: "兵法技能二级。",
+        description: "增加更多秘策使用次数。",
         acquire_hint: "兵法技能升级到二级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "📜"
+        emoji: "📜",
+        image: "images/cards/skills/bingfa.png"
     },
     {
         card_id: "SKILL_STRATEGY_3",
         name: "兵法·三级",
         type: CardTypes.SKILL,
         rarity: 3,
-        description: "兵法技能三级。",
+        description: "排兵布阵，料敌先机。",
         acquire_hint: "兵法技能升级到三级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "📜"
+        emoji: "📜",
+        image: "images/cards/skills/bingfa.png"
     },
     // 武艺
     {
@@ -399,33 +414,36 @@ const CARD_LIBRARY = [
         name: "武艺·一级",
         type: CardTypes.SKILL,
         rarity: 1,
-        description: "武艺技能一级，增加手牌上限。",
+        description: "增加个人战手牌上限。",
         acquire_hint: "武艺技能升级到一级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🥊"
+        emoji: "🥊",
+        image: "images/cards/skills/wuyi.png"
     },
     {
         card_id: "SKILL_MARTIAL_2",
         name: "武艺·二级",
         type: CardTypes.SKILL,
         rarity: 2,
-        description: "武艺技能二级。",
+        description: "提升个人战战斗能力。",
         acquire_hint: "武艺技能升级到二级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🥊"
+        emoji: "🥊",
+        image: "images/cards/skills/wuyi.png"
     },
     {
         card_id: "SKILL_MARTIAL_3",
         name: "武艺·三级",
         type: CardTypes.SKILL,
         rarity: 3,
-        description: "武艺技能三级。",
+        description: "个人战顶级格斗能力。",
         acquire_hint: "武艺技能升级到三级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🥊"
+        emoji: "🥊",
+        image: "images/cards/skills/wuyi.png"
     },
     // 医术
     {
@@ -433,33 +451,36 @@ const CARD_LIBRARY = [
         name: "医术·一级",
         type: CardTypes.SKILL,
         rarity: 1,
-        description: "医术技能一级。",
+        description: "基础疗伤能力。",
         acquire_hint: "医术技能升级到一级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "💊"
+        emoji: "💊",
+        image: "images/cards/skills/yishu.png"
     },
     {
         card_id: "SKILL_MEDICINE_2",
         name: "医术·二级",
         type: CardTypes.SKILL,
         rarity: 2,
-        description: "医术技能二级。",
+        description: "提升战后恢复效果。",
         acquire_hint: "医术技能升级到二级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "💊"
+        emoji: "💊",
+        image: "images/cards/skills/yishu.png"
     },
     {
         card_id: "SKILL_MEDICINE_3",
         name: "医术·三级",
         type: CardTypes.SKILL,
         rarity: 3,
-        description: "医术技能三级。",
+        description: "妙手回春，保命神医。",
         acquire_hint: "医术技能升级到三级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "💊"
+        emoji: "💊",
+        image: "images/cards/skills/yishu.png"
     },
     // 密探
     {
@@ -467,33 +488,36 @@ const CARD_LIBRARY = [
         name: "密探·一级",
         type: CardTypes.SKILL,
         rarity: 1,
-        description: "潜入刺探技能一级。",
+        description: "基础潜入刺探。",
         acquire_hint: "密探技能升级到一级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🕵️"
+        emoji: "🕵️",
+        image: "images/cards/skills/mitan.png"
     },
     {
         card_id: "SKILL_SPY_2",
         name: "密探·二级",
         type: CardTypes.SKILL,
         rarity: 2,
-        description: "潜入刺探技能二级。",
+        description: "获取更多敌军情报。",
         acquire_hint: "密探技能升级到二级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🕵️"
+        emoji: "🕵️",
+        image: "images/cards/skills/mitan.png"
     },
     {
         card_id: "SKILL_SPY_3",
         name: "密探·三级",
         type: CardTypes.SKILL,
         rarity: 3,
-        description: "潜入刺探技能三级。",
+        description: "顶级间谍渗透能力。",
         acquire_hint: "密探技能升级到三级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🕵️"
+        emoji: "🕵️",
+        image: "images/cards/skills/mitan.png"
     },
     // 农政
     {
@@ -501,33 +525,36 @@ const CARD_LIBRARY = [
         name: "农政·一级",
         type: CardTypes.SKILL,
         rarity: 1,
-        description: "农政技能一级。",
+        description: "提升农田收入。",
         acquire_hint: "农政技能升级到一级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🌾"
+        emoji: "🌾",
+        image: "images/cards/skills/nongzheng.png"
     },
     {
         card_id: "SKILL_AGRICULTURE_2",
         name: "农政·二级",
         type: CardTypes.SKILL,
         rarity: 2,
-        description: "农政技能二级。",
+        description: "增加屯田产出。",
         acquire_hint: "农政技能升级到二级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🌾"
+        emoji: "🌾",
+        image: "images/cards/skills/nongzheng.png"
     },
     {
         card_id: "SKILL_AGRICULTURE_3",
         name: "农政·三级",
         type: CardTypes.SKILL,
         rarity: 3,
-        description: "农政技能三级。",
+        description: "五谷丰登，国泰民安。",
         acquire_hint: "农政技能升级到三级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🌾"
+        emoji: "🌾",
+        image: "images/cards/skills/nongzheng.png"
     },
     // 工政
     {
@@ -535,33 +562,36 @@ const CARD_LIBRARY = [
         name: "工政·一级",
         type: CardTypes.SKILL,
         rarity: 1,
-        description: "工程建设技能一级。",
+        description: "基础城池建设。",
         acquire_hint: "工政技能升级到一级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🏗️"
+        emoji: "🏗️",
+        image: "images/cards/skills/gongzheng.png"
     },
     {
         card_id: "SKILL_ENGINEERING_2",
         name: "工政·二级",
         type: CardTypes.SKILL,
         rarity: 2,
-        description: "工程建设技能二级。",
+        description: "提升城防耐久度。",
         acquire_hint: "工政技能升级到二级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🏗️"
+        emoji: "🏗️",
+        image: "images/cards/skills/gongzheng.png"
     },
     {
         card_id: "SKILL_ENGINEERING_3",
         name: "工政·三级",
         type: CardTypes.SKILL,
         rarity: 3,
-        description: "工程建设技能三级。",
+        description: "营建巨型城池。",
         acquire_hint: "工政技能升级到三级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🏗️"
+        emoji: "🏗️",
+        image: "images/cards/skills/gongzheng.png"
     },
     // 商政
     {
@@ -569,33 +599,36 @@ const CARD_LIBRARY = [
         name: "商政·一级",
         type: CardTypes.SKILL,
         rarity: 1,
-        description: "商业贸易技能一级。",
+        description: "基础贸易通商。",
         acquire_hint: "商政技能升级到一级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "💰"
+        emoji: "💰",
+        image: "images/cards/skills/shangzheng.png"
     },
     {
         card_id: "SKILL_TRADE_2",
         name: "商政·二级",
         type: CardTypes.SKILL,
         rarity: 2,
-        description: "商业贸易技能二级。",
+        description: "增加商路收益。",
         acquire_hint: "商政技能升级到二级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "💰"
+        emoji: "💰",
+        image: "images/cards/skills/shangzheng.png"
     },
     {
         card_id: "SKILL_TRADE_3",
         name: "商政·三级",
         type: CardTypes.SKILL,
         rarity: 3,
-        description: "商业贸易技能三级。",
+        description: "富甲天下，垄断商路。",
         acquire_hint: "商政技能升级到三级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "💰"
+        emoji: "💰",
+        image: "images/cards/skills/shangzheng.png"
     },
     // 律政
     {
@@ -603,33 +636,36 @@ const CARD_LIBRARY = [
         name: "律政·一级",
         type: CardTypes.SKILL,
         rarity: 1,
-        description: "律法断案技能一级。",
+        description: "基础律法断案。",
         acquire_hint: "律政技能升级到一级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "⚖️"
+        emoji: "⚖️",
+        image: "images/cards/skills/lvzheng.png"
     },
     {
         card_id: "SKILL_LAW_2",
         name: "律政·二级",
         type: CardTypes.SKILL,
         rarity: 2,
-        description: "律法断案技能二级。",
+        description: "提升民心稳定。",
         acquire_hint: "律政技能升级到二级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "⚖️"
+        emoji: "⚖️",
+        image: "images/cards/skills/lvzheng.png"
     },
     {
         card_id: "SKILL_LAW_3",
         name: "律政·三级",
         type: CardTypes.SKILL,
         rarity: 3,
-        description: "律法断案技能三级。",
+        description: "依法治国，稳定朝纲。",
         acquire_hint: "律政技能升级到三级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "⚖️"
+        emoji: "⚖️",
+        image: "images/cards/skills/lvzheng.png"
     },
     // 口才
     {
@@ -637,33 +673,36 @@ const CARD_LIBRARY = [
         name: "口才·一级",
         type: CardTypes.SKILL,
         rarity: 1,
-        description: "游说辩论技能一级。",
+        description: "基础游说辩论。",
         acquire_hint: "口才技能升级到一级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🗣️"
+        emoji: "🗣️",
+        image: "images/cards/skills/koucai.png"
     },
     {
         card_id: "SKILL_ELOQUENCE_2",
         name: "口才·二级",
         type: CardTypes.SKILL,
         rarity: 2,
-        description: "游说辩论技能二级。",
+        description: "提升劝诱成功率。",
         acquire_hint: "口才技能升级到二级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🗣️"
+        emoji: "🗣️",
+        image: "images/cards/skills/koucai.png"
     },
     {
         card_id: "SKILL_ELOQUENCE_3",
         name: "口才·三级",
         type: CardTypes.SKILL,
         rarity: 3,
-        description: "游说辩论技能三级。",
+        description: "三寸不烂之舌，强于百万之师。",
         acquire_hint: "口才技能升级到三级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🗣️"
+        emoji: "🗣️",
+        image: "images/cards/skills/koucai.png"
     },
     // 礼制
     {
@@ -671,33 +710,36 @@ const CARD_LIBRARY = [
         name: "礼制·一级",
         type: CardTypes.SKILL,
         rarity: 1,
-        description: "朝仪礼法技能一级。",
+        description: "基础朝仪礼法。",
         acquire_hint: "礼制技能升级到一级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🏛️"
+        emoji: "🏛️",
+        image: "images/cards/skills/lizhi.png"
     },
     {
         card_id: "SKILL_RITUAL_2",
         name: "礼制·二级",
         type: CardTypes.SKILL,
         rarity: 2,
-        description: "朝仪礼法技能二级。",
+        description: "提升朝廷声望。",
         acquire_hint: "礼制技能升级到二级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🏛️"
+        emoji: "🏛️",
+        image: "images/cards/skills/lizhi.png"
     },
     {
         card_id: "SKILL_RITUAL_3",
         name: "礼制·三级",
         type: CardTypes.SKILL,
         rarity: 3,
-        description: "朝仪礼法技能三级。",
+        description: "万邦来朝，礼仪之邦。",
         acquire_hint: "礼制技能升级到三级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🏛️"
+        emoji: "🏛️",
+        image: "images/cards/skills/lizhi.png"
     },
     // 航海
     {
@@ -705,33 +747,36 @@ const CARD_LIBRARY = [
         name: "航海·一级",
         type: CardTypes.SKILL,
         rarity: 1,
-        description: "远洋航海技能一级。",
+        description: "基础远洋航行。",
         acquire_hint: "航海技能升级到一级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🧭"
+        emoji: "🧭",
+        image: "images/cards/skills/hanghai.png"
     },
     {
         card_id: "SKILL_NAVIGATION_2",
         name: "航海·二级",
         type: CardTypes.SKILL,
         rarity: 2,
-        description: "远洋航海技能二级。",
+        description: "远洋贸易加成。",
         acquire_hint: "航海技能升级到二级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🧭"
+        emoji: "🧭",
+        image: "images/cards/skills/hanghai.png"
     },
     {
         card_id: "SKILL_NAVIGATION_3",
         name: "航海·三级",
         type: CardTypes.SKILL,
         rarity: 3,
-        description: "远洋航海技能三级。",
+        description: "郑和下西洋，开创航海时代。",
         acquire_hint: "航海技能升级到三级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "🧭"
+        emoji: "🧭",
+        image: "images/cards/skills/hanghai.png"
     },
     // 文墨
     {
@@ -739,33 +784,36 @@ const CARD_LIBRARY = [
         name: "文墨·一级",
         type: CardTypes.SKILL,
         rarity: 1,
-        description: "文书书法技能一级。",
+        description: "基础文书书法。",
         acquire_hint: "文墨技能升级到一级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "✍️"
+        emoji: "✍️",
+        image: "images/cards/skills/wenmo.png"
     },
     {
         card_id: "SKILL_CALLIGRAPHY_2",
         name: "文墨·二级",
         type: CardTypes.SKILL,
         rarity: 2,
-        description: "文书书法技能二级。",
+        description: "提升文化产出。",
         acquire_hint: "文墨技能升级到二级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "✍️"
+        emoji: "✍️",
+        image: "images/cards/skills/wenmo.png"
     },
     {
         card_id: "SKILL_CALLIGRAPHY_3",
         name: "文墨·三级",
         type: CardTypes.SKILL,
         rarity: 3,
-        description: "文书书法技能三级。",
+        description: "笔墨丹青，流传千古。",
         acquire_hint: "文墨技能升级到三级自动获得。",
         is_hidden: false,
         unlock_condition: null,
-        emoji: "✍️"
+        emoji: "✍️",
+        image: "images/cards/skills/wenmo.png"
     },
 
     // ========== 合战战术卡 ==========
@@ -973,6 +1021,7 @@ const CARD_LIBRARY = [
         is_hidden: false,
         unlock_condition: null,
         emoji: "🏹",
+        image: "images/cards/titles/乡勇.png",
         effect: { strength: 1 }
     },
     {
@@ -985,6 +1034,7 @@ const CARD_LIBRARY = [
         is_hidden: false,
         unlock_condition: null,
         emoji: "🗡️",
+        image: "images/cards/titles/豪侠.png",
         effect: { strength: 5, charm: 2 }
     },
     {
@@ -997,6 +1047,7 @@ const CARD_LIBRARY = [
         is_hidden: false,
         unlock_condition: null,
         emoji: "📜",
+        image: "images/cards/titles/策士.png",
         effect: { leadership: 3 }
     },
     {
@@ -1009,6 +1060,7 @@ const CARD_LIBRARY = [
         is_hidden: false,
         unlock_condition: null,
         emoji: "🏆",
+        image: "images/cards/titles/武状元.png",
         effect: { charm: 8, leadership: 5 }
     },
     {
@@ -1021,6 +1073,7 @@ const CARD_LIBRARY = [
         is_hidden: false,
         unlock_condition: null,
         emoji: "📜",
+        image: "images/cards/titles/文状元.png",
         effect: { intelligence: 8, charm: 5 }
     },
     {
@@ -1033,11 +1086,12 @@ const CARD_LIBRARY = [
         is_hidden: false,
         unlock_condition: null,
         emoji: "⚔️",
+        image: "images/cards/titles/军神.png",
         effect: { leadership: 15 }
     },
     {
         card_id: "TITLE_WORLD_FIRST",
-        name: "天下第一",
+        name: "武圣",
         type: CardTypes.TITLE,
         rarity: 5,
         description: "个人战胜利80次获得，武力+15。",
@@ -1045,6 +1099,7 @@ const CARD_LIBRARY = [
         is_hidden: false,
         unlock_condition: null,
         emoji: "🏆",
+        image: "images/cards/titles/武圣.png",
         effect: { strength: 15 }
     },
     {
@@ -1057,7 +1112,164 @@ const CARD_LIBRARY = [
         is_hidden: false,
         unlock_condition: null,
         emoji: "⚜️",
+        image: "images/cards/titles/吴国公.png",
         effect: { leadership: 5, charm: 3 }
+    },
+    {
+        card_id: "TITLE_HEALER",
+        name: "神医",
+        type: CardTypes.TITLE,
+        rarity: 3,
+        description: "成功治愈50人次伤病获得，体力+10，医术效果+10%。",
+        acquire_hint: "累计治愈50人次伤病。",
+        is_hidden: false,
+        unlock_condition: null,
+        emoji: "💊",
+        image: "images/cards/titles/神医.png",
+        effect: { max_hp: 10, medicine_effect: 0.1 }
+    },
+    {
+        card_id: "TITLE_GENTLE_HEART",
+        name: "妙手回春",
+        type: CardTypes.TITLE,
+        rarity: 4,
+        description: "成功治愈150人次伤病获得，体力+20，医术效果+20%，魅力+5。",
+        acquire_hint: "累计治愈150人次伤病。",
+        is_hidden: false,
+        unlock_condition: null,
+        emoji: "🙏",
+        image: "images/cards/titles/妙手回春.png",
+        effect: { max_hp: 20, medicine_effect: 0.2, charm: 5 }
+    },
+    {
+        card_id: "TITLE_RICH_MERCHANT",
+        name: "陶朱之富",
+        type: CardTypes.TITLE,
+        rarity: 2,
+        description: "拥有超过500两银子获得，每月商税+10%。",
+        acquire_hint: "累计财富达到500两。",
+        is_hidden: false,
+        unlock_condition: null,
+        emoji: "💰",
+        image: "images/cards/titles/陶朱之富.png",
+        effect: { trade_income: 0.1 }
+    },
+    {
+        card_id: "TITLE_WEALTH_GOD",
+        name: "富可敌国",
+        type: CardTypes.TITLE,
+        rarity: 4,
+        description: "拥有超过2000两银子获得，每月商税+25%，魅力+8。",
+        acquire_hint: "累计财富达到2000两。",
+        is_hidden: false,
+        unlock_condition: null,
+        emoji: "🪙",
+        image: "images/cards/titles/富可敌国.png",
+        effect: { trade_income: 0.25, charm: 8 }
+    },
+    {
+        card_id: "TITLE_FARM_ADVOCATE",
+        name: "劝农使",
+        type: CardTypes.TITLE,
+        rarity: 2,
+        description: "完成10次农政任务获得，粮食产量+15%。",
+        acquire_hint: "累计完成10次农政相关任务。",
+        is_hidden: false,
+        unlock_condition: null,
+        emoji: "🌾",
+        image: "images/cards/titles/劝农使.png",
+        effect: { agriculture_output: 0.15 }
+    },
+    {
+        card_id: "TITLE_FLOOD_CONTROL",
+        name: "江河安澜",
+        type: CardTypes.TITLE,
+        rarity: 3,
+        description: "成功治理5次水患获得，农业防灾+50%，工政+1。",
+        acquire_hint: "累计成功治理5次水患。",
+        is_hidden: false,
+        unlock_condition: null,
+        emoji: "💧",
+        image: "images/cards/titles/江河安澜.png",
+        effect: { flood_resistance: 0.5, engineering: 1 }
+    },
+    {
+        card_id: "TITLE_CLEAR_SKY",
+        name: "青天",
+        type: CardTypes.TITLE,
+        rarity: 3,
+        description: "正确断案20次获得，政治+5，魅力+4。",
+        acquire_hint: "累计正确断案20次。",
+        is_hidden: false,
+        unlock_condition: null,
+        emoji: "⚖️",
+        image: "images/cards/titles/青天.png",
+        effect: { politics: 5, charm: 4 }
+    },
+    {
+        card_id: "TITLE_GREAT_ORATOR",
+        name: "纵横家",
+        type: CardTypes.TITLE,
+        rarity: 3,
+        description: "成功劝降10座城池获得，口才说服成功率+15%。",
+        acquire_hint: "累计成功劝降10座城池/将领。",
+        is_hidden: false,
+        unlock_condition: null,
+        emoji: "🗣️",
+        image: "images/cards/titles/纵横家.png",
+        effect: { persuade_bonus: 0.15 }
+    },
+    {
+        card_id: "TITLE_EXPLORER",
+        name: "舟师",
+        type: CardTypes.TITLE,
+        rarity: 4,
+        description: "完成10次远洋航海获得，航海经验+20%，贸易收益+15%。",
+        acquire_hint: "累计完成10次远洋航行。",
+        is_hidden: false,
+        unlock_condition: null,
+        emoji: "🧭",
+        image: "images/cards/titles/舟师.png",
+        effect: { navigation_exp: 0.2, trade_income: 0.15 }
+    },
+    {
+        card_id: "TITLE_PERFECT_PLAN",
+        name: "算无遗策",
+        type: CardTypes.TITLE,
+        rarity: 4,
+        description: "30次计策成功获得，兵法+2，计谋成功率+20%。",
+        acquire_hint: "累计成功使用30次合战计策。",
+        is_hidden: false,
+        unlock_condition: null,
+        emoji: "🎯",
+        image: "images/cards/titles/算无遗策.png",
+        effect: { strategy: 2, tactic_success: 0.2 }
+    },
+    {
+        card_id: "TITLE_MASTER_CRAFTSMAN",
+        name: "匠师",
+        type: CardTypes.TITLE,
+        rarity: 3,
+        description: "建造8次大型工程获得，工政+2，城防建造速度+30%。",
+        acquire_hint: "累计完成8次大型工程建造。",
+        is_hidden: false,
+        unlock_condition: null,
+        emoji: "🏗️",
+        image: "images/cards/titles/匠师.png",
+        effect: { engineering: 2, construction_speed: 0.3 }
+    },
+    {
+        card_id: "TITLE_SHADOW_SPY",
+        name: "影密卫",
+        type: CardTypes.TITLE,
+        rarity: 3,
+        description: "成功刺探20次情报获得，密探成功率+25%。",
+        acquire_hint: "累计成功刺探20次敌方情报。",
+        is_hidden: false,
+        unlock_condition: null,
+        emoji: "🕵️",
+        image: "images/cards/titles/影密卫.png",
+        effect: { spy_success: 0.25 }
     },
 
     // ========== 名所卡 ==========

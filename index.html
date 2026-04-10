@@ -95,11 +95,29 @@
     <script src="js/utils/BattleAI.js"></script>
     <script src="js/utils/EconomicCalculator.js"></script>
     <script src="js/utils/EventScheduler.js"></script>
+    <script src="js/utils/CharacterRendererUtils.js"></script>
     <script src="js/utils/GameInitializer.js"></script>
     <script src="js/utils/SaveManager.js"></script>
 
-    <!-- 游戏模块 -->
+    <!-- 子系统模块 - 拆分自GameState -->
+    <script src="js/systems/CardSystem.js"></script>
+    <script src="js/systems/SocialSystem.js"></script>
+    <script src="js/systems/SkillSystem.js"></script>
+    <script src="js/systems/SaveSystem.js"></script>
+
+    <!-- 核心游戏状态定义必须先加载，因为GameScene被管理器使用 -->
     <script src="js/GameState.js"></script>
+
+    <!-- 管理器模块 -->
+    <script src="js/managers/AnimationManager.js"></script>
+    <script src="js/managers/SceneManager.js"></script>
+    <script src="js/managers/MinigameInitializer.js"></script>
+    <script src="js/managers/GameResultManager.js"></script>
+
+    <!-- 基类和框架 - 依赖管理器，所以放在管理器之后 -->
+    <script src="js/base/BaseGame.js"></script>
+
+    <!-- 游戏模块 -->
     <!-- 渲染模块 - 拆分出去保持代码整洁 -->
     <script src="js/modules/CharacterViewRenderer.js"></script>
     <script src="js/modules/CityViewRenderer.js"></script>
@@ -121,6 +139,10 @@
     <script src="js/games/LawGame.js"></script>
     <script src="js/games/NavyGame.js"></script>
     <script src="js/games/StrategyGame.js"></script>
+    <!-- 个人战拆分模块 -->
+    <script src="js/games/martial/MartialCalculator.js"></script>
+    <script src="js/games/martial/MartialRenderer.js"></script>
+    <script src="js/games/martial/MartialController.js"></script>
     <script src="js/games/MartialGame.js"></script>
     <script src="js/games/MedicineGame.js"></script>
     <script src="js/games/CalligraphyGame.js"></script>
@@ -129,6 +151,9 @@
     <script src="js/games/RitualGame.js"></script>
     <script src="js/games/FirearmGame.js"></script>
     <script src="js/games/DuelGame.js"></script>
+    <!-- 合战拆分模块 -->
+    <script src="js/games/battle/BattleRenderer.js"></script>
+    <script src="js/games/battle/BattleController.js"></script>
     <script src="js/games/BattleGame.js"></script>
     <script src="js/GameView.js"></script>
 

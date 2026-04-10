@@ -38,19 +38,28 @@ window.CharacterListRenderer = {
             const intimacyHearts = gameState.getIntimacyHearts(intimacy);
             const cardId = `CHAR_${npc.templateId}`;
             const unlocked = gameState.hasCard(cardId);
+            // 获取对应人物卡获取rarity来确定子目录
+            const card = getCardById(cardId);
+            const rarity = card?.rarity || 5;
+            const isNpc = npc.templateId === 'WUGUAN_SHIFU'; // 特殊处理NPC
+            const portraitPath = CharacterRendererUtils.getPortraitPath(npc.portrait, rarity, isNpc);
 
             html += `
                 <div class="character-item">
+                    <div class="character-portrait">
+                        ${portraitPath ? `<img src="${portraitPath}" alt="${npc.name}">` : `<div class="character-portrait-placeholder">${npc.emoji || '👤'}</div>`}
+                    </div>
                     <div class="character-info">
                         <div class="character-header">
-                            <span class="character-emoji">${npc.emoji || '👤'}</span>
                             <span class="character-name">${npc.name}</span>
                             <span class="character-rank">${npc.initialRank}</span>
                         </div>
                         <p class="character-desc">${npc.description}</p>
-                        <p class="character-relationship">关系：${intimacyHearts} ${intimacyText} ${unlocked ? '✓ 已获得人物卡' : ''}</p>
+                        <p class="character-relationship">关系：${intimacyHearts} ${intimacyText}</p>
                     </div>
-                    <button class="btn primary-btn interact-btn" data-char-id="${npc.id}">交谈</button>
+                    <div class="character-action">
+                        <button class="btn primary-btn interact-btn" data-char-id="${npc.id}">交谈</button>
+                    </div>
                 </div>
             `;
         });

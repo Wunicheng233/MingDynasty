@@ -36,8 +36,8 @@ const CHARACTER_TEMPLATES = [
         id: 1,
         name: "朱元璋",
         emoji: "👨",
-        image: "images/characters/zhuyuanzhang3.png",
-        portrait: "zhuyuanzhang",
+        image: "images/characters/5star/zhuyuanzhang3.png",
+        portrait: "zhuyuanzhang3",
         color: "#4a90e2",
         baseStats: {
             leadership: 85,
@@ -78,7 +78,7 @@ const CHARACTER_TEMPLATES = [
         id: 2,
         name: "徐达",
         emoji: "🗡️",
-        image: "images/characters/xuda.png",
+        image: "images/characters/5star/xuda.png",
         portrait: "xuda",
         color: "#50c878",
         baseStats: {
@@ -120,7 +120,7 @@ const CHARACTER_TEMPLATES = [
         id: 3,
         name: "常遇春",
         emoji: "⚔️",
-        image: "images/characters/changyuchun.png",
+        image: "images/characters/5star/changyuchun.png",
         portrait: "changyuchun",
         color: "#e74c3c",
         baseStats: {
@@ -162,6 +162,7 @@ const CHARACTER_TEMPLATES = [
         id: 4,
         name: "汤和",
         emoji: "👮",
+        image: "images/characters/4star/tanghe.png",
         portrait: "tanghe",
         color: "#3498db",
         baseStats: {
@@ -203,7 +204,7 @@ const CHARACTER_TEMPLATES = [
         id: 5,
         name: "郭子兴",
         emoji: "👴",
-        image: "images/characters/guozixing.png",
+        image: "images/characters/3star/guozixing.png",
         portrait: "guozixing",
         color: "#808080",
         baseStats: {
@@ -233,7 +234,7 @@ const CHARACTER_TEMPLATES = [
         id: 6,
         name: "马秀英",
         emoji: "👩",
-        image: "images/characters/maxiuying.png",
+        image: "images/characters/4star/maxiuying.png",
         portrait: "maxiuying",
         color: "#ff69b4",
         baseStats: {
@@ -262,7 +263,7 @@ const CHARACTER_TEMPLATES = [
         id: 7,
         name: "李善长",
         emoji: "📜",
-        image: "images/characters/lishanchang.png",
+        image: "images/characters/4star/lishanchang.png",
         portrait: "lishanchang",
         color: "#9b59b6",
         baseStats: {
@@ -293,6 +294,7 @@ const CHARACTER_TEMPLATES = [
         id: 8,
         name: "刘伯温",
         emoji: "🔮",
+        image: "images/characters/5star/liubowen.png",
         portrait: "liubowen",
         color: "#34495e",
         baseStats: {
@@ -323,7 +325,7 @@ const CHARACTER_TEMPLATES = [
         id: 9,
         name: "陈友谅",
         emoji: "🐉",
-        image: "images/characters/chenyouliang.png",
+        image: "images/characters/4star/chenyouliang.png",
         portrait: "chenyouliang",
         color: "#c0392b",
         baseStats: {
@@ -353,6 +355,7 @@ const CHARACTER_TEMPLATES = [
         id: 10,
         name: "张士诚",
         emoji: "💰",
+        image: "images/characters/4star/zhangshicheng.png",
         portrait: "zhangshicheng",
         color: "#16a085",
         baseStats: {
@@ -375,6 +378,33 @@ const CHARACTER_TEMPLATES = [
         birthDeath: [1321, 1367],
         description: "盐贩出身，占据苏南浙北，割据一方称吴王。",
         locationCityId: 6 // 苏州
+    },
+    {
+        templateId: "WUGUAN_SHIFU",
+        id: 101,
+        name: "武馆师傅",
+        emoji: "🥋",
+        image: "images/characters/npc/wuguanshifu.png",
+        portrait: "wuguanshifu",
+        color: "#8b4513",
+        baseStats: {
+            leadership: 30,
+            strength: 70,
+            politics: 30,
+            intelligence: 40,
+            charm: 50
+        },
+        initialSkills: {
+            martial: 3
+        },
+        initialCards: ["taizu_boxing", "jin-gang_li"],
+        exclusiveSecretCard: null,
+        personality: "豪勇",
+        faction: "中立",
+        initialRank: "武师",
+        birthDeath: null,
+        description: "濠州城中武馆的教头，自幼习武，拳法娴熟。",
+        locationCityId: 1 // 濠州，所有武馆都有他
     }
 ];
 
@@ -414,37 +444,3 @@ window.getCharacterTemplatesByFaction = function getCharacterTemplatesByFaction(
 };
 
 
-/**
- * 根据ID获取人物
- * @param {number} id
- * @returns {Character|undefined}
- */
-window.getCharacterById = function getCharacterById(id) {
-    return CHARACTERS.find(c => c.id === id);
-};
-
-/**
- * 获取所有人物
- * @returns {Character[]}
- */
-window.getAllCharacters = function getAllCharacters() {
-    return CHARACTERS;
-};
-
-/**
- * 根据势力ID获取该势力下所有人物
- * @param {number} forceId
- * @returns {Character[]}
- */
-window.getCharactersByForceId = function getCharactersByForceId(forceId) {
-    return CHARACTERS.filter(c => c.forceId === forceId);
-};
-
-/**
- * 根据城市ID获取该城市内所有人物
- * @param {number} cityId
- * @returns {Character[]}
- */
-window.getCharactersByCityId = function getCharactersByCityId(cityId) {
-    return CHARACTERS.filter(c => c.locationCityId === cityId);
-};

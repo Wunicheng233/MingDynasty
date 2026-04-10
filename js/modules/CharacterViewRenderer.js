@@ -17,15 +17,6 @@ window.CharacterViewRenderer = {
         const force = character.faction ? getForceTemplateByFactionId(character.faction) : null;
         const city = getCityTemplateById(character.locationCityId);
 
-        // 基础属性中文名称映射
-        const attributeNames = {
-            leadership: '统帅',
-            strength: '武力',
-            intelligence: '智力',
-            politics: '政治',
-            charm: '魅力'
-        };
-
         let html = `
             <div class="character-header">
         `;
@@ -55,20 +46,14 @@ window.CharacterViewRenderer = {
                         <div class="attributes-grid-inline">
         `;
 
-        // 遍历所有五维基础属性
-        const attributes = [
-            { key: 'leadership', value: character.baseStats.leadership },
-            { key: 'strength', value: character.baseStats.strength },
-            { key: 'intelligence', value: character.baseStats.intelligence },
-            { key: 'politics', value: character.baseStats.politics },
-            { key: 'charm', value: character.baseStats.charm }
-        ];
+        // 遍历所有五维基础属性（使用公共工具）
+        const attributes = CharacterRendererUtils.getOrderedAttributes(character.baseStats);
 
         attributes.forEach(attr => {
-            const percentage = Math.min(100, (attr.value / 100) * 100);
+            const percentage = CharacterRendererUtils.getAttributePercentage(attr.value);
             html += `
                 <div class="attribute-item-inline">
-                    <div class="attribute-name">${attributeNames[attr.key]}: ${attr.value}</div>
+                    <div class="attribute-name">${CharacterRendererUtils.getAttributeName(attr.key)}: ${attr.value}</div>
                     <div class="attribute-bar-container-inline">
                         <div class="attribute-bar" style="width: ${percentage}%">
                             <span class="attribute-value">${attr.value}</span>
@@ -89,7 +74,7 @@ window.CharacterViewRenderer = {
                 <div class="skills-grid">
         `;
 
-        // 显示所有技能，只显示>=1级的技能在前，0级在后
+        // 显示所有技能，只显示>=1级的技能在前，0级在后（星级使用公共工具）
         const allSkills = getAllSkills();
         const learnedSkills = allSkills.filter(s => (gameState.getSkillLevel(s.id) > 0));
         const unlearnedSkills = allSkills.filter(s => (gameState.getSkillLevel(s.id) === 0));
@@ -97,8 +82,7 @@ window.CharacterViewRenderer = {
         [...learnedSkills, ...unlearnedSkills].forEach(skill => {
             const level = gameState.getSkillLevel(skill.id);
             const exp = gameState.skills[skill.id]?.exp || 0;
-            const stars = '⭐'.repeat(level);
-            const grayStars = '☆'.repeat(skill.maxLevel - level);
+            const stars = CharacterRendererUtils.getSkillStars(level, skill.maxLevel);
             const className = level > 0 ? 'skill-item learned' : 'skill-item unlearned';
             // 只要有经验并且未满级就显示经验条，0级也能看到进度
             const showExpBar = exp > 0 && level < skill.maxLevel;
@@ -106,7 +90,7 @@ window.CharacterViewRenderer = {
                 <div class="${className}">
                     <div class="skill-info">
                         <span class="skill-name">${skill.name}</span>
-                        <span class="skill-level">${stars}${grayStars}</span>
+                        <span class="skill-level">${stars}</span>
                     </div>
                     ${showExpBar ? `
                     <div class="skill-exp-bar">

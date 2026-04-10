@@ -225,7 +225,7 @@ window.FacilityScene = {
                 const npcId = parseInt(btn.dataset.npcId);
                 // 进入社交互动场景
                 gameState.currentNpc = gameState.npcs.find(n => n.id === npcId);
-                gameState.currentScene = GameScene.SOCIAL_INTERACTION;
+                gameState.currentScene = GameScene.SOCIAL_VIEW;
                 window.game.gameView.renderAll();
             });
         });

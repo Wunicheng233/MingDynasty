@@ -46,20 +46,35 @@ window.SocialRenderer = {
             }
         }
 
+        // 获取对应人物卡获取rarity来确定子目录
+        const cardId = `CHAR_${npc.templateId}`;
+        const card = getCardById(cardId);
+        const rarity = card?.rarity || 5;
+        const isNpc = npc.templateId === 'WUGUAN_SHIFU'; // 特殊处理NPC
+        // 使用公共工具获取立绘路径
+        const portraitPath = CharacterRendererUtils.getPortraitPath(npc.portrait, rarity, isNpc);
+
         let html = `
             <div class="social-container">
                 <div class="social-header">
+                    <div class="npc-portrait">
+                        ${portraitPath ? `<img src="${portraitPath}" alt="${npc.name}">` : `<div class="npc-portrait-placeholder">${npc.emoji || '👤'}</div>`}
+                    </div>
                     <div class="npc-info">
-                        <span class="npc-emoji">${npc.emoji || '👤'}</span>
-                        <div class="npc-basic">
-                            <h2>${npc.name}</h2>
-                            <p>${npc.initialRank} · ${npc.personality} · ${intimacyHearts} ${intimacyText}</p>
-                        </div>
+                        <h2>${npc.name}</h2>
+                        <p><span class="npc-info-item">身份：${npc.initialRank}</span>
+                        <span class="npc-info-item">性格：${npc.personality}</span>
+                        <span class="npc-info-item">关系：${intimacyHearts} ${intimacyText}</span></p>
                     </div>
                 </div>
                 <div class="social-description">
                     <p>${npc.description}</p>
                 </div>
+                ${CharacterRendererUtils.generateAttributesHtml(npc.baseStats)}
+                ${CharacterRendererUtils.generateSkillsHtml(npc.initialSkills || {})}
+        `;
+
+        html += `
                 <div class="social-actions">
                     <h3>可进行的互动</h3>
                     <div class="action-list">
