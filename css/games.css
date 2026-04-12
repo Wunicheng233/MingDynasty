@@ -1,0 +1,971 @@
+/**
+ * 小游戏样式 - 所有16个小游戏
+ */
+
+/* ========== 耕地（农业） ========== */
+.farming-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.farming-header h2 {
+    font-size: 20px;
+    color: #8b4513;
+    margin-bottom: 5px;
+}
+
+.farming-header p {
+    font-size: 16px;
+    color: #5d4e37;
+}
+
+.farming-field {
+    background-color: #8b7355;
+    border-radius: 8px;
+    padding: 30px 20px;
+    margin-bottom: 15px;
+}
+
+.farming-bg {
+    position: relative;
+    height: 60px;
+    background-color: #d4c4a8;
+    border-radius: 30px;
+    margin-bottom: 20px;
+    overflow: visible;
+}
+
+.farming-good-zone {
+    position: absolute;
+    right: 0;
+    top: -25px;
+    width: 20%;
+    text-align: center;
+    font-size: 12px;
+    color: #fff;
+    background-color: #c0392b;
+    padding: 2px 0;
+    border-radius: 4px;
+}
+
+.farming-power-bar {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.farming-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 100%;
+    background-color: #2c3e50;
+    border-radius: 4px;
+    transform: translateX(-50%);
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+}
+
+.farming-emoji {
+    text-align: center;
+    font-size: 80px;
+}
+
+.farming-result {
+    max-height: 100px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #efe6d5;
+    border-radius: 6px;
+}
+
+.farming-result-item {
+    margin-bottom: 5px;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.result-perfect {
+    background-color: #27ae60;
+    color: white;
+}
+
+.result-good {
+    background-color: #f39c12;
+    color: white;
+}
+
+.result-ok {
+    background-color: #95a5a6;
+    color: white;
+}
+
+.result-bad {
+    background-color: #7f8c8d;
+    color: white;
+}
+
+.farming-actions {
+    text-align: center;
+}
+
+#swing-hoe-btn {
+    font-size: 20px;
+    padding: 10px 40px;
+}
+
+/* ========== 口才（找相同） ========== */
+.eloquence-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.eloquence-header h2 {
+    font-size: 20px;
+    color: #8b4513;
+    margin-bottom: 8px;
+}
+
+.eloquence-header p {
+    font-size: 16px;
+    color: #5d4e37;
+}
+
+.eloquence-example {
+    background-color: #efe6d5;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 20px;
+    line-height: 1.6;
+    border-left: 4px solid #8b4513;
+}
+
+.eloquence-options {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.eloquence-option {
+    text-align: left;
+    padding: 12px 15px;
+    background-color: #efe6d5;
+    border: 2px solid #d4c4a8;
+    border-radius: 6px;
+    white-space: normal;
+    line-height: 1.5;
+}
+
+.eloquence-option:hover {
+    background-color: #f5ecd8;
+    border-color: #8b4513;
+}
+
+.eloquence-result {
+    min-height: 40px;
+}
+
+.eloquence-answer {
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+.eloquence-answer.correct {
+    background-color: #27ae60;
+    color: white;
+}
+
+.eloquence-answer.wrong {
+    background-color: #c0392b;
+    color: white;
+}
+
+/* ========== 骑兵（赛马） ========== */
+.cavalry-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.cavalry-header h2 {
+    font-size: 20px;
+    color: #8b4513;
+    margin-bottom: 8px;
+}
+
+.cavalry-header p {
+    font-size: 16px;
+    color: #5d4e37;
+}
+
+.cavalry-progress {
+    font-size: 18px;
+    margin-top: 10px;
+    color: #5d4e37;
+}
+
+.cavalry-progress strong {
+    color: #8b4513;
+}
+
+.cavalry-track {
+    margin-top: 20px;
+}
+
+.cavalry-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 5px;
+}
+
+.cavalry-label {
+    width: 40px;
+    font-weight: bold;
+}
+
+.cavalry-card-lg {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #d4c4a8;
+    border-radius: 6px;
+    background-color: #efe6d5;
+    font-size: 14px;
+    text-align: center;
+    line-height: 46px;
+    cursor: pointer;
+}
+
+.cavalry-card-lg:hover:not(:disabled) {
+    background-color: #f5ecd8;
+    border-color: #8b4513;
+}
+
+.cavalry-card-lg.current {
+    border-color: #8b4513;
+    border-width: 3px;
+}
+
+.cavalry-card-lg.flipped {
+    background-color: #f5ecd8;
+}
+
+.cavalry-card-lg.passed {
+    opacity: 0.7;
+}
+
+.cavalry-card-lg.enemy {
+    cursor: default;
+}
+
+.cavalry-end {
+    font-size: 18px;
+    padding-left: 10px;
+}
+
+/* ========== 工程（修筑） ========== */
+.engineering-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.engineering-header h2 {
+    font-size: 20px;
+    color: #8b4513;
+    margin-bottom: 8px;
+}
+
+.engineering-header p {
+    font-size: 16px;
+    color: #5d4e37;
+}
+
+.engineering-bar {
+    margin-bottom: 30px;
+}
+
+.engineering-bg {
+    position: relative;
+    height: 40px;
+    background-color: #d4c4a8;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.engineering-target {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background-color: #27ae60;
+    opacity: 0.5;
+}
+
+.engineering-indicator {
+    position: absolute;
+    top: 0;
+    width: 8px;
+    height: 100%;
+    background-color: #2c3e50;
+    transform: translateX(-50%);
+    border-radius: 4px;
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+}
+
+.engineering-actions {
+    text-align: center;
+}
+
+/* ========== 贸易（算税） ========== */
+.trade-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.trade-header h2 {
+    font-size: 20px;
+    color: #8b4513;
+    margin-bottom: 8px;
+}
+
+.trade-header p {
+    font-size: 16px;
+    color: #5d4e37;
+}
+
+.trade-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.trade-cell {
+    aspect-ratio: 1;
+    border: 2px solid #d4c4a8;
+    border-radius: 6px;
+    background-color: #efe6d5;
+    font-size: 28px;
+    text-align: center;
+    line-height: 90px;
+    cursor: pointer;
+}
+
+.trade-cell:hover:not(:disabled) {
+    background-color: #f5ecd8;
+    border-color: #8b4513;
+}
+
+.trade-cell:disabled {
+    cursor: default;
+}
+
+/* ========== 法律（寻访证人） ========== */
+.law-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.law-header h2 {
+    font-size: 20px;
+    color: #8b4513;
+    margin-bottom: 8px;
+}
+
+.law-header p {
+    font-size: 16px;
+    color: #5d4e37;
+}
+
+.law-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.law-card {
+    aspect-ratio: 2/1;
+    border: 2px solid #d4c4a8;
+    border-radius: 6px;
+    background-color: #efe6d5;
+    font-size: 14px;
+    text-align: center;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
+}
+
+.law-card:hover:not(.matched):not(.flipped) {
+    background-color: #f5ecd8;
+    border-color: #8b4513;
+}
+
+.law-card.matched {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.law-card.flipped {
+    background-color: #f39c12;
+    color: white;
+}
+
+/* ========== 水战 ========== */
+.navy-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.navy-header h2 {
+    font-size: 20px;
+    color: #8b4513;
+    margin-bottom: 8px;
+}
+
+.navy-header p {
+    font-size: 16px;
+    color: #5d4e37;
+}
+
+.navy-channel {
+    position: relative;
+    height: 80px;
+    background-color: #4a90e2;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.navy-ship {
+    position: absolute;
+    top: 10px;
+    width: 40px;
+    height: 60px;
+    background-color: #8b4513;
+    transform: translateX(-50%);
+    border-radius: 4px;
+}
+
+.navy-obstacle {
+    position: absolute;
+    width: 20px;
+    height: 80px;
+    background-color: #2c3e50;
+    transform: translateX(-50%);
+}
+
+.navy-result {
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+.navy-result-item {
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+}
+
+.navy-result-item.good {
+    background-color: #27ae60;
+    color: white;
+}
+
+.navy-result-item.ok {
+    background-color: #f39c12;
+    color: white;
+}
+
+.navy-result-item.bad {
+    background-color: #c0392b;
+    color: white;
+}
+
+.navy-actions {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+/* ========== 兵法（猜阵） ========== */
+.strategy-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.strategy-header h2 {
+    font-size: 20px;
+    color: #8b4513;
+    margin-bottom: 8px;
+}
+
+.strategy-header p {
+    font-size: 16px;
+    color: #5d4e37;
+    margin: 5px 0;
+}
+
+.strategy-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-width: 300px;
+    margin: 0 auto 20px;
+}
+
+.strategy-cell {
+    aspect-ratio: 1;
+    border: 2px solid #d4c4a8;
+    border-radius: 4px;
+    background-color: #efe6d5;
+    font-size: 24px;
+    text-align: center;
+    line-height: 80px;
+    cursor: pointer;
+}
+
+.strategy-cell:hover {
+    background-color: #f5ecd8;
+    border-color: #8b4513;
+}
+
+.strategy-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+/* ========== 武艺（单挑） ========== */
+.martial-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.martial-header h2 {
+    font-size: 20px;
+    color: #8b4513;
+    margin-bottom: 8px;
+}
+
+.martial-header p {
+    font-size: 16px;
+    color: #5d4e37;
+}
+
+.martial-hp {
+    max-width: 400px;
+    margin: 0 auto 20px;
+}
+
+.martial-hp .hp-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 15px;
+}
+
+.martial-hp .hp-bar {
+    flex: 1;
+    height: 20px;
+    background-color: #d4c4a8;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.martial-hp .hp-fill {
+    height: 100%;
+    transition: width 0.3s;
+}
+
+.martial-hp .hp-fill.player {
+    background-color: #27ae60;
+}
+
+.martial-hp .hp-fill.enemy {
+    background-color: #c0392b;
+}
+
+.martial-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.martial-log {
+    max-height: 120px;
+    overflow-y: auto;
+    background-color: #efe6d5;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.martial-log div {
+    margin-bottom: 4px;
+}
+
+/* ========== 医术 ========== */
+.medicine-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.medicine-header h2 {
+    font-size: 20px;
+    color: #8b4513;
+    margin-bottom: 8px;
+}
+
+.medicine-header p {
+    font-size: 16px;
+    color: #5d4e37;
+}
+
+.medicine-sequence {
+    background-color: #efe6d5;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+}
+
+.medicine-herb {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 0 5px;
+    background-color: #8b4513;
+    color: white;
+    border-radius: 4px;
+}
+
+.medicine-herb.picked {
+    background-color: #27ae60;
+}
+
+.medicine-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.medicine-player-sequence {
+    background-color: #efe6d5;
+    padding: 15px;
+    border-radius: 8px;
+    line-height: 2;
+}
+
+/* ========== 书法 ========== */
+.calligraphy-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.calligraphy-header h2 {
+    font-size: 20px;
+    color: #8b4513;
+    margin-bottom: 8px;
+}
+
+.calligraphy-header p {
+    font-size: 16px;
+    color: #5d4e37;
+}
+
+.calligraphy-question {
+    background-color: #efe6d5;
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.calligraphy-sentence {
+    font-size: 24px;
+    line-height: 2;
+}
+
+.calligraphy-sentence .blank {
+    display: inline-block;
+    padding: 0 20px;
+    border-bottom: 3px solid #8b4513;
+    margin: 0 5px;
+}
+
+.calligraphy-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.calligraphy-option {
+    font-size: 18px;
+    padding: 15px;
+}
+
+.calligraphy-result {
+    margin-top: 20px;
+    min-height: 40px;
+}
+
+/* ========== 密探 ========== */
+.spy-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.spy-header h2 {
+    font-size: 20px;
+    color: #8b4513;
+    margin-bottom: 8px;
+}
+
+.spy-header p {
+    font-size: 16px;
+    color: #5d4e37;
+}
+
+.spy-maze {
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.spy-row {
+    display: flex;
+}
+
+.spy-cell {
+    aspect-ratio: 1;
+    flex: 1;
+    border: 1px solid #d4c4a8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+}
+
+.spy-cell.player {
+    background-color: #e74c3c;
+}
+
+.spy-wall {
+    background-color: #5d4e37;
+}
+
+.spy-path {
+    background-color: #efe6d5;
+    cursor: pointer;
+}
+
+.spy-path:hover {
+    background-color: #f5ecd8;
+}
+
+.spy-exit {
+    background-color: #f39c12;
+}
+
+/* ========== 航海 ========== */
+.navigation-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.navigation-header h2 {
+    font-size: 20px;
+    color: #8b4513;
+    margin-bottom: 8px;
+}
+
+.navigation-header p {
+    font-size: 16px;
+    color: #5d4e37;
+}
+
+.compass {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 20px;
+    position: relative;
+}
+
+.compass-circle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid #5d4e37;
+    background-color: #efe6d5;
+}
+
+.compass-needle {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    width: 4px;
+    height: 45%;
+    background-color: #c0392b;
+    transform-origin: bottom center;
+    transform: rotate(0deg);
+    transition: transform 0.2s;
+}
+
+.compass-needle::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -4px;
+    width: 12px;
+    height: 12px;
+    background-color: #c0392b;
+    border-radius: 50%;
+}
+
+.navigation-guess {
+    text-align: center;
+}
+
+.navigation-guess input[type="range"] {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+#navigation-hint {
+    margin-top: 15px;
+    font-size: 16px;
+    color: #8b4513;
+    font-weight: bold;
+}
+
+/* ========== 礼制 ========== */
+.ritual-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.ritual-header h2 {
+    font-size: 20px;
+    color: #8b4513;
+    margin-bottom: 8px;
+}
+
+.ritual-header p {
+    font-size: 16px;
+    color: #5d4e37;
+}
+
+.ritual-slots {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.ritual-slot {
+    width: 80px;
+    height: 50px;
+    border: 2px dashed #d4c4a8;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #efe6d5;
+}
+
+.ritual-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.ritual-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+/* ========== 火器 ========== */
+.firearm-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.firearm-header h2 {
+    font-size: 20px;
+    color: #8b4513;
+    margin-bottom: 8px;
+}
+
+.firearm-header p {
+    font-size: 16px;
+    color: #5d4e37;
+}
+
+.firearm-target {
+    position: relative;
+    width: 300px;
+    height: 300px;
+    margin: 0 auto 20px;
+}
+
+.target-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    border: 20px solid #c0392b;
+}
+
+.target-ring.middle {
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    border-width: 20px;
+    border-color: #f39c12;
+}
+
+.target-ring.inner {
+    top: 60px;
+    left: 60px;
+    right: 60px;
+    bottom: 60px;
+    border-width: 20px;
+    border-color: #ecf0f1;
+}
+
+.target-center {
+    position: absolute;
+    top: 120px;
+    left: 120px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #2c3e50;
+}
+
+.bullet-marker {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #e74c3c;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 3px rgba(0,0,0,0.5);
+}
+
+.firearm-actions {
+    text-align: center;
+}

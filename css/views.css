@@ -1,0 +1,1728 @@
+/**
+ * 视图样式 - 各个主场景视图
+ */
+
+/* ========== 角色属性视图 ========== */
+.character-view {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.character-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #d4c4a8;
+}
+
+.character-portrait {
+    width: 35%;
+    max-width: 300px;
+    max-height: 400px;
+    background-color: #4a90e2;
+    border: 3px solid #5d4e37;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 48px;
+    overflow: hidden;
+}
+
+.character-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.character-info {
+    flex: 1;
+}
+
+.character-name {
+    font-family: 'ZCOOL QingKe HuangYou', 'Pixelify Sans', 'Noto Serif SC', serif;
+    font-size: 36px;
+    font-weight: bold;
+    color: #8b4513;
+    margin-bottom: 5px;
+}
+
+.character-role {
+    font-family: 'ZCOOL QingKe HuangYou', 'Pixelify Sans', sans-serif;
+    font-size: 22px;
+    color: #5d4e37;
+    margin-bottom: 8px;
+}
+
+.character-affiliation {
+    font-family: 'ZCOOL QingKe HuangYou', 'Pixelify Sans', sans-serif;
+    font-size: 20px;
+    color: #7d6a4e;
+}
+
+.attributes-section-inline {
+    margin-top: 15px;
+}
+
+.attributes-section-inline h3 {
+    font-family: 'ZCOOL QingKe HuangYou', 'Pixelify Sans', 'Noto Serif SC', serif;
+    font-size: 24px;
+    color: #8b4513;
+    margin-bottom: 10px;
+}
+
+.attributes-grid-inline {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+}
+
+.attribute-item-inline {
+    margin-bottom: 5px;
+}
+
+.attribute-name-inline {
+    font-size: 18px;
+    color: #2c3e50;
+    margin-bottom: 2px;
+}
+
+.attribute-bar-container-inline {
+    width: 100%;
+    height: 18px;
+    background-color: #efe6d5;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.attributes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.attribute-item {
+    background-color: #efe6d5;
+    padding: 10px 15px;
+    border-radius: 6px;
+    border-left: 4px solid #8b4513;
+}
+
+.attribute-name {
+    font-size: 16px;
+    color: #5d4e37;
+    margin-bottom: 5px;
+}
+
+.attribute-bar-container {
+    width: 100%;
+    height: 18px;
+    background-color: #d4c4a8;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.attribute-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #8b4513, #cd853f);
+    border-radius: 8px;
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 5px;
+}
+
+.attribute-value {
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* 技能区域 */
+.attributes-section h3,
+.skills-section h3 {
+    font-family: 'ZCOOL QingKe HuangYou', 'Pixelify Sans', 'Noto Serif SC', serif;
+    font-size: 24px;
+    color: #8b4513;
+    margin-bottom: 15px;
+}
+
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+}
+
+.skill-item {
+    background-color: #efe6d5;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border-left: 3px solid #8b4513;
+}
+
+.skill-item.unlearned {
+    opacity: 0.5;
+    border-left-color: #a0937d;
+}
+
+.skill-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.skill-name {
+    font-size: 16px;
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+.skill-level {
+    font-size: 14px;
+}
+
+.skill-exp-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #d4c4a8;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.skill-exp-fill {
+    height: 100%;
+    background-color: #8b4513;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+/* ========== 卡片图鉴 ========== */
+.card-collection-container {
+}
+
+.view-title {
+    font-size: 24px;
+    color: #8b4513;
+    margin-bottom: 15px;
+}
+
+.collection-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.collection-stats .stat-item {
+    background-color: #efe6d5;
+    padding: 10px 15px;
+    border-radius: 6px;
+}
+
+.collection-progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 16px;
+    background-color: #efe6d5;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: #8b4513;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: 16px;
+    color: #5d4e37;
+    min-width: 40px;
+}
+
+.card-type-section {
+    margin-bottom: 25px;
+}
+
+.type-title {
+    font-size: 20px;
+    color: #8b4513;
+    margin-bottom: 10px;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+}
+
+.card-item {
+    background-color: #efe6d5;
+    border-radius: 8px;
+    padding: 10px 6px;
+    text-align: center;
+    border: 2px solid #d4c4a8;
+    transition: all 0.2s ease;
+    aspect-ratio: 2/3;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card-item.uncollected {
+    opacity: 0.3;
+    filter: grayscale(100%);
+}
+
+.card-item.collected {
+    border-color: #8b4513;
+    background-color: #f5ecd8;
+}
+
+/* 稀有度颜色：白→绿→蓝→紫→金 */
+.card-item.collected.rarity-1 {
+    background-color: #ffffff;
+    border-color: #ddd;
+}
+.card-item.collected.rarity-2 {
+    background-color: #d4edda;
+    border-color: #28a745;
+}
+.card-item.collected.rarity-3 {
+    background-color: #cce5ff;
+    border-color: #007bff;
+}
+.card-item.collected.rarity-4 {
+    background-color: #e8dff5;
+    border-color: #6f42c1;
+}
+.card-item.collected.rarity-5 {
+    background-color: #fff3cd;
+    border-color: #ffc107;
+}
+
+.card-item.collected:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-name {
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.card-desc {
+    font-size: 12px;
+    color: #5d4e37;
+    margin-top: 6px;
+    line-height: 1.3;
+}
+
+.card-emoji {
+    font-size: 32px;
+}
+
+/* 图片渲染接口 */
+.card-illustration {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.card-illustration img {
+    max-width: 100%;
+    max-height: 150px;
+    border-radius: 4px;
+}
+
+.event-illustration {
+    width: 100%;
+    max-height: 300px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.event-illustration img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* ========== 城市视图 ========== */
+.city-view-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.city-info-card {
+    background: #f5ecd8;
+    border: 2px solid #d4c4a8;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.city-info-header {
+    background: #8b4513;
+    padding: 15px 20px;
+}
+
+.city-info-header .city-name {
+    margin: 0;
+    font-size: 36px !important;
+    color: #ffffff !important;
+    text-align: center;
+    font-family: 'ZCOOL QingKe HuangYou', 'Pixelify Sans', 'Noto Serif SC', serif;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.city-info-details {
+    padding: 15px 20px;
+}
+
+.info-row {
+    display: flex;
+    padding: 5px 0;
+}
+
+.info-label {
+    width: 100px;
+    font-weight: bold;
+    color: #5d4e37;
+    font-size: 16px;
+}
+
+.info-value {
+    flex: 1;
+    color: #2c3e50;
+    font-size: 16px;
+}
+
+.city-actions-top {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.city-facilities-section {
+    margin-top: 10px;
+}
+
+.city-facilities-section .section-title {
+    margin-bottom: 15px;
+    color: #8b4513;
+    font-size: 24px;
+    font-family: 'ZCOOL QingKe HuangYou', 'Pixelify Sans', 'Noto Serif SC', serif;
+    border-bottom: 2px solid #d4c4a8;
+    padding-bottom: 8px;
+}
+
+.facilities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.facility-card-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 10px;
+    background: #f5ecd8;
+    border: 2px solid #d4a574;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    gap: 8px;
+}
+
+.facility-card-btn:hover {
+    background: #e8dcc8;
+    border-color: #8b4513;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.facility-card-disabled {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 10px;
+    background: #efe6d5;
+    border: 2px solid #d4c4a8;
+    border-radius: 8px;
+    opacity: 0.6;
+    gap: 8px;
+}
+
+.facility-icon {
+    font-size: 36px;
+}
+
+.facility-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #5d4e37;
+    font-family: 'ZCOOL QingKe HuangYou', 'Pixelify Sans', 'Noto Serif SC', serif;
+}
+
+/* Legacy - keep for backward compatibility */
+.facility-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.facility-btn {
+    display: inline-block;
+    margin: 3px;
+    padding: 6px 12px;
+    background: #d4a574;
+    border: 1px solid #8b4513;
+    border-radius: 4px;
+    color: #2c3e50;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.facility-btn:hover {
+    background: #c89563;
+}
+
+.facility-tag {
+    display: inline-block;
+    margin: 3px;
+    padding: 4px 10px;
+    background: #efe6d5;
+    border-radius: 4px;
+    font-size: 16px;
+    color: #5d4e37;
+}
+
+/* ========== 任务列表视图 ========== */
+.task-list-header h2 {
+    font-size: 24px;
+    color: #8b4513;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.current-task-info {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background-color: #d4edda;
+    border: 1px solid #28a745;
+    border-radius: 4px;
+    color: #155724;
+}
+
+.remaining-days {
+    margin-left: 15px;
+    font-weight: normal;
+}
+
+.no-tasks {
+    text-align: center;
+    padding: 30px;
+    color: #8b7355;
+    background-color: #f5ecd8;
+    border-radius: 6px;
+    font-style: italic;
+}
+
+.evaluation-notice {
+    background-color: #f5f5f5;
+    border: 1px solid #e3e3e3;
+    border-radius: 6px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+}
+
+.evaluation-notice .warning {
+    color: #a94442;
+    background-color: #f2dede;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin: 10px 0 0 0;
+    font-weight: bold;
+}
+
+/* 评定会底部选择区域 */
+.evaluation-selection-footer {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 2px solid #d4c4a8;
+    text-align: center;
+}
+
+.evaluation-selection-footer #btn-skip-evaluation {
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+.task-category {
+    margin-bottom: 20px;
+}
+
+.category-title {
+    font-size: 20px;
+    color: #5d4e37;
+    margin-top: 0;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #d4c4a8;
+}
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #efe6d5;
+    border-radius: 8px;
+    border-left: 4px solid #8b4513;
+    gap: 15px;
+}
+
+.task-info {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.task-info h3 {
+    margin: 0 0 5px 0;
+    font-size: 20px;
+    color: #5d4e37;
+}
+
+.task-desc {
+    margin: 5px 0 8px 0;
+    font-size: 16px;
+    color: #8b7355;
+}
+
+.task-reward {
+    margin: 0;
+    font-size: 14px;
+    color: #7d6a4e;
+}
+
+.ruler-notice {
+    background-color: #fcf8e3;
+    border: 1px solid #faebcc;
+    border-radius: 6px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    color: #8a6d3b;
+    font-size: 16px;
+}
+
+.cancel-task-btn {
+    background-color: #f0ad4e;
+    border: 1px solid #eea236;
+    color: white;
+    margin-top: 10px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cancel-task-btn:hover {
+    background-color: #ec971f;
+    border-color: #d58512;
+}
+
+.current-task-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* 功勋说明框 */
+.merit-info-box {
+    background-color: #d9edf7;
+    border: 1px solid #bce8f1;
+    border-radius: 6px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    color: #31708f;
+}
+
+.merit-info-box h4 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    color: #31708f;
+}
+
+.merit-info-box p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+/* ========== 地图移动视图 - 地理地图 ========== */
+.map-view {
+    padding: 15px;
+}
+
+.map-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.map-container .view-title {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #5d4e37;
+}
+
+.map-info {
+    font-size: 16px;
+    color: #5d4e37;
+    margin-bottom: 20px;
+}
+
+/* 地理地图容器 */
+.geo-map-container {
+    position: relative;
+    width: 100%;
+    /* 竖向拉长 ~ 10:9 宽高比 */
+    padding-bottom: 90%;
+    background-image: url('../images/map/ming-jianghuai-bg.svg');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 3px solid #d4c4a8;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #f5ecd8;
+}
+
+.geo-map-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* 城市标记 - 绝对定位 */
+.city-marker {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.city-marker-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.city-marker-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    background-color: #8b4513;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    transition: all 0.2s ease;
+}
+
+.city-marker-name {
+    padding: 4px 10px;
+    background-color: rgba(245, 236, 216, 0.95);
+    border: 2px solid #d4c4a8;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #5d4e37;
+    white-space: nowrap;
+    font-family: 'ZCOOL QingKe HuangYou', 'Pixelify Sans', sans-serif;
+}
+
+/* 当前城市 - 带旗帜 */
+.city-marker.current {
+    z-index: 20;
+}
+
+.city-marker.current .city-marker-dot {
+    background-color: #e74c3c;
+    width: 28px;
+    height: 28px;
+    box-shadow: 0 0 15px rgba(231, 76, 60, 0.8), 0 2px 6px rgba(0,0,0,0.6);
+}
+
+.city-marker.current .city-marker-name {
+    background-color: rgba(253, 236, 234, 0.98);
+    border-color: #e74c3c;
+    color: #c0392b;
+}
+
+/* 旗帜标记 */
+.city-marker.current::before {
+    content: "🚩";
+    position: absolute;
+    top: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 26px;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.15); }
+}
+
+/* 可到达城市 */
+.city-marker.connected {
+    opacity: 1;
+}
+
+.city-marker.connected:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.city-marker.connected:hover .city-marker-dot {
+    box-shadow: 0 0 12px rgba(139, 69, 19, 0.8);
+}
+
+/* 不可到达城市 */
+.city-marker.disconnected {
+    opacity: 0.5;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* 行程提示tooltip */
+.city-marker .travel-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    background-color: rgba(0, 0, 0, 0.85);
+    color: white;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.city-marker.connected:hover .travel-tooltip {
+    opacity: 1;
+}
+
+/* 响应式调整 */
+@media (max-width: 600px) {
+    .city-marker-name {
+        font-size: 14px;
+        padding: 2px 6px;
+    }
+
+    .city-marker-dot {
+        width: 16px;
+        height: 16px;
+    }
+
+    .city-marker.current .city-marker-dot {
+        width: 22px;
+        height: 22px;
+    }
+
+    .city-marker.current::before {
+        font-size: 20px;
+        top: -22px;
+    }
+}
+
+.map-header h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #5d4e37;
+}
+
+.map-destinations h3 {
+    margin-top: 20px;
+    margin-bottom: 15px;
+    color: #5d4e37;
+    font-size: 20px;
+}
+
+.destination-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.destination-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: #f5ecd8;
+    border: 1px solid #d4c4a8;
+    border-radius: 6px;
+}
+
+.destination-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.destination-name {
+    font-weight: bold;
+    font-size: 18px;
+    color: #5d4e37;
+}
+
+.destination-days {
+    font-size: 14px;
+    color: #8b7355;
+}
+
+.move-bonus {
+    font-size: 14px;
+    color: #28a745;
+}
+
+.move-penalty {
+    font-size: 14px;
+    color: #dc3545;
+}
+
+/* ========== 社交系统 ========== */
+.character-list-container {
+    padding: 10px;
+}
+
+.character-list-container .view-title {
+    margin: 0 0 15px 0;
+    color: #5d4e37;
+    border-bottom: 2px solid #d4a574;
+    padding-bottom: 8px;
+}
+
+.character-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.character-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background-color: #f8f5f0;
+    border: 1px solid #d4a574;
+    border-radius: 6px;
+    gap: 15px;
+}
+
+/* 城中人物列表的立绘 */
+.character-item .character-portrait {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #d4a574;
+}
+
+.character-item .character-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.character-item .character-portrait-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    background-color: #e8ded0;
+}
+
+.character-info {
+    flex: 1;
+}
+
+.character-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.character-name {
+    font-weight: bold;
+    font-size: 20px;
+    color: #2c3e50;
+}
+
+.character-rank {
+    font-size: 14px;
+    color: #8b7355;
+    background-color: #e8ded0;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.character-action {
+    flex-shrink: 0;
+}
+
+.character-item .character-name {
+    font-weight: bold;
+    font-size: 16px;
+    color: #2c3e50;
+}
+
+.character-rank {
+    font-size: 12px;
+    color: #8b7355;
+    background-color: #e8ded0;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.character-desc {
+    margin: 4px 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.character-relationship {
+    font-size: 12px;
+    color: #5d4e37;
+}
+
+/* 社交互动视图 */
+.social-container {
+    padding: 15px;
+}
+
+.social-header {
+    margin-bottom: 15px;
+}
+
+.npc-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.npc-emoji {
+    font-size: 48px;
+}
+
+.npc-basic h2 {
+    margin: 0 0 4px 0;
+    color: #5d4e37;
+}
+
+.npc-basic p {
+    margin: 0;
+    color: #666;
+}
+
+.social-description {
+    margin: 10px 0 20px 0;
+    padding: 10px;
+    background-color: #f8f5f0;
+    border-radius: 6px;
+}
+
+.social-description p {
+    margin: 0;
+    color: #5d4e37;
+    line-height: 1.5;
+}
+
+.social-actions h3 {
+    margin: 0 0 10px 0;
+    color: #5d4e37;
+}
+
+.action-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.action-item {
+    padding: 10px;
+    background-color: #f8f5f0;
+    border-radius: 6px;
+}
+
+.action-item.special-action {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+}
+
+.action-desc {
+    margin: 4px 0 0 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.social-footer {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #d4a574;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #8b7355;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 16px;
+}
+
+/* ========== 市集交易场景 ========== */
+.market-scene {
+    padding: 15px;
+    color: #2c3e50;
+}
+
+.market-scene h2 {
+    color: #8b4513;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.money-info {
+    font-size: 18px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f8f5f0;
+    border-radius: 6px;
+}
+
+.market-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.market-table th,
+.market-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.market-table th {
+    background: #8b4513;
+    color: white;
+    font-weight: bold;
+}
+
+.market-table tr:hover {
+    background: #f8f5f0;
+    cursor: pointer;
+}
+
+.market-table tr.selected {
+    background: #e8dcc8;
+    border: 2px solid #8b4513;
+}
+
+.message {
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+    color: #856404;
+}
+
+.trade-panel {
+    padding: 15px;
+    background: #f8f5f0;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.trade-panel h3 {
+    margin-top: 0;
+    color: #8b4513;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.quantity-control .quantity {
+    font-size: 20px;
+    font-weight: bold;
+    min-width: 30px;
+    text-align: center;
+}
+
+.quantity-control button {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    font-size: 20px;
+    line-height: 26px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn.active {
+    background: #8b4513;
+    color: white;
+}
+
+/* ========== 市集交易 - 卡片网格样式 ========== */
+.market-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.goods-card {
+    background: #f8f5f0;
+    border: 2px solid #d4c4a8;
+    border-radius: 8px;
+    padding: 12px;
+    transition: all 0.2s ease;
+}
+
+.goods-card:hover {
+    border-color: #8b4513;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.goods-card-header {
+    margin-bottom: 8px;
+}
+
+.goods-card-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #5d4e37;
+    display: inline-block;
+}
+
+.goods-card-category {
+    font-size: 14px;
+    color: #8b7355;
+    float: right;
+    background: #e8ded0;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.goods-card-desc {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.goods-card-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 15px;
+}
+
+.goods-card-price {
+    color: #5d4e37;
+}
+
+.goods-card-holding {
+    color: #8b4513;
+    font-weight: bold;
+}
+
+.goods-card-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.goods-card-actions .row {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-buy, .btn-sell {
+    border: none;
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+}
+
+.btn-buy {
+    background: #28a745;
+    color: white;
+}
+
+.btn-buy:hover:not(:disabled) {
+    background: #218838;
+}
+
+.btn-sell {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-sell:hover:not(:disabled) {
+    background: #c82333;
+}
+
+.btn-buy:disabled, .btn-sell:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* 响应式调整 */
+@media (max-width: 600px) {
+    .market-cards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ========== 设施场景 ========== */
+.facility-scene {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.facility-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #8b4513;
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #d4c4a8;
+}
+
+.facility-text {
+    background: #f5ecd8;
+    padding: 15px;
+    border-radius: 6px;
+    line-height: 1.8;
+    color: #2c3e50;
+    font-size: 16px;
+}
+
+.facility-npcs {
+    margin-top: 10px;
+}
+
+.facility-npcs .section-title {
+    margin-bottom: 10px;
+    color: #8b4513;
+    font-size: 20px;
+    font-family: 'ZCOOL QingKe HuangYou', 'Pixelify Sans', 'Noto Serif SC', serif;
+}
+
+.facility-npcs-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+}
+
+.npc-in-facility-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: #f8f5f0;
+    border: 2px solid #d4a574;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.npc-in-facility-btn:hover {
+    background: #e8dcc8;
+    border-color: #8b4513;
+}
+
+.npc-in-facility-btn .npc-emoji {
+    font-size: 28px;
+}
+
+.npc-in-facility-btn .npc-name {
+    font-weight: bold;
+    color: #2c3e50;
+    font-size: 16px;
+}
+
+.facility-choices {
+    margin-top: 10px;
+}
+
+.facility-choices h3 {
+    margin-bottom: 10px;
+    color: #8b4513;
+    font-size: 20px;
+}
+
+/* ========== 剧情事件场景 ========== */
+.event-scene {
+    padding: 20px;
+    background: #fbf6ed;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.event-header {
+    border-bottom: 2px solid #8b4513;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.event-header h2 {
+    color: #8b4513;
+    margin: 0 0 5px 0;
+    font-size: 24px;
+}
+
+.event-location {
+    font-family: 'ZCOOL QingKe HuangYou', 'Pixelify Sans', sans-serif;
+    color: #5d4e37;
+    font-size: 16px;
+}
+
+.event-text {
+    font-family: 'ZCOOL QingKe HuangYou', 'Pixelify Sans', sans-serif;
+    font-size: 22px;
+    line-height: 1.8;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    white-space: pre-wrap;
+}
+
+.event-choices {
+    margin-top: 20px;
+}
+
+.event-choices h3 {
+    color: #8b4513;
+    margin-bottom: 15px;
+}
+
+.event-choice-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    background: #efe6d5;
+    border: 1px solid #d4a574;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'ZCOOL QingKe HuangYou', 'Pixelify Sans', sans-serif;
+    font-size: 20px;
+    color: #2c3e50;
+    transition: all 0.2s;
+}
+
+.event-choice-btn:hover {
+    background: #d4a574;
+    color: white;
+}
+
+/* ========== 弹窗遮罩 ========== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-dialog {
+    background: #fff;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #5d4e37;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+    text-align: right;
+}
+
+.secret-replace-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
+}
+
+/* 社交互动界面新布局 - 左侧立绘右侧信息 */
+.social-container .social-header {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 15px;
+    background-color: #f8f5f0;
+    border: 1px solid #d4a574;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.social-container .npc-portrait {
+    flex-shrink: 0;
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #d4a574;
+}
+
+.social-container .npc-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.social-container .npc-portrait-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    background-color: #e8ded0;
+}
+
+.social-container .npc-info {
+    flex: 1;
+    padding-top: 10px;
+}
+
+.social-container .npc-info h2 {
+    margin: 0 0 10px 0;
+    color: #5d4e37;
+    font-size: 28px;
+}
+
+.social-container .npc-info p {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.social-container .npc-info-item {
+    display: inline-block;
+    margin-right: 15px;
+}
+
+.social-description {
+    background-color: #f8f5f0;
+    border: 1px solid #d4a574;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+}
+
+.social-description p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.social-actions {
+    background-color: #f8f5f0;
+    border: 1px solid #d4a574;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.social-actions h3 {
+    margin: 0 0 15px 0;
+    color: #5d4e37;
+}
+
+.social-footer {
+    margin-top: 15px;
+    text-align: center;
+}
+
+/* NPC属性显示 */
+.social-attributes {
+    background-color: #f8f5f0;
+    border: 1px solid #d4a574;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.social-attributes h3 {
+    margin: 0 0 15px 0;
+    color: #5d4e37;
+}
+
+.social-attributes .attributes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.social-attributes .attribute-item {
+    margin-bottom: 8px;
+}
+
+.social-attributes .attribute-name {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.social-attributes .attribute-bar-container {
+    background-color: #ddd;
+    height: 25px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.social-attributes .attribute-bar {
+    background-color: #8b4513;
+    height: 100%;
+    text-align: right;
+    line-height: 25px;
+    padding-right: 8px;
+    box-sizing: border-box;
+}
+
+.social-attributes .attribute-value {
+    color: #fff;
+    font-weight: bold;
+}
+
+/* NPC技能等级显示 */
+.social-skills {
+    background-color: #f8f5f0;
+    border: 1px solid #d4a574;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.social-skills h3 {
+    margin: 0 0 15px 0;
+    color: #5d4e37;
+}
+
+.social-skills .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+}
+
+.social-skills .skill-item {
+    background-color: #fff;
+    border: 1px solid #e8ded0;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.social-skills .skill-item.learned {
+    background-color: #e8dcc8;
+    border-color: #d4a574;
+}
+
+.social-skills .skill-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.social-skills .skill-name {
+    font-size: 14px;
+    color: #333;
+}
+
+.social-skills .skill-level {
+    font-size: 13px;
+    color: #8b7355;
+}
+
+.social-footer {
+    margin-top: 15px;
+    text-align: center;
+}
