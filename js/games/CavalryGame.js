@@ -40,12 +40,13 @@ window.CavalryGame = {
      */
     render(gameState) {
         const game = gameState.cavalryGame;
+        const template = getMissionTemplateById(gameState.currentTask.templateId);
         const playerBar = '■'.repeat(Math.floor(game.playerProgress / 2)) + '□'.repeat(8 - Math.floor(game.playerProgress / 2));
         const enemyBar = '■'.repeat(Math.floor(game.enemyProgress / 2)) + '□'.repeat(8 - Math.floor(game.enemyProgress / 2));
 
         let html = `
             <div class="cavalry-header">
-                <h2>${gameState.currentTask.name}</h2>
+                <h2>${template.name}</h2>
                 <p>从起点到终点共需累积15点进度，先到终点获胜</p>
                 <div class="cavalry-progress">
                     <p>你的进度: ${playerBar} <strong>${game.playerProgress}</strong> / ${game.targetProgress}</p>

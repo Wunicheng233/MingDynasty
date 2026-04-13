@@ -32,7 +32,15 @@ window.EngineeringGame = {
      */
     render(gameState, title = null) {
         const game = gameState.engineeringGame;
-        const headerTitle = title || (gameState.currentTask ? gameState.currentTask.name : '修筑城防');
+        let headerTitle;
+        if (title) {
+            headerTitle = title;
+        } else if (gameState.currentTask) {
+            const template = getMissionTemplateById(gameState.currentTask.templateId);
+            headerTitle = template.name;
+        } else {
+            headerTitle = '修筑城防';
+        }
         let html = `
             <div class="engineering-header">
                 <h2>${headerTitle}</h2>

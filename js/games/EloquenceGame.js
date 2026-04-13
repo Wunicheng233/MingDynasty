@@ -41,11 +41,12 @@ window.EloquenceGame = {
      */
     renderRound(gameState) {
         const game = gameState.eloquenceGame;
+        const template = getMissionTemplateById(gameState.currentTask.templateId);
         const emotionBar = '■'.repeat(Math.floor(game.emotion / 10)) + '□'.repeat(10 - Math.floor(game.emotion / 10));
 
         let html = `
             <div class="eloquence-header">
-                <h2>${gameState.currentTask.name}</h2>
+                <h2>${template.name}</h2>
                 <p>${game.target.desc}</p>
                 <p>当前情绪值：${emotionBar} ${game.emotion}/100 &nbsp; 剩余回合：${game.remainingRounds}</p>
             </div>

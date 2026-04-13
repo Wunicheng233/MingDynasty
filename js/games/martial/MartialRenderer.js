@@ -18,7 +18,15 @@ window.MartialRenderer = {
         const numberCards = player.hand.filter(c => c.type === 'number');
         const specialCards = player.hand.filter(c => c.type === 'special');
 
-        const headerTitle = title || (gameState.currentTask ? gameState.currentTask.name : '拜师学艺');
+        let headerTitle;
+        if (title) {
+            headerTitle = title;
+        } else if (gameState.currentTask) {
+            const template = getMissionTemplateById(gameState.currentTask.templateId);
+            headerTitle = template.name;
+        } else {
+            headerTitle = '拜师学艺';
+        }
         let html = `
             <div class="personal-battle-header">
                 <h2>个人战 · ${headerTitle}</h2>

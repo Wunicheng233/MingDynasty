@@ -186,7 +186,15 @@ window.StrategyGame = {
      * 渲染新手教程/入门说明
      */
     renderTutorial(gameState, gameView, title = null) {
-        const headerTitle = title || (gameState.currentTask ? gameState.currentTask.name : '围棋死活练习');
+        let headerTitle;
+        if (title) {
+            headerTitle = title;
+        } else if (gameState.currentTask) {
+            const template = getMissionTemplateById(gameState.currentTask.templateId);
+            headerTitle = template.name;
+        } else {
+            headerTitle = '围棋死活练习';
+        }
 
         let html = `
             <div class="strategy-tutorial" style="max-width: 800px; margin: 0 auto; padding: 10px 20px; max-height: 600px; overflow-y: auto;">
@@ -290,7 +298,15 @@ window.StrategyGame = {
     render(gameState, gameView, title = null) {
         const game = gameState.strategyGame;
         const problem = game.problems[game.current];
-        const headerTitle = title || (gameState.currentTask ? gameState.currentTask.name : '围棋死活练习');
+        let headerTitle;
+        if (title) {
+            headerTitle = title;
+        } else if (gameState.currentTask) {
+            const template = getMissionTemplateById(gameState.currentTask.templateId);
+            headerTitle = template.name;
+        } else {
+            headerTitle = '围棋死活练习';
+        }
 
         let html = `
             <div class="strategy-go-header">

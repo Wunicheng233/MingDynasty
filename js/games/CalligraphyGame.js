@@ -61,7 +61,15 @@ window.CalligraphyGame = {
     renderRound(gameState, gameView, title = null) {
         const game = gameState.calligraphyGame;
         const q = this.questions[game.currentRound];
-        const headerTitle = title || (gameState.currentTask ? gameState.currentTask.name : '听讲经义');
+        let headerTitle;
+        if (title) {
+            headerTitle = title;
+        } else if (gameState.currentTask) {
+            const template = getMissionTemplateById(gameState.currentTask.templateId);
+            headerTitle = template.name;
+        } else {
+            headerTitle = '听讲经义';
+        }
 
         let html = `
             <div class="calligraphy-header">

@@ -297,7 +297,15 @@ window.LawGame = {
         game.step = step;
 
         if (step === 'select_law') {
-            const headerTitle = game.isPractice ? `审理案件 - ${game.case.title}` : (gameState.currentTask ? `${gameState.currentTask.name} - ${game.case.title}` : `审理案件 - ${game.case.title}`);
+            let headerTitle;
+            if (game.isPractice) {
+                headerTitle = `审理案件 - ${game.case.title}`;
+            } else if (gameState.currentTask) {
+                const template = getMissionTemplateById(gameState.currentTask.templateId);
+                headerTitle = `${template.name} - ${game.case.title}`;
+            } else {
+                headerTitle = `审理案件 - ${game.case.title}`;
+            }
             let html = `
                 <div class="law-header">
                     <h2>${headerTitle}</h2>

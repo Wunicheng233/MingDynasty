@@ -154,10 +154,11 @@ window.TradeGame = {
     renderRound(gameState) {
         const game = gameState.tradeGame;
         const q = game.questions[game.current];
+        const template = getMissionTemplateById(gameState.currentTask.templateId);
 
         let html = `
             <div class="trade-header">
-                <h2>${gameState.currentTask.name}</h2>
+                <h2>${template.name}</h2>
                 <p>已答: ${game.current}/${game.questions.length} &nbsp; 答对: ${game.correct}</p>
             </div>
             <div class="trade-question">

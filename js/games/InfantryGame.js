@@ -369,7 +369,15 @@ window.InfantryGame = {
      * 渲染新手教程
      */
     renderTutorial(gameState, gameView, title = null) {
-        const headerTitle = title || (gameState.currentTask ? gameState.currentTask.name : '象棋残局训练');
+        let headerTitle;
+        if (title) {
+            headerTitle = title;
+        } else if (gameState.currentTask) {
+            const template = getMissionTemplateById(gameState.currentTask.templateId);
+            headerTitle = template.name;
+        } else {
+            headerTitle = '象棋残局训练';
+        }
 
         let html = `
             <div class="infantry-tutorial" style="max-width: 800px; margin: 0 auto; padding: 10px 20px; max-height: 600px; overflow-y: auto;">
@@ -425,7 +433,15 @@ window.InfantryGame = {
         const game = gameState.infantryGame;
         const problem = game.problems[game.current];
         const board = game.currentBoard;
-        const headerTitle = title || (gameState.currentTask ? gameState.currentTask.name : '象棋残局训练');
+        let headerTitle;
+        if (title) {
+            headerTitle = title;
+        } else if (gameState.currentTask) {
+            const template = getMissionTemplateById(gameState.currentTask.templateId);
+            headerTitle = template.name;
+        } else {
+            headerTitle = '象棋残局训练';
+        }
 
         // 棋盘尺寸：每个交叉点间距 50px，棋子直径 40px
         const cellSize = 50;

@@ -43,13 +43,14 @@ window.NavyGame = {
      */
     render(gameState, gameView) {
         const game = gameState.navyGame;
+        const template = getMissionTemplateById(gameState.currentTask.templateId);
 
         // 计算进度条百分比
         const progressPercent = (game.progress / game.total) * 100;
 
         let html = `
             <div class="navy-header">
-                <h2>${gameState.currentTask.name}</h2>
+                <h2>${template.name}</h2>
                 <p>指挥楼船航行至目的地，总航程 ${game.total} 段，合理分配体力与士气</p>
             </div>
             <div class="navy-stats" style="background: #f5f0e1; padding: 15px; border-radius: 8px; margin: 15px 0;">
