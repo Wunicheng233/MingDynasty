@@ -401,7 +401,7 @@ window.GameView = class GameView {
                 break;
             case 'explore':
                 // 人才探访 - 跳转到城中人物列表进行探访
-                this.switchToView(GameScene.CHARACTER_LIST_VIEW);
+                this.gameState.currentScene = GameScene.CHARACTER_LIST_VIEW;
                 this.renderAll();
                 break;
             default:
