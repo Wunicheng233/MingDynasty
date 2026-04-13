@@ -458,13 +458,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 16px 10px;
+    padding: 20px 10px;
     background: #f5ecd8;
     border: 2px solid #d4a574;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
-    gap: 10px;
+    gap: 8px;
 }
 
 .facility-card-btn:hover {
@@ -478,12 +478,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 16px 10px;
+    padding: 20px 10px;
     background: #efe6d5;
     border: 2px solid #d4c4a8;
     border-radius: 8px;
     opacity: 0.6;
-    gap: 10px;
+    gap: 8px;
 }
 
 .facility-icon {
@@ -595,6 +595,36 @@
     font-style: italic;
 }
 
+.evaluation-notice {
+    background-color: #f5f5f5;
+    border: 1px solid #e3e3e3;
+    border-radius: 6px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+}
+
+.evaluation-notice .warning {
+    color: #a94442;
+    background-color: #f2dede;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin: 10px 0 0 0;
+    font-weight: bold;
+}
+
+/* 评定会底部选择区域 */
+.evaluation-selection-footer {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 2px solid #d4c4a8;
+    text-align: center;
+}
+
+.evaluation-selection-footer #btn-skip-evaluation {
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
 .task-category {
     margin-bottom: 20px;
 }
@@ -646,6 +676,59 @@
     margin: 0;
     font-size: 14px;
     color: #7d6a4e;
+}
+
+.ruler-notice {
+    background-color: #fcf8e3;
+    border: 1px solid #faebcc;
+    border-radius: 6px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    color: #8a6d3b;
+    font-size: 16px;
+}
+
+.cancel-task-btn {
+    background-color: #f0ad4e;
+    border: 1px solid #eea236;
+    color: white;
+    margin-top: 10px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cancel-task-btn:hover {
+    background-color: #ec971f;
+    border-color: #d58512;
+}
+
+.current-task-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* 功勋说明框 */
+.merit-info-box {
+    background-color: #d9edf7;
+    border: 1px solid #bce8f1;
+    border-radius: 6px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    color: #31708f;
+}
+
+.merit-info-box h4 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    color: #31708f;
+}
+
+.merit-info-box p {
+    margin: 5px 0;
+    font-size: 16px;
 }
 
 /* ========== 地图移动视图 ========== */
@@ -750,6 +833,169 @@
 .city-card .move-btn {
     margin-top: 5px;
     width: 100%;
+}
+
+/* ========== 地图移动视图 - 地理地图 ========== */
+/* 地理地图容器 */
+.geo-map-container {
+    position: relative;
+    width: 100%;
+    /* 竖向拉长 ~ 10:9 宽高比 */
+    padding-bottom: 90%;
+    background-image: url('../images/map/ming-jianghuai-bg.svg');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 3px solid #d4c4a8;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #f5ecd8;
+}
+
+.geo-map-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* 城市标记 - 绝对定位 */
+.city-marker {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.city-marker-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.city-marker-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    background-color: #8b4513;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    transition: all 0.2s ease;
+}
+
+.city-marker-name {
+    padding: 4px 10px;
+    background-color: rgba(245, 236, 216, 0.95);
+    border: 2px solid #d4c4a8;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #5d4e37;
+    white-space: nowrap;
+    font-family: 'ZCOOL QingKe HuangYou', 'Pixelify Sans', sans-serif;
+}
+
+/* 当前城市 - 带旗帜 */
+.city-marker.current {
+    z-index: 20;
+}
+
+.city-marker.current .city-marker-dot {
+    background-color: #e74c3c;
+    width: 28px;
+    height: 28px;
+    box-shadow: 0 0 15px rgba(231, 76, 60, 0.8), 0 2px 6px rgba(0,0,0,0.6);
+}
+
+.city-marker.current .city-marker-name {
+    background-color: rgba(253, 236, 234, 0.98);
+    border-color: #e74c3c;
+    color: #c0392b;
+}
+
+/* 旗帜标记 */
+.city-marker.current::before {
+    content: "🚩";
+    position: absolute;
+    top: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 26px;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50% { transform: translateX(-50%) scale(1.15); }
+}
+
+/* 可到达城市 */
+.city-marker.connected {
+    opacity: 1;
+}
+
+.city-marker.connected:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.city-marker.connected:hover .city-marker-dot {
+    box-shadow: 0 0 12px rgba(139, 69, 19, 0.8);
+}
+
+/* 不可到达城市 */
+.city-marker.disconnected {
+    opacity: 0.5;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* 行程提示tooltip */
+.city-marker .travel-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    background-color: rgba(0, 0, 0, 0.85);
+    color: white;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.city-marker.connected:hover .travel-tooltip {
+    opacity: 1;
+}
+
+/* 响应式调整 */
+@media (max-width: 600px) {
+    .city-marker-name {
+        font-size: 14px;
+        padding: 2px 6px;
+    }
+
+    .city-marker-dot {
+        width: 16px;
+        height: 16px;
+    }
+
+    .city-marker.current .city-marker-dot {
+        width: 22px;
+        height: 22px;
+    }
+
+    .city-marker.current::before {
+        font-size: 20px;
+        top: -22px;
+    }
+>>>>>>> origin/hongbin-dev
 }
 
 .map-header h2 {
@@ -1110,6 +1356,123 @@
 .action-buttons .btn.active {
     background: #8b4513;
     color: white;
+}
+
+/* ========== 市集交易 - 卡片网格样式 ========== */
+.market-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.goods-card {
+    background: #f8f5f0;
+    border: 2px solid #d4c4a8;
+    border-radius: 8px;
+    padding: 12px;
+    transition: all 0.2s ease;
+}
+
+.goods-card:hover {
+    border-color: #8b4513;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.goods-card-header {
+    margin-bottom: 8px;
+}
+
+.goods-card-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #5d4e37;
+    display: inline-block;
+}
+
+.goods-card-category {
+    font-size: 14px;
+    color: #8b7355;
+    float: right;
+    background: #e8ded0;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.goods-card-desc {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.goods-card-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 15px;
+}
+
+.goods-card-price {
+    color: #5d4e37;
+}
+
+.goods-card-holding {
+    color: #8b4513;
+    font-weight: bold;
+}
+
+.goods-card-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.goods-card-actions .row {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-buy, .btn-sell {
+    border: none;
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+}
+
+.btn-buy {
+    background: #28a745;
+    color: white;
+}
+
+.btn-buy:hover:not(:disabled) {
+    background: #218838;
+}
+
+.btn-sell {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-sell:hover:not(:disabled) {
+    background: #c82333;
+}
+
+.btn-buy:disabled, .btn-sell:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* 响应式调整 */
+@media (max-width: 600px) {
+    .market-cards-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ========== 设施场景 ========== */

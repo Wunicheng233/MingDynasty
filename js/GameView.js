@@ -60,6 +60,20 @@ window.GameView = class GameView {
      * 导航按钮点击 - 切到对应场景
      */
     onNavClick(targetScene) {
+        // 如果有未完成的剧情事件，禁止切换场景
+        // 必须完成事件选择才能离开
+        if (this.gameState.currentEvent) {
+            alert('⚠️ 当前有未完成的剧情事件，请先完成选择才能切换页面');
+            return;
+        }
+        // 如果评定会未做出选择，禁止离开
+        // 必须接取任务或选择跳过才能离开
+        // 例外：如果目标就是主命界面，则允许跳转（这正是自动跳转要去的地方）
+        if (this.gameState.evaluationPendingSelection && targetScene !== GameScene.TASK_LIST) {
+            alert('⚠️ 本次评定会尚未做出选择，请接取任务或选择"暂无合适任务"才能离开');
+            return;
+        }
+
         // 如果切出小游戏，停止所有动画避免浪费
         if (!SceneManager.isMinigameScene(targetScene)) {
             AnimationManager.stopAllAnimations(this.gameState);
@@ -72,6 +86,16 @@ window.GameView = class GameView {
      * 次日按钮点击
      */
     onNextDayClick() {
+        // 如果有未完成的剧情事件，禁止推进时间
+        if (this.gameState.currentEvent) {
+            alert('⚠️ 当前有未完成的剧情事件，请先完成选择才能继续');
+            return;
+        }
+        // 如果评定会未做出选择，禁止推进时间
+        if (this.gameState.evaluationPendingSelection) {
+            alert('⚠️ 本次评定会尚未做出选择，请接取任务或选择"暂无合适任务"才能继续');
+            return;
+        }
         this.gameState.advanceDay();
         this.renderAll();
     }
@@ -80,6 +104,15 @@ window.GameView = class GameView {
      * 渲染所有视图
      */
     renderAll() {
+        // 检查是否需要自动跳转到评定会
+        if (this.gameState._shouldAutoGoToEvaluation) {
+            this.gameState._shouldAutoGoToEvaluation = false;
+            // 延迟一帧让日志先渲染，再跳转
+            setTimeout(() => {
+                this.onNavClick(GameScene.TASK_LIST);
+            }, 100);
+        }
+
         this.renderStatusBar();
         this.renderCurrentScene();
         this.renderLog();
@@ -122,14 +155,48 @@ window.GameView = class GameView {
     }
 
     /**
-     * 接受并开始一个主命
+     * 接受并开始一个主命（家臣模式）
      */
     acceptMission(taskId) {
         const template = getMissionTemplateById(taskId);
         if (!template) return;
 
         // GameState中开始任务
-        this.gameState.acceptMission(template);
+        this.gameState.startMission(template);
+
+        // 根据任务的小游戏类型进入对应小游戏
+        if (template.gameType && template.gameType !== 'none') {
+            this.gameState.currentScene = GameScene.FARMING_GAME;
+            MinigameInitializer.initMinigame(this.gameState, template);
+        } else {
+            // 不需要小游戏的任务直接返回城市界面
+            this.gameState.currentScene = GameScene.CITY_VIEW;
+        }
+
+        this.renderAll();
+    }
+
+    /**
+     * 发布任务给家臣（君主模式）
+     */
+    publishMissionToVassal(taskId) {
+        const template = getMissionTemplateById(taskId);
+        if (!template) return;
+
+        // 检查军资金是否足够（发布任务需要消耗预算）
+        const requiredCost = Math.round(template.baseReward * 0.5);
+        if (this.gameState.money < requiredCost) {
+            alert(`军资金不足，发布此任务需要 ${requiredCost} 贯，你只有 ${this.gameState.money} 贯`);
+            return;
+        }
+
+        // 扣除军资金预算
+        this.gameState.money -= requiredCost;
+        this.gameState.addLog(`发布主命【${template.name}】，花费军资金 ${requiredCost} 贯`);
+
+        // 这里预留完整的家臣任务分配逻辑
+        // 当前版本：玩家君主仍然亲自执行任务，保持兼容性
+        this.gameState.startMission(template);
 
         // 根据任务的小游戏类型进入对应小游戏
         if (template.gameType && template.gameType !== 'none') {
@@ -256,8 +323,8 @@ window.GameView = class GameView {
         const gameType = this.gameState.currentTask.gameType;
         const taskId = this.gameState.currentTask.templateId;
 
-        const animatedStart = (startFn, gameKey, gameObj) => {
-            startFn.call(gameObj, this, this.gameState);
+        const animatedStart = (startFn, gameKey) => {
+            startFn(this, this.gameState);
             if (MinigameInitializer.needsAnimation(gameType)) {
                 this.startAnimatedGame(gameKey);
             }
@@ -267,66 +334,66 @@ window.GameView = class GameView {
         // 状态初始化已经在MinigameInitializer完成
         switch (gameType) {
             case 'agriculture':
-                animatedStart(FarmingGame.start, 'farmingGame', FarmingGame);
+                animatedStart(FarmingGame.start, 'farmingGame');
                 break;
             case 'eloquence':
-                EloquenceGame.start.call(EloquenceGame, this, this.gameState);
+                EloquenceGame.start(this, this.gameState);
                 break;
             case 'infantry':
-                InfantryGame.start.call(InfantryGame, this, this.gameState);
+                InfantryGame.start(this, this.gameState);
                 break;
             case 'cavalry':
-                CavalryGame.start.call(CavalryGame, this, this.gameState);
+                CavalryGame.start(this, this.gameState);
                 break;
             case 'engineering':
-                animatedStart(EngineeringGame.start, 'engineeringGame', EngineeringGame);
+                animatedStart(EngineeringGame.start, 'engineeringGame');
                 break;
             case 'trade':
-                TradeGame.start.call(TradeGame, this, this.gameState);
+                TradeGame.start(this, this.gameState);
                 break;
             case 'law':
-                LawGame.start.call(LawGame, this, this.gameState);
+                LawGame.start(this, this.gameState);
                 break;
             case 'navy':
-                animatedStart(NavyGame.start, 'navyGame', NavyGame);
+                animatedStart(NavyGame.start, 'navyGame');
                 break;
             case 'strategy':
                 if (taskId === 17) {
-                    BattleGame.start.call(BattleGame, this, this.gameState);
+                    BattleGame.start(this, this.gameState);
                 } else {
-                    StrategyGame.start.call(StrategyGame, this, this.gameState);
+                    StrategyGame.start(this, this.gameState);
                 }
                 break;
             case 'martial':
                 if (taskId === 10) {
-                    DuelGame.start.call(DuelGame, this, this.gameState);
+                    DuelGame.start(this, this.gameState);
                 } else {
-                    MartialGame.start.call(MartialGame, this, this.gameState);
+                    MartialGame.start(this, this.gameState);
                 }
                 break;
             case 'medicine':
-                MedicineGame.start.call(MedicineGame, this, this.gameState);
+                MedicineGame.start(this, this.gameState);
                 break;
             case 'calligraphy':
-                CalligraphyGame.start.call(CalligraphyGame, this, this.gameState);
+                CalligraphyGame.start(this, this.gameState);
                 break;
             case 'spy':
-                SpyGame.start.call(SpyGame, this, this.gameState);
+                SpyGame.start(this, this.gameState);
                 break;
             case 'navigation':
-                NavigationGame.start.call(NavigationGame, this, this.gameState);
+                NavigationGame.start(this, this.gameState);
                 break;
             case 'ritual':
-                RitualGame.start.call(RitualGame, this, this.gameState);
+                RitualGame.start(this, this.gameState);
                 break;
             case 'firearm':
-                animatedStart(FirearmGame.start, 'firearmGame', FirearmGame);
+                animatedStart(FirearmGame.start, 'firearmGame');
                 break;
             case 'duel':
-                DuelGame.start.call(DuelGame, this, this.gameState);
+                DuelGame.start(this, this.gameState);
                 break;
             case 'battle':
-                BattleGame.start.call(BattleGame, this, this.gameState);
+                BattleGame.start(this, this.gameState);
                 break;
             default:
                 console.warn('未知小游戏类型:', gameType);

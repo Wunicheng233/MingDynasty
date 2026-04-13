@@ -10,6 +10,8 @@
  * @property {string} cityId - 城镇ID
  * @property {number} id - 数字ID
  * @property {string} name - 城镇名称
+ * @property {number} x - 横坐标（0-100 百分比，基于地图背景）
+ * @property {number} y - 纵坐标（0-100 百分比，基于地图背景）
  * @property {string} type - 类型: 都城/普通/边关/海港
  * @property {number} baseDefense - 初始城防度 0-100
  * @property {number} baseScale - 初始规模 1-10
@@ -32,13 +34,15 @@ const CITY_TEMPLATES = [
         cityId: "HAOZHOU",
         id: 1,
         name: "濠州",
+        x: 45,
+        y: 50,
         type: "普通",
         baseDefense: 40,
         baseScale: 4,
         baseGold: 1000,
         baseFood: 5000,
         specialties: ["粮食", "食盐"],
-        facilities: ["武馆", "市集"],
+        facilities: ["武馆", "市集", "酒馆"],
         nearbyLandmarks: ["皇觉寺"],
         connections: [
             { target: 3, baseDays: 4 },
@@ -51,13 +55,15 @@ const CITY_TEMPLATES = [
         cityId: "YINGTIAN",
         id: 2,
         name: "应天",
+        x: 68,
+        y: 38,
         type: "都城",
         baseDefense: 70,
         baseScale: 7,
         baseGold: 5000,
         baseFood: 10000,
         specialties: ["丝绸", "茶叶", "火器"],
-        facilities: ["武馆", "市集", "工部作坊", "国子监", "锦衣卫所"],
+        facilities: ["武馆", "市集", "酒馆", "工部作坊", "国子监", "锦衣卫所"],
         nearbyLandmarks: ["秦淮河", "钟山"],
         connections: [
             // 镇江暂未加入，保留位置
@@ -71,13 +77,15 @@ const CITY_TEMPLATES = [
         cityId: "CHUZHOU",
         id: 3,
         name: "滁州",
+        x: 55,
+        y: 35,
         type: "普通",
         baseDefense: 30,
         baseScale: 3,
         baseGold: 800,
         baseFood: 4000,
         specialties: ["木材", "药材"],
-        facilities: ["武馆", "市集"],
+        facilities: ["武馆", "市集", "酒馆"],
         nearbyLandmarks: [],
         connections: [
             { target: 1, baseDays: 4 },
@@ -90,13 +98,15 @@ const CITY_TEMPLATES = [
         cityId: "HEZHOU",
         id: 4,
         name: "和州",
+        x: 52,
+        y: 48,
         type: "普通",
         baseDefense: 25,
         baseScale: 3,
         baseGold: 600,
         baseFood: 3500,
         specialties: ["粮食", "鱼类"],
-        facilities: ["市集"],
+        facilities: ["市集", "酒馆"],
         nearbyLandmarks: [],
         connections: [
             { target: 1, baseDays: 3 },
@@ -109,13 +119,15 @@ const CITY_TEMPLATES = [
         cityId: "JIANGZHOU",
         id: 5,
         name: "江州",
+        x: 18,
+        y: 60,
         type: "普通",
         baseDefense: 60,
         baseScale: 5,
         baseGold: 2000,
         baseFood: 8000,
         specialties: ["茶叶", "木材"],
-        facilities: ["武馆", "市集", "水寨"],
+        facilities: ["武馆", "市集", "酒馆", "水寨"],
         nearbyLandmarks: ["鄱阳湖"],
         connections: [
             { target: 6, baseDays: 2 },
@@ -127,13 +139,15 @@ const CITY_TEMPLATES = [
         cityId: "WUCHANG",
         id: 6,
         name: "武昌",
+        x: 10,
+        y: 52,
         type: "都城",
         baseDefense: 65,
         baseScale: 6,
         baseGold: 3000,
         baseFood: 9000,
         specialties: ["鱼类", "食盐"],
-        facilities: ["武馆", "市集", "水寨"],
+        facilities: ["武馆", "市集", "酒馆", "水寨"],
         nearbyLandmarks: [],
         connections: [
             { target: 5, baseDays: 2 }
@@ -144,13 +158,15 @@ const CITY_TEMPLATES = [
         cityId: "SUZHOU",
         id: 7,
         name: "苏州",
+        x: 82,
+        y: 42,
         type: "普通",
         baseDefense: 55,
         baseScale: 6,
         baseGold: 3500,
         baseFood: 7000,
         specialties: ["丝绸", "茶叶"],
-        facilities: ["武馆", "市集", "商帮会馆"],
+        facilities: ["武馆", "市集", "酒馆", "商帮会馆"],
         nearbyLandmarks: [],
         connections: [
             { target: 2, baseDays: 3 }
@@ -161,13 +177,15 @@ const CITY_TEMPLATES = [
         cityId: "FENGYANG",
         id: 8,
         name: "凤阳",
+        x: 38,
+        y: 42,
         type: "普通",
         baseDefense: 50,
         baseScale: 2,
         baseGold: 500,
         baseFood: 3000,
         specialties: ["粮食"],
-        facilities: ["市集"],
+        facilities: ["市集", "酒馆"],
         nearbyLandmarks: ["皇觉寺", "明皇陵"],
         connections: [
             { target: 1, baseDays: 2 }

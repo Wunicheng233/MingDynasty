@@ -1,6 +1,6 @@
 /**
- * 大地图渲染模块
- * 显示所有城镇，点击可以移动
+ * 大地图渲染模块 - 地理地图版本
+ * 显示真实地理背景地图，每个城市标记在正确方位，点击可以移动
  */
 
 window.MapRenderer = {
@@ -16,42 +16,34 @@ window.MapRenderer = {
 
         let html = `
             <div class="map-container">
-                <h2 class="view-title">大地图</h2>
+                <h2 class="view-title">元末江淮形势图</h2>
                 <p class="map-info">当前位置: <strong>${gameState.getCurrentCity().name}</strong></p>
-                <div class="city-grid">
+                <div class="geo-map-container">
+                    <div class="geo-map-content">
         `;
 
         allCities.forEach(city => {
             const isCurrent = city.id === currentCityId;
             const connected = gameState.getCurrentCity().connections &&
                 gameState.getCurrentCity().connections.some(c => c.target === city.id);
-
-            // 计算移动天数
             const days = gameState.getMoveDaysToCity(city.id);
             const disabled = city.id === currentCityId;
 
             html += `
-                <div class="city-card ${isCurrent ? 'current' : ''} ${connected ? 'connected' : 'disconnected'}">
-                    <div class="city-header">
-                        <span class="city-emoji">${this.getCityEmoji(city.type)}</span>
-                        <div class="city-info">
-                            <h3 class="city-name">${city.name}</h3>
-                            <p class="city-type">${this.getTypeName(city.type)}</p>
-                        </div>
+                <div class="city-marker ${isCurrent ? 'current' : ''} ${connected ? 'connected' : 'disconnected'}"
+                     style="left: ${city.x}%; top: ${city.y}%;"
+                     data-city-id="${city.id}">
+                    <div class="city-marker-inner">
+                        <div class="city-marker-dot"></div>
+                        <div class="city-marker-name">${city.name}</div>
+                        ${!disabled && connected ? `<div class="travel-tooltip">${days}天行程</div>` : ''}
                     </div>
-                    <div class="city-stats">
-                        <span class="stat">规模: ${'■'.repeat(city.scale)}</span>
-                        ${!disabled && connected ? `<span class="move-days">${days}天</span>` : ''}
-                    </div>
-                    <button class="btn ${isCurrent ? 'primary-btn disabled' : 'primary-btn'} move-btn"
-                            data-city-id="${city.id}" ${disabled ? 'disabled' : ''}>
-                        ${isCurrent ? '当前位置' : '移动'}
-                    </button>
                 </div>
             `;
         });
 
         html += `
+                    </div>
                 </div>
             </div>
         `;
@@ -59,40 +51,14 @@ window.MapRenderer = {
         container.innerHTML = html;
         container.style.display = 'block';
 
-        // 绑定移动事件
-        container.querySelectorAll('.move-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const cityId = parseInt(e.target.dataset.cityId);
+        // 绑定点击事件到可到达城市标记
+        container.querySelectorAll('.city-marker.connected').forEach(marker => {
+            marker.addEventListener('click', (e) => {
+                const cityId = parseInt(e.currentTarget.dataset.cityId);
                 gameState.moveToCity(cityId);
                 this.render(gameState);
                 window.game.gameView.renderAll();
             });
         });
-    },
-
-    /**
-     * 根据城镇类型获取emoji
-     */
-    getCityEmoji(type) {
-        switch (type) {
-            case 'capital': return '🏛️';
-            case 'provincial': return '🏙️';
-            case 'prefecture': return '🏘️';
-            case 'county': return '🏡';
-            default: return '🏘️';
-        }
-    },
-
-    /**
-     * 获取类型名称
-     */
-    getTypeName(type) {
-        switch (type) {
-            case 'capital': return '都城';
-            case 'provincial': return '省会';
-            case 'prefecture': return '府城';
-            case 'county': return '县城';
-            default: return '城镇';
-        }
     }
 };

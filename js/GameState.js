@@ -15,7 +15,22 @@ window.GameScene = {
     FACILITY: 'facility'
 };
 
-// 亲密度等级定义已在SocialSystem和EconomicCalculator中处理
+/**
+ * 亲密度等级定义
+ * 范围: -4 ~ +5，每级对应一颗心
+ */
+const IntimacyLevel = {
+    HOSTILE_4: -4,      // 不共戴天
+    HOSTILE_3: -3,      // 仇敌
+    HOSTILE_2: -2,      // 交恶
+    HOSTILE_1: -1,      // 冷淡
+    NEUTRAL: 0,         // 中立
+    FRIENDLY_1: 1,      // 一面之缘
+    FRIENDLY_2: 2,      // 略有交情 - 可邀请修行
+    FRIENDLY_3: 3,      // 推心置腹 - 可获得人物卡/可结义
+    FRIENDLY_4: 4,      // 莫逆之交
+    FRIENDLY_5: 5       // 生死相随 - 配偶/结义
+};
 
 /**
  * 游戏状态管理类
@@ -48,6 +63,9 @@ window.GameState = class GameState {
 
         // 当前进行中的任务
         this.currentTask = null;
+
+        // 评定会未做出选择，必须选择才能离开导航（true = 禁止导航离开）
+        this.evaluationPendingSelection = false;
 
         // 耕地小游戏状态
         this.farmingGame = null;
@@ -428,6 +446,14 @@ window.GameState = class GameState {
     }
 
     /**
+     * 获取当前城市中的所有NPC
+     * 根据人物模板的locationCityId匹配
+     */
+    getCharactersInCurrentCity() {
+        return SocialSystem.getCharactersInCurrentCity(this);
+    }
+
+    /**
      * 自然衰减：每半年无互动亲密度-2
      * 应该在时间推进半年时调用
      */
@@ -545,10 +571,64 @@ window.GameState = class GameState {
     }
 
     /**
+<<<<<<< HEAD
      * 推进一天 - 委托给TimeSystem统一处理
      */
     advanceDay() {
         TimeSystem.nextDay(this);
+=======
+     * 推进一天
+     */
+    advanceDay() {
+        this.day++;
+
+        // 标记是否需要自动跳转到评定会
+        this._shouldAutoGoToEvaluation = false;
+
+        // 简单处理月份进位，不考虑不同月份天数差异
+        const daysInMonth = 30;
+        if (this.day > daysInMonth) {
+            this.day = 1;
+            this.month++;
+            if (this.month > 12) {
+                this.month = 1;
+                this.year++;
+            }
+
+            // 每年一月一日自然衰减亲密度
+            if (this.month === 1 && this.day === 1) {
+                this.decayIntimacy();
+            }
+
+            // 评定会日检查
+            if (this.isEvaluationDay()) {
+                if (!this.isAtMainCity() && !this.currentTask) {
+                    // 不在主城，扣除功勋
+                    SkillSystem.handleEvaluationAbsence(this);
+                } else if (this.isAtMainCity() && !this.currentTask && !this.currentEvent) {
+                    // 在主城且没有当前任务，评定会召开，必须做出选择才能离开
+                    this.addLog(`📅 今日${this.isPlayerRuler() ? '朝会' : '评定会'}召开，请接取新的主命！`);
+                    this._shouldAutoGoToEvaluation = true;
+                    this.evaluationPendingSelection = true;
+                }
+            }
+        }
+
+        // 检查当前任务是否超时
+        if (this.currentTask && this.checkMissionTimeout()) {
+            this.addLog(`主命【${this.currentTask.name}】超时未完成，任务失败！`);
+            this.completeMission(false);
+        }
+
+        // 添加日志
+        const yearTitle = this.year >= 1368 ? `洪武${this.year - 1368}年` : `至正${this.year - 1341 + 1}年`;
+        this.addLog(`时间来到了${yearTitle}${this.month}月${this.day}日`);
+
+        // 每天推进后检测是否有事件触发
+        // 如果当前已经有事件在进行中，不重复检测
+        if (!this.currentEvent) {
+            EventScheduler.checkAndTrigger(this);
+        }
     }
 
     /**
@@ -576,6 +656,16 @@ window.GameState = class GameState {
     }
 
     /**
+     * 推进多天（用于移动、执行任务等）
+     * @param {number} days - 要推进的天数
+     */
+    advanceDays(days) {
+        for (let i = 0; i < days; i++) {
+            this.advanceDay();
+        }
+    }
+
+    /**
      * 计算移动到目标城市需要的天数
      * @param {number} targetCityId - 目标城市ID
      * @returns {number} 移动天数
@@ -594,7 +684,7 @@ window.GameState = class GameState {
         let baseDays = connection.baseDays;
 
         // 骑战技能减少移动时间，每级减10%，最少1天
-        const cavalryLevel = SkillSystem.getSkillLevel(this, 'cavalry');
+        const cavalryLevel = this.getSkillLevel('cavalry');
         if (cavalryLevel > 0) {
             const reduction = cavalryLevel * 0.1;
             baseDays = Math.max(1, Math.floor(baseDays * (1 - reduction)));
@@ -616,7 +706,7 @@ window.GameState = class GameState {
     moveToCity(targetCityId) {
         const days = this.getMoveDaysToCity(targetCityId);
         if (days > 0) {
-            TimeSystem.advanceDays(this, days);
+            this.advanceDays(days);
             this.currentCityId = targetCityId;
             const targetCity = getCityTemplateById(targetCityId);
             this.addLog(`经过${days}天跋涉，你抵达了${targetCity.name}`);
@@ -624,43 +714,230 @@ window.GameState = class GameState {
         return days;
     }
 
+<<<<<<< HEAD
     // ========== 委托给子系统 ==========
     // 时间推进委托给TimeSystem
     advanceDays(days) {
-        TimeSystem.advanceDays(this, days);
-    }
-    nextDay() {
-        TimeSystem.nextDay(this);
-    }
-    nextMonth() {
-        TimeSystem.nextMonth(this);
-    }
-    formatDate() {
-        return TimeSystem.formatDate(this);
+        for (let i = 0; i < days; i++) {
+            this.advanceDay();
+        }
     }
 
-    // 任务委托给MissionSystem
-    acceptMission(missionId) {
-        return MissionSystem.acceptMission(this, missionId);
+    /**
+     * 开始接受并执行一个主命
+     * @param {MissionTemplate} missionTemplate - 主命模板
+     */
+    startMission(missionTemplate) {
+        this.currentTask = {
+            templateId: missionTemplate.id,
+            missionId: missionTemplate.mission_id,
+            name: missionTemplate.name,
+            category: missionTemplate.category,
+            startYear: this.year,
+            startMonth: this.month,
+            startDay: this.day,
+            deadlineDay: this.day + missionTemplate.timeLimitDays,
+            timeLimitDays: missionTemplate.timeLimitDays,
+            targetParam: missionTemplate.targetParam,
+            completionType: missionTemplate.completionType,
+            gameType: missionTemplate.gameType,
+            progress: 0,
+            targetValue: this.calculateMissionTarget(missionTemplate),
+            startedAt: `${this.year}-${this.month}-${this.day}`
+        };
+
+        this.addLog(`接受主命：${missionTemplate.name}，限时${missionTemplate.timeLimitDays}天完成`);
+        this.currentScene = GameScene.TASK_LIST;
     }
+
+    /**
+     * 检查当前主命是否超时
+     * @returns {boolean} true表示已超时
+     */
     checkMissionTimeout() {
-        return MissionSystem.checkMissionTimeout(this);
-    }
-    getRemainingDaysForMission() {
-        return MissionSystem.getRemainingDays(this);
-    }
-    completeMission(success, actualProgress) {
-        return MissionSystem.completeMission(this, success, actualProgress);
-    }
-    getAvailableMissions() {
-        return MissionSystem.getAvailableMissions(this);
-    }
-    getAvailableMissionsByCategory(category) {
-        return MissionSystem.getAvailableMissionsByCategory(this, category);
+        if (!this.currentTask) {
+            return false;
+        }
+        return this.day > this.currentTask.deadlineDay;
     }
 
-    // 获取城中人物委托给SocialSystem
-    getCharactersInCurrentCity() {
-        return SocialSystem.getCharactersInCurrentCity(this);
+    /**
+     * 获取当前主命剩余天数
+     * @returns {number}
+     */
+    getRemainingDaysForMission() {
+        if (!this.currentTask) {
+            return 0;
+        }
+        return Math.max(0, this.currentTask.deadlineDay - this.day);
+    }
+
+    /**
+     * 完成当前主命，进行结算
+     * @param {boolean} success - 是否成功完成
+     * @param {number} actualProgress - 实际完成进度
+     * @returns {Object} 结算结果 {meritGained: number, skillsExp: Object}
+     */
+    completeMission(success, actualProgress = 0) {
+        if (!this.currentTask) {
+            return { success: false, meritGained: 0 };
+        }
+
+        const template = getMissionTemplateById(this.currentTask.templateId);
+        if (!template) {
+            this.currentTask = null;
+            return { success: false, meritGained: 0 };
+        }
+
+        let result = {
+            success: success,
+            meritGained: 0,
+            skillsExp: {},
+            newCard: null
+        };
+
+        if (success) {
+            // 计算功勋奖励
+            let merit = template.baseReward;
+
+            // 根据完成度倍率奖励
+            if (actualProgress >= this.currentTask.targetValue * 2) {
+                merit = merit * 2;
+                this.addLog(`超额完成目标！获得双倍功勋：${merit}`);
+            } else if (actualProgress >= this.currentTask.targetValue) {
+                this.addLog(`完成目标！获得功勋：${merit}`);
+            } else {
+                // 未达标但仍算部分完成，按比例给功勋
+                merit = Math.round(merit * (actualProgress / this.currentTask.targetValue));
+                this.addLog(`未完全达成目标，获得部分功勋：${merit}`);
+            }
+
+            this.merit += merit;
+            result.meritGained = merit;
+
+            // 给关联技能增加经验
+            if (template.requiredSkills && template.requiredSkills.length > 0) {
+                template.requiredSkills.forEach(skillId => {
+                    // 基础经验奖励 = 难度 * 5
+                    const exp = template.baseDifficulty * 5;
+                    this.addSkillExp(skillId, exp);
+                    result.skillsExp[skillId] = exp;
+                });
+            }
+
+            // 检查是否有卡片奖励（某些任务完成后给卡片）
+            // 高难度任务有概率奖励技能卡或称号卡
+            let cardReward = null;
+            if (template.baseDifficulty >= 3 && Math.random() < 0.15) {
+                // 15%概率给技能卡（难度>=3）
+                const possibleCards = CARDS.filter(c =>
+                    c.type === 'skill' &&
+                    template.requiredSkills.includes(c.skillId) &&
+                    !this.hasCard(c.cardId)
+                );
+                if (possibleCards.length > 0) {
+                    const randomCard = possibleCards[Math.floor(Math.random() * possibleCards.length)];
+                    this.acquireCard(randomCard.cardId);
+                    cardReward = randomCard;
+                    result.newCard = randomCard;
+                    this.addLog(`完成任务获得技能卡：${randomCard.name}`);
+                }
+            }
+            // 难度4以上有5%概率获得称号卡
+            if (template.baseDifficulty >= 4 && Math.random() < 0.05) {
+                const titleCards = CARDS.filter(c => c.type === 'title' && !this.hasCard(c.cardId));
+                if (titleCards.length > 0) {
+                    const randomCard = titleCards[Math.floor(Math.random() * titleCards.length)];
+                    this.acquireCard(randomCard.cardId);
+                    cardReward = randomCard;
+                    result.newCard = randomCard;
+                    this.addLog(`完成任务获得称号卡：${randomCard.name}`);
+                }
+            }
+
+            // 额外功勋奖励（来自主公亲密度和重臣好感）
+            const player = this.getPlayerCharacter();
+            if (player && player.faction) {
+                const extraBonus = SkillSystem.calculateBonusMeritFromRelationship(this, player.faction);
+                if (extraBonus > 0) {
+                    this.merit += extraBonus;
+                    result.meritGained += extraBonus;
+                    this.addLog(`主公器重，额外获得功勋：+${extraBonus}`);
+                }
+            }
+
+            this.addLog(`主命【${template.name}】完成，功勋+${result.meritGained}`);
+
+            // 检查身份晋升
+            const newRole = this.checkRolePromotion();
+            if (newRole) {
+                result.promotion = newRole;
+            }
+        } else {
+            // 任务失败，扣除部分功勋
+            const penalty = Math.round(template.baseReward * 0.3);
+            this.merit = Math.max(0, this.merit - penalty);
+            this.addLog(`主命【${template.name}】失败，扣除功勋${penalty}`);
+            result.meritGained = -penalty;
+        }
+
+        // 清空当前任务
+        this.currentTask = null;
+
+        return result;
+    }
+
+    /**
+     * 获取可接的主命列表（根据当前身份筛选）
+     * @returns {MissionTemplate[]}
+     */
+    getAvailableMissions() {
+        return getAvailableMissionsForRole(this.currentRoleId);
+    }
+
+    /**
+     * 按分类获取可接主命
+     * @param {string} category
+     * @returns {MissionTemplate[]}
+     */
+    getAvailableMissionsByCategory(category) {
+        const allAvailable = this.getAvailableMissions();
+        return allAvailable.filter(m => m.category === category);
+    }
+
+    /**
+     * 检查玩家是否为君主（城主/国主/皇帝）
+     * @returns {boolean}
+     */
+    isPlayerRuler() {
+        return SkillSystem.isPlayerRuler(this);
+    }
+
+    /**
+     * 获取君主可发布的所有主命
+     * @returns {MissionTemplate[]}
+     */
+    getRulerPublishableMissions() {
+        return getAllMissionTemplates().filter(m => {
+            // 内政、军备、调略、外交、国策都是君主可发布的
+            const rulerCategories = ['内政', '军备', '调略', '外交', '国策'];
+            return rulerCategories.includes(m.category);
+        });
+    }
+
+    /**
+     * 取消当前任务
+     * @returns {boolean} 是否成功取消
+     */
+    cancelCurrentMission() {
+        if (!this.currentTask) {
+            return false;
+        }
+        const template = getMissionTemplateById(this.currentTask.templateId);
+        const penalty = Math.round(template.baseReward * 0.2);
+        this.merit = Math.max(0, this.merit - penalty);
+        this.addLog(`取消主命【${template.name}】，扣除功勋 ${penalty}`);
+        this.currentTask = null;
+        return true;
     }
 };

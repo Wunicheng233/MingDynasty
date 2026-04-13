@@ -19,18 +19,52 @@ window.EventScheduler = {
             }
         }
 
-        // 地点条件 - 当前城市ID（字符串）
+        const currentCity = getCityTemplateById(gameState.currentCityId);
+
+        // 地点条件 - 单个城市ID或城市ID数组
         if (trigger.location) {
-            const currentCity = getCityTemplateById(gameState.currentCityId);
-            if (!currentCity || currentCity.cityId !== trigger.location) {
+            const locationMatch = Array.isArray(trigger.location)
+                ? trigger.location.includes(currentCity ? currentCity.cityId : null)
+                : currentCity && currentCity.cityId === trigger.location;
+            if (!locationMatch) {
                 return false;
             }
         }
 
-        // 身份条件
+        // 地点类型条件 - 城市类型（都城/普通/边关/海港）
+        if (trigger.locationType) {
+            if (!currentCity || currentCity.type !== trigger.locationType) {
+                return false;
+            }
+        }
+
+        // 地点设施条件 - 当前城市是否包含指定设施
+        if (trigger.locationFacilities && trigger.locationFacilities.length > 0) {
+            if (!currentCity) {
+                return false;
+            }
+            for (const facility of trigger.locationFacilities) {
+                if (!currentCity.facilities.includes(facility)) {
+                    return false;
+                }
+            }
+        }
+
+        // 势力条件
+        if (trigger.faction !== undefined) {
+            const player = gameState.getPlayerCharacter();
+            if (!player || player.faction !== trigger.faction) {
+                return false;
+            }
+        }
+
+        // 身份条件，可接受单个值或数组
         if (trigger.identity) {
             const player = gameState.getPlayerCharacter();
-            if (!player || player.role !== trigger.identity) {
+            const identityMatch = Array.isArray(trigger.identity)
+                ? trigger.identity.includes(player ? player.role : null)
+                : player && player.role === trigger.identity;
+            if (!identityMatch) {
                 return false;
             }
         }
@@ -57,8 +91,8 @@ window.EventScheduler = {
         if (trigger.intimacy) {
             const { characterId, minLevel } = trigger.intimacy;
             const intimacy = gameState.getIntimacy(characterId);
-            // SocialSystem中intimacy已经是等级值 (-4 ~ +5)，直接比较
-            if (intimacy < minLevel) {
+            const level = EconomicCalculator.getIntimacyLevel(intimacy);
+            if (level < minLevel) {
                 return false;
             }
         }
@@ -81,7 +115,7 @@ window.EventScheduler = {
             }
         }
 
-        // 概率条件
+        // 概率条件（随机事件/可重复触发事件）
         if (trigger.probability !== undefined && trigger.probability < 1.0) {
             if (Math.random() > trigger.probability) {
                 return false;
@@ -245,6 +279,58 @@ window.EventScheduler = {
             case EffectTypes.ADD_MERIT:
                 gameState.merit += effect.value;
                 gameState.checkRolePromotion();
+                return null;
+
+            case 'add_salary':
+                // 发放两个月俸禄
+                const salary = EconomicCalculator.calculateBiMonthlySalary(gameState.currentRoleId);
+                if (salary > 0) {
+                    gameState.money += salary;
+                    gameState.logs.push(`领取两个月俸禄：${EconomicCalculator.wenToGuan(salary).toFixed(2)} 贯`);
+                }
+                return null;
+
+            case 'collect_quarterly_tax':
+                // 收集所有所属城镇的季度税收
+                let totalTax = 0;
+                const allCities = getAllCityTemplates();
+                for (const cityTpl of allCities) {
+                    const cityEconomy = gameState.getCityEconomy(cityTpl.id);
+                    // 只有属于玩家势力的城市才收税
+                    // 玩家势力是1（郭子兴军/朱元璋军），玩家身份足够高才能收税
+                    if (cityEconomy.ownerFaction === gameState.getPlayerCharacter().faction) {
+                        const tax = EconomicCalculator.calculateCityTax(cityEconomy, cityTpl);
+                        totalTax += tax;
+                        const loyaltyChange = EconomicCalculator.calculateLoyaltyChange(cityEconomy.taxRate || 0.15);
+                        cityEconomy.loyalty = (cityEconomy.loyalty || 50) + loyaltyChange;
+                        cityEconomy.loyalty = Math.max(0, Math.min(100, cityEconomy.loyalty));
+                    }
+                }
+                if (totalTax > 0) {
+                    gameState.money += totalTax;
+                    gameState.logs.push(`收取季度税收：${EconomicCalculator.wenToGuan(totalTax).toFixed(2)} 贯`);
+                }
+                return null;
+
+            case 'daily_work_random_reward':
+                // 酒馆打工人随机报酬，30-150文，有概率多给或少给
+                let baseMin = 30;
+                let baseMax = 150;
+                // 根据体力/强壮技能可以多一点
+                const strengthLevel = gameState.getSkillLevel('martial');
+                if (strengthLevel > 3) {
+                    baseMin += 30;
+                    baseMax += 30;
+                }
+                const reward = Math.floor(baseMin + Math.random() * (baseMax - baseMin + 1));
+                gameState.money += reward;
+                gameState.advanceDays(1);
+                if (reward >= 120) {
+                    gameState.logs.push(`今天活特别累，掌柜多给了工钱，你赚到 ${reward} 文（${EconomicCalculator.wenToGuan(reward).toFixed(2)} 贯）`);
+                } else {
+                    gameState.logs.push(`干完一天活，你赚到 ${reward} 文（${EconomicCalculator.wenToGuan(reward).toFixed(2)} 贯）`);
+                }
+                gameState.currentEvent = null;
                 return null;
 
             case EffectTypes.TRIGGER_BATTLE:
