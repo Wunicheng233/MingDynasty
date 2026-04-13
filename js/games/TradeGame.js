@@ -216,7 +216,7 @@ window.TradeGame = {
      */
     finish(gameState, gameView) {
         const game = gameState.tradeGame;
-        const task = gameState.currentTask;
+        const template = getMissionTemplateById(gameState.currentTask.templateId);
 
         let ratio;
         let resultText;
@@ -229,24 +229,21 @@ window.TradeGame = {
             resultText = `✅ 合格！答对${game.correct}题，获得七成奖励。`;
         } else {
             ratio = game.correct * 0.1;
-            resultText = `❌ 不合格！只答对${game.correct}题，奖励减半。`;
+            resultText = `❌ 不合格！只答对${game.correct}题，按比例给奖励。`;
         }
 
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(10 * ratio);
+        // 实际进度 = 目标值 * 正确率
+        const actualProgress = Math.round(gameState.currentTask.targetValue * ratio);
+        const success = actualProgress > 0;
 
-        gameState.merit += finalMerit;
-        gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            gameState.addSkillExp(task.requiredSkill, expGained);
-        }
+        // 使用新的主命系统结算
+        const result = gameState.completeMission(success, actualProgress);
 
-        gameState.checkRolePromotion();
-        gameState.addLog(`任务【${task.name}】完成：${resultText} 获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} 商政经验。`);
+        gameState.addLog(`【${template.name}】${resultText}`);
 
-        gameView.advanceTwoMonths();
-        gameState.currentTask = null;
+        // 时间推进：按任务限时推进
+        TimeSystem.advanceDays(gameState, template.timeLimitDays);
+
         gameState.tradeGame = null;
         gameState.currentScene = GameScene.CITY_VIEW;
         gameView.renderAll();

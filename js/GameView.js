@@ -162,7 +162,7 @@ window.GameView = class GameView {
         if (!template) return;
 
         // GameState中开始任务
-        this.gameState.startMission(template);
+        this.gameState.startMission(template.id);
 
         // 根据任务的小游戏类型进入对应小游戏
         if (template.gameType && template.gameType !== 'none') {
@@ -196,7 +196,7 @@ window.GameView = class GameView {
 
         // 这里预留完整的家臣任务分配逻辑
         // 当前版本：玩家君主仍然亲自执行任务，保持兼容性
-        this.gameState.startMission(template);
+        this.gameState.startMission(template.id);
 
         // 根据任务的小游戏类型进入对应小游戏
         if (template.gameType && template.gameType !== 'none') {
@@ -394,6 +394,11 @@ window.GameView = class GameView {
                 break;
             case 'battle':
                 BattleGame.start(this, this.gameState);
+                break;
+            case 'explore':
+                // 人才探访 - 跳转到城中人物列表进行探访
+                this.switchToView(GameScene.CHARACTER_LIST_VIEW);
+                this.renderAll();
                 break;
             default:
                 console.warn('未知小游戏类型:', gameType);

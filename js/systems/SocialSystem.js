@@ -67,6 +67,24 @@ window.SocialSystem = {
         if (card && !CardSystem.hasCard(gameState, cardId)) {
             CardSystem.acquireCard(gameState, cardId);
             gameState.addLog(`因为亲密度提升，${character.name}赠予了你他的人物卡！`);
+
+            // 检查是否正在进行"人才探访"任务，如果解锁了新人物卡则完成任务
+            if (gameState.currentTask && gameState.currentTask.completionType === 'explore') {
+                gameState.addLog(`你找到了隐居民间的人才，人才探访任务完成！`);
+                // 完成任务，进度=100%
+                const actualProgress = gameState.currentTask.targetValue;
+                gameState.completeMission(true, actualProgress);
+                // 推进时间
+                const template = getMissionTemplateById(gameState.currentTask.templateId);
+                if (template) {
+                    TimeSystem.advanceDays(gameState, template.timeLimitDays);
+                }
+                gameState.currentScene = GameScene.CITY_VIEW;
+                if (window.game && window.game.gameView) {
+                    window.game.gameView.renderAll();
+                }
+            }
+
             return true;
         }
         return false;

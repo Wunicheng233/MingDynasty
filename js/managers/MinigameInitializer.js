@@ -159,6 +159,11 @@ const MINIGAME_CONFIGS = {
             };
         }
     },
+    explore: {
+        init: (gameState, template) => {
+            // 人才探访不需要特殊初始化，直接跳转到人物列表
+        }
+    },
     firearm: {
         init: (gameState, template) => {
             gameState.firearmGame = {
