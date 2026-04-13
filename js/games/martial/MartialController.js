@@ -29,8 +29,8 @@ window.MartialController = {
                     });
                     btn.style.background = '#e8dcc8';
                     // 取消数字卡样式
-                    document.querySelectorAll('.number-card-btn').forEach(b => {
-                        b.style.background = '';
+                    document.querySelectorAll('.personal-number-card').forEach(c => {
+                        c.classList.remove('selected');
                     });
                 }
                 MartialRenderer.updateConfirmButton(game);
@@ -38,8 +38,8 @@ window.MartialController = {
         });
 
         // 数字卡选择
-        document.querySelectorAll('.number-card-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+        document.querySelectorAll('.personal-number-card').forEach(card => {
+            card.addEventListener('click', () => {
                 const game = gameState.martialGame;
                 if (!game.playerMove) game.playerMove = {special: null, numbers: []};
 
@@ -50,19 +50,19 @@ window.MartialController = {
                 });
                 document.querySelector('.special-card-btn[data-action="none"]').style.background = '#e8dcc8';
 
-                const value = parseInt(btn.dataset.value);
+                const value = parseInt(card.dataset.value);
                 const idx = game.playerMove.numbers.indexOf(value);
                 if (idx >= 0) {
                     // 取消选择
                     game.playerMove.numbers.splice(idx, 1);
-                    btn.style.background = '#fff';
+                    card.classList.remove('selected');
                 } else {
                     // 超过3张不能选
                     if (game.playerMove.numbers.length >= 3) {
                         return;
                     }
                     game.playerMove.numbers.push(value);
-                    btn.style.background = '#e8dcc8';
+                    card.classList.add('selected');
                 }
                 MartialRenderer.updateConfirmButton(game);
             });

@@ -11,9 +11,13 @@ window.MedicineGame = {
         const task = gameState.currentTask;
         const allHerbs = ['人参', '麻黄', '甘草', '芍药', '茯苓', '当归', '川芎', '大黄'];
 
-        // 根据难度决定药材数量，练习模式默认难度2
-        const difficulty = task ? (task.baseDifficulty || 2) : 2;
-        const herbCount = 3 + difficulty; // 3 ~ 5种
+        // 根据技能等级决定药材数量
+        let skillLevel = 1;
+        if (task && task.requiredSkill) {
+            skillLevel = SkillSystem.getSkillLevel(gameState, task.requiredSkill);
+        }
+        // Lv1: 4味, Lv2: 5味, Lv3: 6味 (符合策划难度曲线)
+        const herbCount = 3 + skillLevel;
 
         // 随机选N种药材并打乱顺序
         const selectedHerbs = allHerbs.sort(() => Math.random() - 0.5).slice(0, herbCount);

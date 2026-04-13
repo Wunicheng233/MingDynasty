@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>小游戏调试 - 大明王朝</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Pixelify+Sans:wght@400;700&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/views.css">
+    <link rel="stylesheet" href="css/games.css">
+    <link rel="stylesheet" href="css/battle.css">
     <style>
         body {
             padding-bottom: 100px;
@@ -162,6 +168,12 @@
             <div id="map-view" class="map-view" style="display: none;">
                 <!-- 城市地图视图 -->
             </div>
+            <div id="market-view" class="scene-view" style="display: none;">
+                <!-- 市集交易视图 -->
+            </div>
+            <div id="event-view" class="scene-view" style="display: none;">
+                <!-- 剧情事件视图 -->
+            </div>
         </div>
 
         <!-- 底部导航区 -->
@@ -205,19 +217,59 @@
     <script src="data/battle-troops.js"></script>
     <script src="data/tasks.js"></script>
     <script src="data/personal-battle.js"></script>
+    <script src="data/goods.js"></script>
+    <script src="data/events.js"></script>
 
     <!-- 工具模块 -->
     <script src="js/utils/BattleCalculator.js"></script>
     <script src="js/utils/BattleAI.js"></script>
+    <script src="js/utils/EconomicCalculator.js"></script>
+    <script src="js/utils/EventScheduler.js"></script>
+    <script src="js/utils/CharacterRendererUtils.js"></script>
+    <script src="js/utils/GameInitializer.js"></script>
+    <script src="js/utils/SaveManager.js"></script>
 
-    <!-- 游戏模块 -->
+    <!-- 子系统模块 - 拆分自GameState -->
+    <script src="js/systems/CardSystem.js"></script>
+    <script src="js/systems/SocialSystem.js"></script>
+    <script src="js/systems/SkillSystem.js"></script>
+    <script src="js/systems/SaveSystem.js"></script>
+    <script src="js/systems/TimeSystem.js"></script>
+    <script src="js/systems/MissionSystem.js"></script>
+
+    <!-- 核心游戏状态定义必须先加载，因为GameScene被管理器使用 -->
     <script src="js/GameState.js"></script>
+
+    <!-- 管理器模块 -->
+    <script src="js/managers/AnimationManager.js"></script>
+    <script src="js/managers/SceneManager.js"></script>
+    <script src="js/managers/MinigameInitializer.js"></script>
+    <script src="js/managers/GameResultManager.js"></script>
+
+    <!-- 基类和框架 - 依赖管理器，所以放在管理器之后 -->
+    <script src="js/base/BaseGame.js"></script>
+
     <!-- 渲染模块 - 拆分出去保持代码整洁 -->
+    <script src="js/modules/CharacterViewRenderer.js"></script>
+    <script src="js/modules/CityViewRenderer.js"></script>
+    <script src="js/modules/TaskListRenderer.js"></script>
     <script src="js/modules/CharacterListRenderer.js"></script>
     <script src="js/modules/SocialRenderer.js"></script>
     <script src="js/modules/CardCollectionRenderer.js"></script>
     <script src="js/modules/MapRenderer.js"></script>
+    <script src="js/modules/MarketScene.js"></script>
+    <script src="js/modules/EventScene.js"></script>
+    <script src="js/modules/FacilityScene.js"></script>
+
     <!-- 小游戏模块 - 每个小游戏独立文件 -->
+    <!-- 个人战拆分模块 -->
+    <script src="js/games/martial/MartialCalculator.js"></script>
+    <script src="js/games/martial/MartialRenderer.js"></script>
+    <script src="js/games/martial/MartialController.js"></script>
+    <!-- 合战拆分模块 -->
+    <script src="js/games/battle/BattleRenderer.js"></script>
+    <script src="js/games/battle/BattleController.js"></script>
+    <!-- 各个小游戏 -->
     <script src="js/games/FarmingGame.js"></script>
     <script src="js/games/EloquenceGame.js"></script>
     <script src="js/games/InfantryGame.js"></script>
@@ -249,7 +301,7 @@
             {gameType: 'trade', skill: '商政', name: '珠算商贾', desc: '配对翻牌，记忆考验'},
             {gameType: 'law', skill: '律政', name: '明律断案', desc: '找出相同证据，配对成功结案'},
             {gameType: 'navy', skill: '水战', name: '楼船破浪', desc: '左右移动躲开暗礁'},
-            {gameType: 'strategy', skill: '兵法', name: '排兵布阵', desc: '选择克制阵型，推演前进'},
+            {gameType: 'strategy', skill: '兵法', name: '围棋死活', desc: '围棋死活题，计算杀棋活棋'},
             {gameType: 'martial', skill: '武艺', name: '武馆切磋', desc: '个人战切磋（框架完整）'},
             {gameType: 'medicine', skill: '医术', name: '本草配方', desc: '记忆药材顺序，按序抓取'},
             {gameType: 'calligraphy', skill: '文墨', name: '文墨填空', desc: '文墨填空'},
@@ -281,30 +333,56 @@
             // 切换布局：隐藏列表，显示游戏
             document.body.classList.add('game-running');
 
-            // 创建一个假任务
+            // 创建一个假任务 - debug调试模式
+            const skillMapping = {
+                agriculture: 'agriculture',
+                eloquence: 'eloquence',
+                infantry: 'infantry',
+                cavalry: 'cavalry',
+                engineering: 'engineering',
+                trade: 'trade',
+                law: 'law',
+                navy: 'navy',
+                strategy: 'strategy',
+                martial: 'martial',
+                medicine: 'medicine',
+                calligraphy: 'calligraphy',
+                spy: 'spy',
+                navigation: 'navigation',
+                ritual: 'ritual',
+                firearm: 'firearm',
+                battle: 'strategy'
+            };
             const template = {
                 id: 999,
+                templateId: 999,
                 mission_id: 'DEBUG',
                 name: `[调试] ${MINIGAMES.find(g => g.gameType === gameType).name}`,
                 category: 'debug',
                 minRank: 'peasant',
                 requiredSkills: [],
+                requiredSkill: skillMapping[gameType] || gameType,
                 baseDifficulty: 2,
                 baseReward: 50,
+                baseRewardMerit: 50,
+                baseRewardMoney: 50,
+                rewardMerit: 50,
+                rewardMoney: 50,
                 timeLimitDays: 30,
                 completionType: 'minigame',
                 gameType: gameType,
                 targetParam: null
             };
 
-            // 设置当前任务
-            gameState.startMission(template);
+            // 直接设置currentTask，不需要经过MissionSystem的完整流程
+            // 因为这是调试模式，不需要保存/超时等逻辑
+            gameState.currentTask = template;
             gameState.currentScene = GameScene.FARMING_GAME;
 
-            // 初始化小游戏
-            gameView.initMinigame(template);
+            // 初始化小游戏状态
+            MinigameInitializer.initMinigame(gameState, template);
 
-            // 渲染
+            // 渲染 - 会自动调用 startMinigameByType
             gameView.renderAll();
 
             // 滚动到游戏

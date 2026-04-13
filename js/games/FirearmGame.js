@@ -9,15 +9,23 @@ window.FirearmGame = {
      */
     start(gameView, gameState, title = null) {
         const task = gameState.currentTask;
-        // 根据难度调整速度，练习模式默认难度2
-        const difficulty = task ? (task.baseDifficulty || 2) : 2;
+
+        // 根据技能等级调整速度 (符合策划难度曲线)
+        // Lv1: 速度较慢, Lv2: 中等速度, Lv3: 速度较快
+        let skillLevel = 1;
+        if (task && task.requiredSkill) {
+            skillLevel = SkillSystem.getSkillLevel(gameState, task.requiredSkill);
+        }
+        // 速度随等级增加，更高等级意味着更难，但玩家也更熟练了
+        const speed = 0.4 + skillLevel * 0.15;
+
         // 初始化游戏状态：子弹十字准星在xy方向移动
         gameState.firearmGame = {
             x: 50,
             y: 50,
             directionX: Math.random() > 0.5 ? 1 : -1,
             directionY: Math.random() > 0.5 ? 1 : -1,
-            speed: 0.5 + difficulty * 0.2, // 速度随难度增加
+            speed: speed,
             animationId: null,
             isPractice: title !== null
         };

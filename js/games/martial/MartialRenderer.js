@@ -57,10 +57,14 @@ window.MartialRenderer = {
                 </div>
                 <div class="number-cards">
                     <p><strong>数字卡片（1-3张，点击选择/取消）：</strong></p>
-                    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; align-items: flex-start;">
                         ${numberCards.map(c => {
                             const selected = game.playerMove && game.playerMove.numbers.includes(c.value);
-                            return `<button class="btn number-card-btn" data-value="${c.value}" style="background: ${selected ? '#e8dcc8' : '#fff'}; color: #333; border: 2px solid #2c3e50; width: 50px;">${c.value}</button>`;
+                            return `
+                                <div class="personal-number-card ${selected ? 'selected' : ''}" data-value="${c.value}">
+                                    <span class="card-number">${c.value}</span>
+                                </div>
+                            `;
                         }).join('')}
                     </div>
                 </div>

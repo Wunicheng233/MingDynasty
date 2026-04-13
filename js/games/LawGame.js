@@ -77,6 +77,94 @@ window.LawGame = {
                     {text: '占耕他人田土，一亩笞十', correct: false},
                     {text: '盗卖他人田宅者，杖八十', correct: false}
                 ]
+            },
+            {
+                title: '伪造官印案',
+                description: '商人张三被指伪造盐引官印，从中偷漏税款，各方证词如下，请断案。',
+                plaintiff: '此人伪造官印，偷漏税银三千贯，请大人严惩！',
+                defendant: '这官印是真是假小人不知，这盐引是从盐商那里买来的。',
+                witness: '我见过真官印，这个印的字体不对，肯定是假的。',
+                statements: [
+                    '被告说这盐引是从盐商那里买来',
+                    '被告说他不懂官印真假',
+                    '证人说印章字体不对',
+                    '证人说被告亲自盖的印',
+                    '税款三千贯分文未交',
+                    '被告说税款已经交过了'
+                ],
+                contradiction: [1, 3], // 不懂官印 vs 亲自盖印
+                laws: [
+                    {text: '伪造诸衙门印信者，斩', correct: true},
+                    {text: '私盐禁，杖一百徒三年', correct: false},
+                    {text: '偷税漏税者，笞五十罚倍', correct: false},
+                    {text: '知情不举者，同罪', correct: false}
+                ]
+            },
+            {
+                title: '诬告邻里案',
+                description: '李甲告王乙偷盗自家耕牛，王乙否认，各方证词如下。',
+                plaintiff: '我家的牛肯定是王乙偷的，我昨天看见他在我牛栏边转悠！',
+                defendant: '我那是路过，我家自己有牛，为什么偷你的？',
+                witness: '我听说李甲的牛是自己跑丢了，他就是想赖王乙。',
+                statements: [
+                    '小人的牛昨天晚上丢的',
+                    '王乙昨夜在我牛栏边徘徊',
+                    '小人看见了就是他偷的',
+                    '我家有牛不需要偷',
+                    '王乙昨天整夜在家织布',
+                    '李甲欠王乙银子一直不还'
+                ],
+                contradiction: [1, 5], // 徘徊 -> 整夜在家
+                laws: [
+                    {text: '诬告他人者，加所诬罪二等', correct: true},
+                    {text: '偷盗牛马者，杖八十徒二年', correct: false},
+                    {text: '欠债不还者，笞二十追债', correct: false},
+                    {text: '邻里不和，笞十', correct: false}
+                ]
+            },
+            {
+                title: '商船走私案',
+                description: '一艘泉州商船被指走私香料，船长辩称是正常贸易，请断案。',
+                plaintiff: '此船私带苏木胡椒，不报关纳税，请大人严查！',
+                defendant: '我们都是正常贸易，所有货都在货单上，哪来的走私？',
+                witness: '我上船检查过，货舱底下还有暗格。',
+                statements: [
+                    '船长说全部货物都已报关',
+                    '暗格里面搜出香料二十担',
+                    '船长说暗格是放淡水的',
+                    '船长说淡水早就用完了',
+                    '所有税银都已经交讫',
+                    '税单上只有瓷器丝绸'
+                ],
+                contradiction: [2, 3], // 暗格放淡水 vs 淡水用完
+                laws: [
+                    {text: '私出外境货卖者，杖一百货物入官', correct: true},
+                    {text: '报关不实，笞五十货物一半入官', correct: false},
+                    {text: '水手走私，船长连坐', correct: false},
+                    {text: '允许民间贸易苏木胡椒', correct: false}
+                ]
+            },
+            {
+                title: '婚姻强抢案',
+                description: '民女刘氏被豪强张四强抢为妻，刘氏父亲告状，请断案。',
+                plaintiff: '张四强抢小女为妻，小女不从，日夜囚禁，请大人做主！',
+                defendant: '明媒正娶，彩礼已下，怎么说是强抢？',
+                witness: '我亲眼看见张四带人深夜破门，把小姐抢走了。',
+                statements: [
+                    '被告说已经下了聘礼',
+                    '原告说父女二人一直同居',
+                    '小姐十天前还在家里织布',
+                    '被告说小姐自愿跟他走',
+                    '邻居都看见抢人了',
+                    '我已经请了媒人说亲'
+                ],
+                contradiction: [0, 5], // 已下聘礼 vs 请媒人说亲（矛盾，并未完成下聘）
+                laws: [
+                    {text: '强夺良家妇女为妻者，绞', correct: true},
+                    {text: '婚娶不报官杖六十', correct: false},
+                    {text: '媒人说合不成不收礼', correct: false},
+                    {text: '民女私逃者，笞五十', correct: false}
+                ]
             }
         ];
 

@@ -271,14 +271,25 @@ window.BattleRenderer = {
      * 渲染手牌
      */
     renderHandCards(cards, canSelect, phase) {
-        return cards.map(card => `
-            <div class="battle-card ${card.color} ${canSelect ? 'selectable' : ''}" data-card-id="${card.id}" data-phase="${phase}">
-                <div class="battle-card-header">
-                    <span class="battle-card-name">${card.emoji} ${card.name}</span>
+        return cards.map(card => {
+            // 绿色基础数字卡 - 使用背景图+居中大数字（只需要一张背景图）
+            if (card.type === 'battle_normal' && card.color === 'green') {
+                return `
+                    <div class="battle-card ${card.color} number-card ${canSelect ? 'selectable' : ''}" data-card-id="${card.id}" data-phase="${phase}">
+                        <span class="card-number">${card.number}</span>
+                    </div>
+                `;
+            }
+            // 红色战术卡 - 正常渲染
+            return `
+                <div class="battle-card ${card.color} ${canSelect ? 'selectable' : ''}" data-card-id="${card.id}" data-phase="${phase}">
+                    <div class="battle-card-header">
+                        <span class="battle-card-name">${card.emoji} ${card.name}</span>
+                    </div>
+                    <div class="battle-card-desc">${card.description}</div>
                 </div>
-                <div class="battle-card-desc">${card.description}</div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     },
 
     /**

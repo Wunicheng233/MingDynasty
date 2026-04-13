@@ -57,8 +57,8 @@ window.EventScheduler = {
         if (trigger.intimacy) {
             const { characterId, minLevel } = trigger.intimacy;
             const intimacy = gameState.getIntimacy(characterId);
-            const level = EconomicCalculator.getIntimacyLevel(intimacy);
-            if (level < minLevel) {
+            // SocialSystem中intimacy已经是等级值 (-4 ~ +5)，直接比较
+            if (intimacy < minLevel) {
                 return false;
             }
         }

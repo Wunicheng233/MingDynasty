@@ -10,13 +10,28 @@ window.NavyGame = {
     start(gameView, gameState) {
         const task = gameState.currentTask;
 
+        // 根据技能等级调整难度 (符合策划难度曲线)
+        // Lv1: 航程10段, Lv2: 航程15段, Lv3: 航程20段
+        let skillLevel = 1;
+        if (task && task.requiredSkill) {
+            skillLevel = SkillSystem.getSkillLevel(gameState, task.requiredSkill);
+        }
+        let total;
+        if (skillLevel >= 3) {
+            total = 20;
+        } else if (skillLevel === 2) {
+            total = 15;
+        } else {
+            total = 10;
+        }
+
         // 初始化游戏状态 - 按照策划
         gameState.navyGame = {
-            progress: 0,          // 当前航程段
-            total: 15,           // 总航程
-            stamina: 10,         // 体力
-            morale: 10,         // 士气
-            lastEvent: null,    // 最后事件
+            progress: 0,
+            total: total,
+            stamina: 10,
+            morale: 10,
+            lastEvent: null,
             gameOver: false
         };
 

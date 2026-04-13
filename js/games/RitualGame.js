@@ -14,24 +14,64 @@ window.RitualGame = {
         const questionPool = [
             {
                 title: '将下列礼器按尊卑从高到低排列',
-                items: ['玉玺', '玉圭', '玉璧', '铜爵']
+                items: ['玉玺', '玉圭', '玉璧', '铜爵'],
+                count: 4
             },
             {
                 title: '将下列官阶从高到低排列',
-                items: ['尚书', '侍郎', '郎中', '主事']
+                items: ['尚书', '侍郎', '郎中', '主事'],
+                count: 4
             },
             {
                 title: '将以下册封大典按先后步骤排列',
-                items: ['斋戒', '祭天', '宣诏', '受玺']
+                items: ['斋戒', '祭天', '宣诏', '受玺'],
+                count: 4
             },
             {
                 title: '将下列爵位从高到低排列',
-                items: ['国公', '郡公', '县侯', '亭侯']
+                items: ['国公', '郡公', '县侯', '亭侯'],
+                count: 4
+            },
+            {
+                title: '将下列祭祀天地环节按先后排列',
+                items: ['迎神', '奠玉帛', '进俎', '初献', '亚献'],
+                count: 5
+            },
+            {
+                title: '将下列科举考试层级从低到高排列',
+                items: ['童生', '秀才', '举人', '进士', '状元'],
+                count: 5
+            },
+            {
+                title: '将下列九卿官职从高到低排列',
+                items: ['太常卿', '光禄卿', '卫尉卿', '太仆卿', '大理卿'],
+                count: 5
+            },
+            {
+                title: '将下列五服亲疏关系从近到远排列',
+                items: ['斩衰', '齐衰', '大功', '小功', '缌麻'],
+                count: 5
+            },
+            {
+                title: '将下列明朝省份按布政使司建立顺序排列',
+                items: ['北平', '山东', '河南', '陕西', '浙江', '福建'],
+                count: 6
             }
         ];
 
-        // 随机选一题
-        const question = questionPool[Math.floor(Math.random() * questionPool.length)];
+        // 根据技能等级选择题目长度 (符合策划难度曲线: Lv1=4步, Lv2=5步, Lv3=6步)
+        let skillLevel = 1;
+        if (task && task.requiredSkill) {
+            skillLevel = SkillSystem.getSkillLevel(gameState, task.requiredSkill);
+        }
+        const targetCount = 3 + skillLevel;
+
+        // 随机选一题，长度匹配当前等级难度
+        let filteredQuestions = questionPool.filter(q => q.items.length === targetCount);
+        if (filteredQuestions.length === 0) {
+            filteredQuestions = questionPool;
+        }
+        const question = filteredQuestions[Math.floor(Math.random() * filteredQuestions.length)];
         const shuffled = [...question.items].sort(() => Math.random() - 0.5);
 
         // 初始化游戏状态

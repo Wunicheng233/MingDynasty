@@ -9,12 +9,27 @@ window.CavalryGame = {
      */
     start(gameView, gameState) {
         const task = gameState.currentTask;
+        // 根据技能等级调整难度 (符合策划难度曲线)
+        // Lv1: 进度10点, Lv2: 进度15点, Lv3: 进度20点
+        let skillLevel = 1;
+        if (task && task.requiredSkill) {
+            skillLevel = SkillSystem.getSkillLevel(gameState, task.requiredSkill);
+        }
+        let targetProgress;
+        if (skillLevel >= 3) {
+            targetProgress = 20;
+        } else if (skillLevel === 2) {
+            targetProgress = 15;
+        } else {
+            targetProgress = 10;
+        }
+
         // 初始化游戏状态 - 按照策划设计
         gameState.cavalryGame = {
             playerProgress: 0,
             enemyProgress: 0,
-            targetProgress: 15,  // 需要累积15点到达终点
-            playerStunned: false  // 下一回合是否不能行动（受惊）
+            targetProgress: targetProgress,
+            playerStunned: false
         };
 
         this.render(gameState);

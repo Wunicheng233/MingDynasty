@@ -129,7 +129,7 @@ window.GameView = class GameView {
         if (!template) return;
 
         // GameState中开始任务
-        this.gameState.startMission(template);
+        this.gameState.acceptMission(template);
 
         // 根据任务的小游戏类型进入对应小游戏
         if (template.gameType && template.gameType !== 'none') {
@@ -256,8 +256,8 @@ window.GameView = class GameView {
         const gameType = this.gameState.currentTask.gameType;
         const taskId = this.gameState.currentTask.templateId;
 
-        const animatedStart = (startFn, gameKey) => {
-            startFn(this, this.gameState);
+        const animatedStart = (startFn, gameKey, gameObj) => {
+            startFn.call(gameObj, this, this.gameState);
             if (MinigameInitializer.needsAnimation(gameType)) {
                 this.startAnimatedGame(gameKey);
             }
@@ -267,66 +267,66 @@ window.GameView = class GameView {
         // 状态初始化已经在MinigameInitializer完成
         switch (gameType) {
             case 'agriculture':
-                animatedStart(FarmingGame.start, 'farmingGame');
+                animatedStart(FarmingGame.start, 'farmingGame', FarmingGame);
                 break;
             case 'eloquence':
-                EloquenceGame.start(this, this.gameState);
+                EloquenceGame.start.call(EloquenceGame, this, this.gameState);
                 break;
             case 'infantry':
-                InfantryGame.start(this, this.gameState);
+                InfantryGame.start.call(InfantryGame, this, this.gameState);
                 break;
             case 'cavalry':
-                CavalryGame.start(this, this.gameState);
+                CavalryGame.start.call(CavalryGame, this, this.gameState);
                 break;
             case 'engineering':
-                animatedStart(EngineeringGame.start, 'engineeringGame');
+                animatedStart(EngineeringGame.start, 'engineeringGame', EngineeringGame);
                 break;
             case 'trade':
-                TradeGame.start(this, this.gameState);
+                TradeGame.start.call(TradeGame, this, this.gameState);
                 break;
             case 'law':
-                LawGame.start(this, this.gameState);
+                LawGame.start.call(LawGame, this, this.gameState);
                 break;
             case 'navy':
-                animatedStart(NavyGame.start, 'navyGame');
+                animatedStart(NavyGame.start, 'navyGame', NavyGame);
                 break;
             case 'strategy':
                 if (taskId === 17) {
-                    BattleGame.start(this, this.gameState);
+                    BattleGame.start.call(BattleGame, this, this.gameState);
                 } else {
-                    StrategyGame.start(this, this.gameState);
+                    StrategyGame.start.call(StrategyGame, this, this.gameState);
                 }
                 break;
             case 'martial':
                 if (taskId === 10) {
-                    DuelGame.start(this, this.gameState);
+                    DuelGame.start.call(DuelGame, this, this.gameState);
                 } else {
-                    MartialGame.start(this, this.gameState);
+                    MartialGame.start.call(MartialGame, this, this.gameState);
                 }
                 break;
             case 'medicine':
-                MedicineGame.start(this, this.gameState);
+                MedicineGame.start.call(MedicineGame, this, this.gameState);
                 break;
             case 'calligraphy':
-                CalligraphyGame.start(this, this.gameState);
+                CalligraphyGame.start.call(CalligraphyGame, this, this.gameState);
                 break;
             case 'spy':
-                SpyGame.start(this, this.gameState);
+                SpyGame.start.call(SpyGame, this, this.gameState);
                 break;
             case 'navigation':
-                NavigationGame.start(this, this.gameState);
+                NavigationGame.start.call(NavigationGame, this, this.gameState);
                 break;
             case 'ritual':
-                RitualGame.start(this, this.gameState);
+                RitualGame.start.call(RitualGame, this, this.gameState);
                 break;
             case 'firearm':
-                animatedStart(FirearmGame.start, 'firearmGame');
+                animatedStart(FirearmGame.start, 'firearmGame', FirearmGame);
                 break;
             case 'duel':
-                DuelGame.start(this, this.gameState);
+                DuelGame.start.call(DuelGame, this, this.gameState);
                 break;
             case 'battle':
-                BattleGame.start(this, this.gameState);
+                BattleGame.start.call(BattleGame, this, this.gameState);
                 break;
             default:
                 console.warn('未知小游戏类型:', gameType);

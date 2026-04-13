@@ -392,6 +392,24 @@
     padding: 15px 20px;
 }
 
+/* 城市背景图 */
+.city-background-img {
+    width: 100%;
+    max-height: 350px;
+    text-align: center;
+    margin: 15px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #d4c4a8;
+}
+
+.city-background-img img {
+    width: 100%;
+    max-height: 350px;
+    object-fit: cover;
+    display: block;
+}
+
 .info-row {
     display: flex;
     padding: 5px 0;
@@ -440,13 +458,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px 10px;
+    padding: 16px 10px;
     background: #f5ecd8;
     border: 2px solid #d4a574;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
-    gap: 8px;
+    gap: 10px;
 }
 
 .facility-card-btn:hover {
@@ -460,16 +478,32 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px 10px;
+    padding: 16px 10px;
     background: #efe6d5;
     border: 2px solid #d4c4a8;
     border-radius: 8px;
     opacity: 0.6;
-    gap: 8px;
+    gap: 10px;
 }
 
 .facility-icon {
     font-size: 36px;
+}
+
+/* 设施图标 - 用于城市列表替换emoji */
+.facility-icon-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.facility-icon-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .facility-name {
@@ -477,6 +511,24 @@
     font-weight: bold;
     color: #5d4e37;
     font-family: 'ZCOOL QingKe HuangYou', 'Pixelify Sans', 'Noto Serif SC', serif;
+}
+
+/* 设施背景图 - 用于设施场景顶部 */
+.facility-background-img {
+    width: 100%;
+    max-height: 280px;
+    text-align: center;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #d4c4a8;
+}
+
+.facility-background-img img {
+    width: 100%;
+    max-height: 280px;
+    object-fit: cover;
+    display: block;
 }
 
 /* Legacy - keep for backward compatibility */
@@ -1137,6 +1189,36 @@
     margin-bottom: 10px;
     color: #8b4513;
     font-size: 20px;
+}
+
+/* 设施主人的设施交互选项在人物卡片内 */
+.facility-interactions-for-npc {
+    margin-top: 8px;
+}
+
+.facility-interactions-for-npc h4 {
+    margin: 0 0 6px 0;
+    font-size: 14px;
+    color: #5d4e37;
+}
+
+/* 设施内人物列表 - 复用城中人物样式 */
+.facility-npcs {
+    margin-top: 20px;
+}
+
+.facility-npcs h3 {
+    margin-bottom: 15px;
+    color: #8b4513;
+    font-size: 20px;
+    border-bottom: 2px solid #d4c4a8;
+    padding-bottom: 8px;
+}
+
+.facility-npcs-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
 }
 
 /* ========== 剧情事件场景 ========== */

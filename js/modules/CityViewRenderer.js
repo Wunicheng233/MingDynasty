@@ -17,7 +17,8 @@ window.CityViewRenderer = {
 
         // 规模显示转换
         const scaleText = ['小型', '中型', '大型', '巨城'];
-        const scaleLabel = scaleText[city.scale - 1] || '小型';
+        const scale = city.baseScale || city.scale || 1;
+        const scaleLabel = scaleText[scale - 1] || '小型';
 
         let html = `
             <div class="city-view-container">
@@ -32,9 +33,14 @@ window.CityViewRenderer = {
                         </div>
                         <div class="info-row">
                             <span class="info-label">城市规模</span>
-                            <span class="info-value">${scaleLabel} (${'■'.repeat(city.scale)})</span>
+                            <span class="info-value">${scaleLabel} (${'■'.repeat(scale)})</span>
                         </div>
                     </div>
+                </div>
+
+                <!-- 城市背景图 -->
+                <div class="city-background-img">
+                    <img src="images/cities/city-bg-${scale}.png" alt="${city.name}" onerror="this.style.display='none'">
                 </div>
 
                 <div class="city-actions-top">
@@ -44,7 +50,6 @@ window.CityViewRenderer = {
         if (player.forceId && player.role !== '君主') {
             html += `<button class="btn primary-btn" id="enter-assessment-btn">进入评定厅接任务</button>`;
         }
-        html += `<button class="btn primary-btn" id="view-all-characters-btn">查看全城人物</button>`;
 
         html += `
                 </div>
@@ -73,6 +78,24 @@ window.CityViewRenderer = {
                 '锦衣卫所': '🔍'
             };
 
+            // 汉字到拼音文件名映射（和你实际文件名对应）
+            const pinyinMap = {
+                '市集': 'shiji',
+                '武馆': 'wuguan',
+                '商帮会馆': 'shangbang_huiguan',
+                '官衙': 'guanya',
+                '校场': 'jiaochang',
+                '工部作坊': 'gongbu_zuofang',
+                '刑部司': 'xingbu_si',
+                '国子监': 'guozijian',
+                '书院': 'shuyuan',
+                '寺庙': 'simiao',
+                '酒馆': 'jiuguan',
+                '铁匠铺': 'tiejiangpu',
+                '医馆': 'yiguan',
+                '锦衣卫所': 'jinyiwei_suo'
+            };
+
             city.facilities.forEach(facility => {
                 // 给可进入的设施加上点击按钮
                 // 所有策划文档中定义的设施都支持点击进入
@@ -92,18 +115,23 @@ window.CityViewRenderer = {
                     '医馆': true,
                     '锦衣卫所': true
                 };
-                const icon = facilityIcons[facility] || '🏘️';
+                const emojiIcon = facilityIcons[facility] || '🏘️';
+                // 使用拼音文件名（和你实际保存的一致）
+                const imageSlug = pinyinMap[facility];
+                const iconHtml = `<div class="facility-icon-img">
+                    <img src="images/facilities/icon/${imageSlug}.png" alt="${facility}" onerror="this.parentElement.innerHTML='${emojiIcon}';this.parentElement.className='facility-icon'">
+                </div>`;
                 if (clickableFacilities[facility]) {
                     html += `
                         <button class="facility-card-btn" data-facility="${facility}">
-                            <span class="facility-icon">${icon}</span>
+                            ${iconHtml}
                             <span class="facility-name">${facility}</span>
                         </button>
                     `;
                 } else {
                     html += `
                         <div class="facility-card-disabled">
-                            <span class="facility-icon">${icon}</span>
+                            ${iconHtml}
                             <span class="facility-name">${facility}</span>
                         </div>
                     `;
@@ -126,11 +154,6 @@ window.CityViewRenderer = {
                 gameView.renderAll();
             });
         }
-
-        document.getElementById('view-all-characters-btn').addEventListener('click', () => {
-            gameState.currentScene = GameScene.CHARACTER_LIST_VIEW;
-            gameView.renderAll();
-        });
 
         // 绑定设施点击事件
         document.querySelectorAll('.facility-card-btn').forEach(btn => {

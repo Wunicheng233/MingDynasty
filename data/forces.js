@@ -143,3 +143,12 @@ window.getDiplomacyRelation = function getDiplomacyRelation(factionAId, factionB
     if (!factionA || !factionA.diplomacy) return 0;
     return factionA.diplomacy[factionBId] || 0;
 };
+
+/**
+ * 根据势力ID获取势力模板
+ * @param {string} factionId
+ * @returns {ForceTemplate|undefined}
+ */
+window.getFactionById = function getFactionById(factionId) {
+    return FACTION_TEMPLATES.find(f => f.factionId === factionId);
+};

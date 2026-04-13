@@ -141,8 +141,8 @@ window.FacilityScene = {
         const config = this.facilityConfig[facilityName];
         const city = gameState.getCurrentCity();
 
-        // 获取当前城市中所有在城的人物
-        const cityNpcs = gameState.npcs ? gameState.npcs.filter(npc => npc.locationCityId === city.id) : [];
+        // 获取当前城市中所有在城的人物（从人物模板中筛选）
+        const cityCharacters = gameState.getCharactersInCurrentCity();
 
         if (!config) {
             return `<div class="facility-scene">
@@ -162,26 +162,91 @@ window.FacilityScene = {
             </div>
         `;
 
+        // 汉字到拼音文件名映射
+        const pinyinMap = {
+            '市集': 'shiji',
+            '武馆': 'wuguan',
+            '商帮会馆': 'shangbang_huiguan',
+            '官衙': 'guanya',
+            '校场': 'jiaochang',
+            '工部作坊': 'gongbu_zuofang',
+            '刑部司': 'xingbu_si',
+            '国子监': 'guozijian',
+            '书院': 'shuyuan',
+            '寺庙': 'simiao',
+            '酒馆': 'jiuguan',
+            '铁匠铺': 'tiejiangpu',
+            '医馆': 'yiguan',
+            '锦衣卫所': 'jinyiwei_suo'
+        };
+        // 设施背景图（如果有图片的话）
+        const imageSlug = pinyinMap[config.title];
+        html += `<div class="facility-background-img">
+            <img src="images/facilities/background/${imageSlug}.png" alt="${config.title}" onerror="this.style.display='none'">
+        </div>`;
+
         // 描述文本 - 替换换行
         const descHtml = config.description.replace(/\n/g, '<br>');
         html += `<div class="facility-text">${descHtml}</div>`;
 
-        // 如果设施内有人，显示人物列表
-        if (cityNpcs.length > 0) {
+        // 过滤出当前在这个设施内的人物
+        // 如果人物有指定所属设施belongFacility，只显示对应设施的
+        // 过滤掉玩家自己（玩家不应该出现在设施人物列表中）
+        const facilityCharacters = cityCharacters.filter(c => {
+            return c.id !== gameState.playerCharacterId && (!c.belongFacility || c.belongFacility === facilityName);
+        });
+
+        if (facilityCharacters.length > 0) {
             html += `
                 <div class="facility-npcs">
-                    <h3 class="section-title">在场人物</h3>
+                    <h3>设施内人物</h3>
                     <div class="facility-npcs-list">
             `;
-            cityNpcs.forEach(npc => {
-                const template = CHARACTER_TEMPLATES.find(t => t.id === npc.templateId);
-                const name = template ? template.name : npc.name;
-                const emoji = template ? template.emoji : '👤';
+            facilityCharacters.forEach(character => {
+                const name = character.name;
+                // 从gameState.relationships获取亲密度（使用正确的key格式）
+                const relation = gameState.getIntimacy(character.id);
+                const hearts = gameState.getIntimacyHearts(relation); // 使用系统方法获取心形显示
+                const portrait = character.portrait;
+                // 使用工具函数获取正确的立绘路径（处理星级子目录）
+                const cardId = `CHAR_${character.templateId}`;
+                const card = getCardById(cardId);
+                const rarity = card?.rarity || 5;
+                const isNpc = character.templateId === 'WUGUAN_SHIFU'; // 特殊处理武馆师父NPC
+                const imagePath = CharacterRendererUtils.getPortraitPath(portrait, rarity, isNpc);
+
+                // 检查是否是设施主人（指定了belongFacility的就是设施负责人）
+                // 即使是设施主人，也默认只显示交谈按钮，点击后展开设施功能，保持统一交互
+                const isFacilityMaster = character.belongFacility === facilityName && config.options && config.options.length > 0;
+
                 html += `
-                    <button class="npc-in-facility-btn" data-npc-id="${npc.id}">
-                        <span class="npc-emoji">${emoji}</span>
-                        <span class="npc-name">${name}</span>
-                    </button>
+                    <div class="character-item">
+                        <div class="character-portrait">
+                            ${imagePath ? `<img src="${imagePath}" alt="${name}">` : '<div class="character-portrait-placeholder">👤</div>'}
+                        </div>
+                        <div class="character-info">
+                            <div class="character-header">
+                                <span class="character-name">${name}</span>
+                                <span class="character-rank">${character.initialRank || '平民'}</span>
+                            </div>
+                            <div class="character-desc">${character.description || facilityName + '负责人'}</div>
+                            <div class="character-relationship">
+                                关系：${hearts}
+                            </div>
+                            <div class="character-action">
+                                <button class="btn primary-btn" data-npc-id="${character.id}" ${isFacilityMaster ? `data-has-facility-actions="true"` : ''}>交谈</button>
+                                ${isFacilityMaster ? `
+                                    <div class="facility-interactions-for-npc" style="display: none; margin-top: 10px;" data-facility-actions-container>
+                                        <h4>设施功能</h4>
+                                        ${config.options.map((option, index) => `
+                                            <button class="event-choice-btn" data-action="${option.action}" style="margin: 4px 0;">${option.text}</button>
+                                        `).join('')}
+                                        <button class="btn secondary-btn" data-npc-id="${character.id}" data-open-social style="margin-top: 8px;">社交互动</button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
                 `;
             });
             html += `
@@ -190,18 +255,7 @@ window.FacilityScene = {
             `;
         }
 
-        // 设施交互选项
-        html += `
-        <div class="facility-choices">
-            <h3>设施交互</h3>
-        `;
-
-        // 选项
-        config.options.forEach((option, index) => {
-            html += `<button class="event-choice-btn" data-action="${option.action}">${index + 1}. ${option.text}</button>`;
-        });
-
-        html += `</div></div>`;
+        html += `</div>`;
 
         // 绑定事件
         setTimeout(() => this.bindEvents(gameState), 0);
@@ -213,18 +267,49 @@ window.FacilityScene = {
      * 绑定选项点击事件
      */
     bindEvents(gameState) {
+        // 设施交互按钮（现在在NPC卡片内）
         document.querySelectorAll('.event-choice-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const action = btn.dataset.action;
                 this.handleAction(action, gameState);
             });
         });
-        // 绑定NPC点击事件
-        document.querySelectorAll('.npc-in-facility-btn').forEach(btn => {
+        // 绑定设施内NPC点击事件（交谈，只有普通人物有这个按钮，设施主人是设施交互）
+        document.querySelectorAll('.facility-npcs-list .character-item .btn[data-npc-id]').forEach(btn => {
             btn.addEventListener('click', () => {
-                const npcId = parseInt(btn.dataset.npcId);
-                // 进入社交互动场景
-                gameState.currentNpc = gameState.npcs.find(n => n.id === npcId);
+                const npcNumId = parseInt(btn.dataset.npcId);
+                const hasFacilityActions = btn.dataset.hasFacilityActions === 'true';
+                const isOpenSocial = btn.dataset.openSocial !== undefined;
+
+                // 如果是点击"社交互动"按钮，直接进入社交场景
+                if (isOpenSocial) {
+                    gameState.currentNpc = getAllCharacterTemplates().find(c => c.id === npcNumId);
+                    gameState.currentSocialTarget = npcNumId;
+                    // 记住从设施场景进来，返回时会回到设施
+                    gameState.previousSceneFromSocial = GameScene.FACILITY;
+                    gameState.currentScene = GameScene.SOCIAL_VIEW;
+                    window.game.gameView.renderAll();
+                    return;
+                }
+
+                // 如果是设施主人且有设施功能，点击交谈就展开/折叠显示设施功能
+                if (hasFacilityActions) {
+                    const container = btn.parentElement.querySelector('[data-facility-actions-container]');
+                    if (container) {
+                        if (container.style.display === 'none' || !container.style.display) {
+                            container.style.display = 'block';
+                        } else {
+                            container.style.display = 'none';
+                        }
+                    }
+                    return;
+                }
+
+                // 普通NPC进入社交互动场景
+                gameState.currentNpc = getAllCharacterTemplates().find(c => c.id === npcNumId);
+                gameState.currentSocialTarget = npcNumId;
+                // 记住从设施场景进来，返回时会回到设施
+                gameState.previousSceneFromSocial = GameScene.FACILITY;
                 gameState.currentScene = GameScene.SOCIAL_VIEW;
                 window.game.gameView.renderAll();
             });

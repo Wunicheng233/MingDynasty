@@ -18,9 +18,17 @@ window.EloquenceGame = {
         ];
         const target = targets[Math.floor(Math.random() * targets.length)];
 
+        // 根据技能等级调整初始情绪 (符合策划难度曲线)
+        // Lv1: 初始情绪 0, Lv2: 初始情绪 20, Lv3: 初始情绪 40
+        let skillLevel = 1;
+        if (task && task.requiredSkill) {
+            skillLevel = SkillSystem.getSkillLevel(gameState, task.requiredSkill);
+        }
+        let initialEmotion = (skillLevel - 1) * 20;
+
         gameState.eloquenceGame = {
-            emotion: 0,          // 当前情绪值 0-100
-            remainingRounds: 6, // 剩余回合
+            emotion: initialEmotion,
+            remainingRounds: 6,
             lastFeedback: '对方平静地看着你...',
             target: target
         };

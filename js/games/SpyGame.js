@@ -7,27 +7,61 @@ window.SpyGame = {
     /**
      * 启动游戏
      */
-    start(gameView, gameState) {
+    start(gameView, gameState, title = null) {
         const task = gameState.currentTask;
+
+        // 根据技能等级调整迷宫大小和难度（难度自适应）
+        let skillLevel = 1;
+        if (task && task.requiredSkill) {
+            skillLevel = SkillSystem.getSkillLevel(gameState, task.requiredSkill);
+        }
+
+        // Lv1: 5x5, Lv2: 6x6, Lv3: 7x7 - 难度递增
+        let size;
+        let maxAlarm;
+        let randomFlips;
+        if (skillLevel <= 1) {
+            size = 5;
+            maxAlarm = 60;
+            randomFlips = 4;
+        } else if (skillLevel === 2) {
+            size = 6;
+            maxAlarm = 75;
+            randomFlips = 6;
+        } else {
+            size = 7;
+            maxAlarm = 90;
+            randomFlips = 8;
+        }
+
         // 初始化游戏状态
         gameState.spyGame = {
             playerPos: {x: 0, y: 0},
-            alarm: 0,       // 警报值 0-100
-            maxAlarm: 60    // 超过就失败
+            alarm: 0,
+            maxAlarm: maxAlarm,
+            size: size
         };
-        // 生成 5x5 简单迷宫
+
+        // 生成迷宫：起点(0,0)，终点(size-1,size-1)，保证通路
         // 0: 路, 1: 墙, 2: 出口
-        const maze = [
-            [0, 1, 0, 0, 0],
-            [0, 1, 0, 1, 0],
-            [0, 0, 0, 1, 0],
-            [0, 1, 1, 1, 0],
-            [0, 0, 0, 0, 2]
-        ];
-        // 随机打乱一下墙，每次游戏不一样
-        for (let i = 0; i < 3; i++) {
-            const x = Math.floor(Math.random() * 3) + 1;
-            const y = Math.floor(Math.random() * 3) + 1;
+        const maze = Array(size).fill().map(() => Array(size).fill(0));
+
+        // 默认生成一些基础墙
+        for (let y = 1; y < size - 1; y++) {
+            for (let x = 1; x < size - 1; x++) {
+                if (Math.random() < 0.3) {
+                    maze[y][x] = 1;
+                }
+            }
+        }
+
+        // 设置出口
+        maze[size - 1][size - 1] = 2;
+
+        // 随机翻转一些墙，让每次迷宫不一样
+        for (let i = 0; i < randomFlips; i++) {
+            const x = Math.floor(Math.random() * (size - 2)) + 1;
+            const y = Math.floor(Math.random() * (size - 2)) + 1;
             maze[y][x] = maze[y][x] === 1 ? 0 : 1;
         }
 
@@ -133,7 +167,7 @@ window.SpyGame = {
         }
 
         // 重新渲染警报条 - 其实只需要更新警报条，这里简化了直接重新渲染
-        this.start(gameView, gameState);
+        this.start(gameView, gameState, title);
     },
 
     /**

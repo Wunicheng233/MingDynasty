@@ -186,7 +186,9 @@ window.SocialRenderer = {
         // 绑定事件
         container.querySelector('.back-btn')?.addEventListener('click', () => {
             gameState.currentSocialTarget = null;
-            gameState.currentScene = GameScene.CHARACTER_LIST_VIEW;
+            // 根据来源返回对应场景：从设施来返回设施，从人物列表来返回人物列表
+            const backScene = gameState.previousSceneFromSocial || GameScene.CHARACTER_LIST_VIEW;
+            gameState.currentScene = backScene;
             window.game.gameView.renderAll();
         });
 

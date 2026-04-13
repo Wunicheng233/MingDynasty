@@ -455,18 +455,35 @@ window.SocialSystem = {
     /**
      * 自然衰减：每半年无互动亲密度-2
      * 应该在时间推进半年时调用
+     * 配偶和结义兄弟锁定5心，不衰减
      */
     decayIntimacy(gameState) {
         // 每半年（6个月）衰减一次
+        // 创建一个Set存储不衰减的NPC ID
+        const lockedNpcs = new Set();
+        if (gameState.spouse !== null) {
+            lockedNpcs.add(gameState.spouse);
+        }
+        gameState.brothers.forEach(id => lockedNpcs.add(id));
+
+        let hasDecay = false;
         for (const key in gameState.relationships) {
+            // key格式: "playerId_npcId"，提取npcId
+            const npcId = parseInt(key.split('_')[1]);
+            // 配偶和结义兄弟不衰减
+            if (lockedNpcs.has(npcId)) continue;
+
             if (gameState.relationships[key] > 0) {
                 gameState.relationships[key] -= 2;
                 if (gameState.relationships[key] < 0) {
                     gameState.relationships[key] = 0;
                 }
+                hasDecay = true;
             }
         }
-        gameState.addLog('长时间未互动的人际关系略有疏远。');
+        if (hasDecay) {
+            gameState.addLog('长时间未互动的人际关系略有疏远。');
+        }
         this.saveRelationships(gameState);
     },
 
@@ -524,6 +541,8 @@ window.SocialSystem = {
      */
     startSocialInteraction(gameState, characterId) {
         gameState.currentSocialTarget = characterId;
+        // 记住从人物列表进来，退出返回人物列表
+        gameState.previousSceneFromSocial = GameScene.CHARACTER_LIST_VIEW;
         gameState.currentScene = GameScene.SOCIAL_VIEW;
         const character = getCharacterTemplateByNumId(characterId);
         gameState.addLog(`你开始与${character.name}交谈。`);

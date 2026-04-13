@@ -404,7 +404,8 @@ const CHARACTER_TEMPLATES = [
         initialRank: "武师",
         birthDeath: null,
         description: "濠州城中武馆的教头，自幼习武，拳法娴熟。",
-        locationCityId: 1 // 濠州，所有武馆都有他
+        locationCityId: 1, // 濠州，所有武馆都有他
+        belongFacility: '武馆' // 属于武馆，只在武馆显示
     }
 ];
 

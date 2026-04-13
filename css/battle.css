@@ -215,6 +215,30 @@
     background: linear-gradient(145deg, #eafaf1, #d4efdf);
 }
 
+/* 绿色数字卡使用背景图片 + 大数字居中偏上 */
+.battle-card.green.number-card {
+    aspect-ratio: 3/4;
+    background-image: url('../images/cards/basenum/battle.png');
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.battle-card.green.number-card .card-number {
+    position: absolute;
+    top: 22%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    font-size: 46px;
+    font-weight: bold;
+    color: #000000;
+    text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;
+    font-family: 'ZCOOL QingKe HuangYou', serif;
+    line-height: 1;
+    z-index: 10;
+}
+
 .battle-card.red {
     border-color: #e74c3c;
     background: linear-gradient(145deg, #fdedec, #fadbd8);
@@ -375,6 +399,47 @@
 .battle-card[data-type="duel_special"] {
     border-color: #f39c12;
     background: linear-gradient(145deg, #fff9e6, #ffeaa7);
+}
+
+/* 个人战数字卡片 - 使用背景图 + 大数字居中偏上 */
+.personal-number-card {
+    width: 90px;
+    height: 110px;
+    border: 2px solid #2c3e50;
+    border-radius: 8px;
+    background-image: url('../images/cards/basenum/personal.png');
+    background-size: cover;
+    background-position: center;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    display: inline-block;
+}
+
+.personal-number-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.personal-number-card.selected {
+    transform: translateY(-4px);
+    box-shadow: 0 0 10px #3498db;
+    border-color: #3498db;
+}
+
+.personal-number-card .card-number {
+    position: absolute;
+    top: 22%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    font-size: 44px;
+    font-weight: bold;
+    color: #000000;
+    text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;
+    font-family: 'ZCOOL QingKe HuangYou', serif;
+    line-height: 1;
+    z-index: 10;
 }
 
 /* ========== 战前布阵 ========== */

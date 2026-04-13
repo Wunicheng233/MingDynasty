@@ -9,14 +9,32 @@ window.FarmingGame = {
      */
     start(gameView, gameState) {
         const task = gameState.currentTask;
+        // 根据技能等级调整难度 (符合策划难度曲线)
+        // Lv1: 10块地 50贯, Lv2: 12块地 40贯, Lv3: 15块地 30贯
+        let skillLevel = 1;
+        if (task && task.requiredSkill) {
+            skillLevel = SkillSystem.getSkillLevel(gameState, task.requiredSkill);
+        }
+        let totalFields, initialMoney;
+        if (skillLevel >= 3) {
+            totalFields = 15;
+            initialMoney = 30;
+        } else if (skillLevel === 2) {
+            totalFields = 12;
+            initialMoney = 40;
+        } else {
+            totalFields = 10;
+            initialMoney = 50;
+        }
+
         // 初始化游戏状态 - 按照策划设计
         gameState.farmingGame = {
-            totalFields: 10,       // 总共10块荒地
-            clearedFields: 0,      // 已开垦
-            money: 50,            // 初始资金
-            labor: 3,             // 人力
-            irrigation: 1,        // 水利等级
-            eventLog: []          // 事件日志
+            totalFields: totalFields,
+            clearedFields: 0,
+            money: initialMoney,
+            labor: 3,
+            irrigation: 1,
+            eventLog: []
         };
 
         this.renderRound(gameState);
