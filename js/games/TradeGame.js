@@ -145,13 +145,13 @@ window.TradeGame = {
         const shuffled = questionPool.sort(() => Math.random() - 0.5);
         game.questions = shuffled.slice(0, 6);
 
-        this.renderRound(gameState);
+        this.renderRound(gameState, gameView);
     },
 
     /**
      * 渲染当前题目
      */
-    renderRound(gameState) {
+    renderRound(gameState, gameView) {
         const game = gameState.tradeGame;
         const q = game.questions[game.current];
         const template = getMissionTemplateById(gameState.currentTask.templateId);
@@ -208,7 +208,7 @@ window.TradeGame = {
             setTimeout(() => this.finish(gameState, gameView), 1500);
         } else {
             // 下一题
-            setTimeout(() => this.renderRound(gameState), 1500);
+            setTimeout(() => this.renderRound(gameState, gameView), 1500);
         }
     },
 
