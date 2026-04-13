@@ -130,6 +130,10 @@ window.GameState = class GameState {
 
         // 当前进入的城乡设施
         this.currentFacility = null;
+
+        // 评定会相关状态
+        this._shouldAutoGoToEvaluation = false;
+        this.evaluationPendingSelection = false;
         // ========== 事件系统结束 ==========
 
         // 从localStorage加载全局卡片收集（跨存档继承）
@@ -571,64 +575,11 @@ window.GameState = class GameState {
     }
 
     /**
-<<<<<<< HEAD
      * 推进一天 - 委托给TimeSystem统一处理
+     * 评定会检查、任务超时检查、事件检测都在TimeSystem中完成
      */
     advanceDay() {
         TimeSystem.nextDay(this);
-=======
-     * 推进一天
-     */
-    advanceDay() {
-        this.day++;
-
-        // 标记是否需要自动跳转到评定会
-        this._shouldAutoGoToEvaluation = false;
-
-        // 简单处理月份进位，不考虑不同月份天数差异
-        const daysInMonth = 30;
-        if (this.day > daysInMonth) {
-            this.day = 1;
-            this.month++;
-            if (this.month > 12) {
-                this.month = 1;
-                this.year++;
-            }
-
-            // 每年一月一日自然衰减亲密度
-            if (this.month === 1 && this.day === 1) {
-                this.decayIntimacy();
-            }
-
-            // 评定会日检查
-            if (this.isEvaluationDay()) {
-                if (!this.isAtMainCity() && !this.currentTask) {
-                    // 不在主城，扣除功勋
-                    SkillSystem.handleEvaluationAbsence(this);
-                } else if (this.isAtMainCity() && !this.currentTask && !this.currentEvent) {
-                    // 在主城且没有当前任务，评定会召开，必须做出选择才能离开
-                    this.addLog(`📅 今日${this.isPlayerRuler() ? '朝会' : '评定会'}召开，请接取新的主命！`);
-                    this._shouldAutoGoToEvaluation = true;
-                    this.evaluationPendingSelection = true;
-                }
-            }
-        }
-
-        // 检查当前任务是否超时
-        if (this.currentTask && this.checkMissionTimeout()) {
-            this.addLog(`主命【${this.currentTask.name}】超时未完成，任务失败！`);
-            this.completeMission(false);
-        }
-
-        // 添加日志
-        const yearTitle = this.year >= 1368 ? `洪武${this.year - 1368}年` : `至正${this.year - 1341 + 1}年`;
-        this.addLog(`时间来到了${yearTitle}${this.month}月${this.day}日`);
-
-        // 每天推进后检测是否有事件触发
-        // 如果当前已经有事件在进行中，不重复检测
-        if (!this.currentEvent) {
-            EventScheduler.checkAndTrigger(this);
-        }
     }
 
     /**
@@ -714,14 +665,6 @@ window.GameState = class GameState {
         return days;
     }
 
-<<<<<<< HEAD
-    // ========== 委托给子系统 ==========
-    // 时间推进委托给TimeSystem
-    advanceDays(days) {
-        for (let i = 0; i < days; i++) {
-            this.advanceDay();
-        }
-    }
 
     /**
      * 开始接受并执行一个主命

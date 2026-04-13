@@ -20,12 +20,22 @@ window.TimeSystem = {
      * @param {GameState} gameState
      */
     nextDay(gameState) {
+        // 重置评定会标记
+        gameState._shouldAutoGoToEvaluation = false;
+
         gameState.day++;
 
         // 检查是否进入下个月
         const daysInMonth = this.getDaysInMonth(gameState.year, gameState.month);
         if (gameState.day > daysInMonth) {
             this.nextMonth(gameState);
+        }
+
+        // 检查当前任务是否超时
+        if (gameState.currentTask && SkillSystem.checkMissionTimeout(gameState)) {
+            const template = getMissionTemplateById(gameState.currentTask.templateId);
+            gameState.addLog(`主命【${template.name}】超时未完成，任务失败！`);
+            gameState.completeMission(false);
         }
 
         // 添加日志
@@ -75,6 +85,20 @@ window.TimeSystem = {
         if (monthInYear === 1 || monthInYear === 7) {
             // 半年衰减一次
             SocialSystem.decayIntimacy(gameState);
+        }
+
+        // 评定会检查：每隔两个月召开一次，固定在奇数月一日
+        if (SkillSystem.isEvaluationDay(gameState)) {
+            if (!SkillSystem.isAtMainCity(gameState) && !gameState.currentTask) {
+                // 不在主城，扣除功勋
+                SkillSystem.handleEvaluationAbsence(gameState);
+            } else if (SkillSystem.isAtMainCity(gameState) && !gameState.currentTask && !gameState.currentEvent) {
+                // 在主城且没有当前任务，评定会召开，必须做出选择才能离开
+                const title = SkillSystem.isPlayerRuler(gameState) ? '朝会' : '评定会';
+                gameState.addLog(`📅 今日${title}召开，请接取新的主命！`);
+                gameState._shouldAutoGoToEvaluation = true;
+                gameState.evaluationPendingSelection = true;
+            }
         }
     },
 

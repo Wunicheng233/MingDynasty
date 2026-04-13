@@ -3,6 +3,9 @@
   <!-- 复古纸张背景 -->
   <rect width="800" height="600" fill="#f5ecd8"/>
 
+  <!-- 盖住旧文字 - 解决浏览器缓存问题 -->
+  <rect x="0" y="0" width="800" height="60" fill="#f5ecd8"/>
+
   <!-- 纸张纹理效果（噪点） -->
   <filter id="noise">
     <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise"/>

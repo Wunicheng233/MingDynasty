@@ -116,8 +116,6 @@ window.SkillSystem = {
         }
 
         return baseTarget;
-<<<<<<< HEAD
-=======
     },
 
     /**
@@ -205,6 +203,5 @@ window.SkillSystem = {
      */
     getRulerMissionCategories() {
         return ['内政', '军备', '调略', '外交', '国策'];
->>>>>>> origin/hongbin-dev
     }
 };
