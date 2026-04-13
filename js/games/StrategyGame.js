@@ -502,20 +502,16 @@ window.StrategyGame = {
                 gameView.renderAll();
             });
         } else {
-            // 正常任务结算
-            const finalMerit = Math.round(task.rewardMerit * ratio);
-            const finalMoney = Math.round(task.rewardMoney * ratio);
-            const expGained = Math.round(15 * ratio);
+            // 正常任务结算 - 使用新主命系统
+            const template = getMissionTemplateById(gameState.currentTask.templateId);
+            // 实际进度 = 目标值 * 完成率
+            const actualProgress = Math.round(gameState.currentTask.targetValue * ratio);
+            const success = actualProgress > 0;
 
-            gameState.merit += finalMerit;
-            gameState.money += finalMoney;
-            if (task.requiredSkill) {
-                gameState.addSkillExp(task.requiredSkill, expGained);
-            }
+            // 使用新的主命系统结算
+            const result = gameState.completeMission(success, actualProgress);
 
-            const skillName = getSkillById(task.requiredSkill)?.name || '';
-            gameState.checkRolePromotion();
-            gameState.addLog(`任务【${task.name}】完成！答对 ${game.correct}/${game.problems.length} 题，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
+            gameState.addLog(`【${template.name}】答对 ${game.correct}/${game.problems.length} 题`);
 
             // 显示结果页
             let html = `
@@ -525,7 +521,7 @@ window.StrategyGame = {
                     <div style="background: #f5f0e1; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
                         <p>正确率：${Math.round(ratio * 100)}%</p>
                     </div>
-                    <p>获得：${finalMerit} 功勋，${finalMoney} 金钱</p>
+                    <p>功勋奖励：${result.meritGained > 0 ? '+' : ''}${result.meritGained}</p>
                     <div style="margin-top: 30px;">
                         <button class="btn primary-btn" id="strategy-done-btn">返回</button>
                     </div>
@@ -534,8 +530,8 @@ window.StrategyGame = {
 
             document.getElementById('farming-game-view').innerHTML = html;
             document.getElementById('strategy-done-btn').addEventListener('click', () => {
-                gameView.advanceTwoMonths();
-                gameState.currentTask = null;
+                // 时间推进：按任务限时推进
+                TimeSystem.advanceDays(gameState, template.timeLimitDays);
                 gameState.strategyGame = null;
                 gameState.currentScene = GameScene.CITY_VIEW;
                 gameView.renderAll();

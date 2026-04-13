@@ -134,23 +134,20 @@ window.CalligraphyGame = {
             gameState.currentScene = GameScene.FACILITY;
             gameView.renderAll();
         } else {
-            // 正常任务结算
-            const finalMerit = Math.round(task.rewardMerit * ratio);
-            const finalMoney = Math.round(task.rewardMoney * ratio);
-            const expGained = Math.round(10 * ratio);
+            // 正常任务结算 - 使用新主命系统
+            const template = getMissionTemplateById(gameState.currentTask.templateId);
+            // 实际进度 = 目标值 * 完成率
+            const actualProgress = Math.round(gameState.currentTask.targetValue * ratio);
+            const success = actualProgress > 0;
 
-            gameState.merit += finalMerit;
-            gameState.money += finalMoney;
-            if (task.requiredSkill) {
-                gameState.addSkillExp(task.requiredSkill, expGained);
-            }
+            // 使用新的主命系统结算
+            const result = gameState.completeMission(success, actualProgress);
 
-            const skillName = getSkillById(task.requiredSkill)?.name || '';
-            gameState.checkRolePromotion();
-            gameState.addLog(`任务【${task.name}】完成！答对 ${game.correctCount}/${game.totalRounds} 题，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
+            gameState.addLog(`【${template.name}】答对 ${game.correctCount}/${game.totalRounds} 题`);
 
-            gameView.advanceTwoMonths();
-            gameState.currentTask = null;
+            // 时间推进：按任务限时推进
+            TimeSystem.advanceDays(gameState, template.timeLimitDays);
+
             gameState.calligraphyGame = null;
             gameState.currentScene = GameScene.CITY_VIEW;
             gameView.renderAll();

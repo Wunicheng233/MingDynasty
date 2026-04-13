@@ -433,20 +433,16 @@ window.LawGame = {
                 gameView.renderAll();
             });
         } else {
-            // 正常任务结算
-            const finalMerit = Math.round(task.rewardMerit * ratio);
-            const finalMoney = Math.round(task.rewardMoney * ratio);
-            const expGained = Math.round(15 * ratio);
+            // 正常任务结算 - 使用新主命系统
+            const template = getMissionTemplateById(gameState.currentTask.templateId);
+            // 实际进度 = 目标值 * 完成率
+            const actualProgress = Math.round(gameState.currentTask.targetValue * ratio);
+            const success = actualProgress > 0;
 
-            gameState.merit += finalMerit;
-            gameState.money += finalMoney;
-            if (task.requiredSkill) {
-                gameState.addSkillExp(task.requiredSkill, expGained);
-            }
+            // 使用新的主命系统结算
+            const result = gameState.completeMission(success, actualProgress);
 
-            gameState.checkRolePromotion();
-            const skillName = getSkillById(task.requiredSkill)?.name || '';
-            gameState.addLog(`任务【${task.name}】完成！${resultTitle} 获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
+            gameState.addLog(`【${template.name}】${resultTitle}`);
 
             // 显示结果页
             let html = `
@@ -458,7 +454,7 @@ window.LawGame = {
                         <p style="color: #8b4513; margin: 10px 0;">▶ 矛盾证词：${game.correctContradiction[0]} 与 ${game.correctContradiction[1]}</p>
                         <p style="color: #8b4513; margin: 10px 0;">▶ 正确法律：${game.case.laws.find(l => l.correct).text}</p>
                     </div>
-                    <p style="margin: 10px 0;">获得：${finalMerit} 功勋，${finalMoney} 金钱</p>
+                    <p style="margin: 10px 0;">功勋奖励：${result.meritGained > 0 ? '+' : ''}${result.meritGained}</p>
                     <div style="margin-top: 30px;">
                         <button class="btn primary-btn" id="law-done-btn">结案返回</button>
                     </div>
@@ -467,8 +463,8 @@ window.LawGame = {
 
             document.getElementById('farming-game-view').innerHTML = html;
             document.getElementById('law-done-btn').addEventListener('click', () => {
-                gameView.advanceTwoMonths();
-                gameState.currentTask = null;
+                // 时间推进：按任务限时推进
+                TimeSystem.advanceDays(gameState, template.timeLimitDays);
                 gameState.lawGame = null;
                 gameState.currentScene = GameScene.CITY_VIEW;
                 gameView.renderAll();

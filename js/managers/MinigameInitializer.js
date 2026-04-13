@@ -164,6 +164,16 @@ const MINIGAME_CONFIGS = {
             // 人才探访不需要特殊初始化，直接跳转到人物列表
         }
     },
+    dialog: {
+        init: (gameState, template) => {
+            // 对话选择类任务使用口才游戏框架
+            gameState.eloquenceGame = {
+                currentRound: 0,
+                totalRounds: 5,
+                correctCount: 0
+            };
+        }
+    },
     firearm: {
         init: (gameState, template) => {
             gameState.firearmGame = {

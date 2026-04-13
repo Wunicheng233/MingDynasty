@@ -188,15 +188,10 @@ window.CavalryGame = {
      */
     finish(gameState, gameView) {
         const game = gameState.cavalryGame;
-        const task = gameState.currentTask;
         const won = game.playerProgress >= game.targetProgress && game.enemyProgress < game.targetProgress;
         // 完胜条件：领先对手至少3点进度（策划要求）
         const perfectWin = won && (game.playerProgress - game.enemyProgress >= 3);
         const ratio = won ? (perfectWin ? 1.0 : 0.8) : (game.playerProgress / game.targetProgress);
-
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(10 * ratio);
 
         let resultText;
         if (perfectWin) {
@@ -207,17 +202,19 @@ window.CavalryGame = {
             resultText = `❌ 失败！对手先到达终点。`;
         }
 
-        gameState.merit += finalMerit;
-        gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            gameState.addSkillExp(task.requiredSkill, expGained);
-        }
+        const template = getMissionTemplateById(gameState.currentTask.templateId);
+        // 实际进度 = 目标值 * 完成率
+        const actualProgress = Math.round(gameState.currentTask.targetValue * ratio);
+        const success = actualProgress > 0;
 
-        gameState.checkRolePromotion();
-        gameState.addLog(`任务【${task.name}】完成：${resultText} 获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} 骑战经验。`);
+        // 使用新的主命系统结算
+        const result = gameState.completeMission(success, actualProgress);
 
-        gameView.advanceTwoMonths();
-        gameState.currentTask = null;
+        gameState.addLog(`【${template.name}】${resultText}`);
+
+        // 时间推进：按任务限时推进
+        TimeSystem.advanceDays(gameState, template.timeLimitDays);
+
         gameState.cavalryGame = null;
         gameState.currentScene = GameScene.CITY_VIEW;
         gameView.renderAll();

@@ -90,8 +90,6 @@ window.NavigationGame = {
      * 结算游戏
      */
     finish(success, attempts, gameState, gameView) {
-        const task = gameState.currentTask;
-
         let ratio;
         if (attempts <= 3) {
             ratio = 1.0;
@@ -101,22 +99,19 @@ window.NavigationGame = {
             ratio = 0.5;
         }
 
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(15 * ratio);
+        const template = getMissionTemplateById(gameState.currentTask.templateId);
+        // 实际进度 = 目标值 * 完成率
+        const actualProgress = Math.round(gameState.currentTask.targetValue * ratio);
+        const successResult = actualProgress > 0;
 
-        gameState.merit += finalMerit;
-        gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            gameState.addSkillExp(task.requiredSkill, expGained);
-        }
+        // 使用新的主命系统结算
+        const result = gameState.completeMission(successResult, actualProgress);
 
-        const skillName = getSkillById(task.requiredSkill)?.name || '';
-        gameState.checkRolePromotion();
-        gameState.addLog(`任务【${task.name}】完成！尝试 ${attempts} 次找到正确方位，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
+        gameState.addLog(`【${template.name}】尝试 ${attempts} 次找到正确方位`);
 
-        gameView.advanceTwoMonths();
-        gameState.currentTask = null;
+        // 时间推进：按任务限时推进
+        TimeSystem.advanceDays(gameState, template.timeLimitDays);
+
         gameState.navigationGame = null;
         gameState.currentScene = GameScene.CITY_VIEW;
         gameView.renderAll();

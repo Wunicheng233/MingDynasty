@@ -254,22 +254,18 @@ window.MartialController = {
                 gameView.renderAll();
             });
         } else {
-            // 正常任务结算
-            const finalMerit = Math.round(task.rewardMerit * ratio);
-            const finalMoney = Math.round(task.rewardMoney * ratio);
-            const expGained = Math.round(15 * ratio);
+            // 正常任务结算 - 使用新主命系统
+            const template = getMissionTemplateById(gameState.currentTask.templateId);
+            // 实际进度 = 目标值 * 完成率
+            const actualProgress = Math.round(gameState.currentTask.targetValue * ratio);
+            const successResult = actualProgress > 0;
 
-            gameState.merit += finalMerit;
-            gameState.money += finalMoney;
-            if (task.requiredSkill) {
-                gameState.addSkillExp(task.requiredSkill, expGained);
-            }
-
-            gameState.checkRolePromotion();
+            // 使用新的主命系统结算
+            const result = gameState.completeMission(successResult, actualProgress);
 
             let resultLog = playerWon
-                ? `任务【${task.name}】完成！你击败武馆师傅获胜，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${getSkillById(task.requiredSkill)?.name || ''}经验。`
-                : `任务【${task.name}】你不敌武馆师傅，获得部分奖励：${finalMerit} 功勋，${finalMoney} 金钱。`;
+                ? `【${template.name}】你击败对手获胜`
+                : `【${template.name}】你不敌对手，获得部分奖励`;
 
             gameState.addLog(resultLog);
 
@@ -277,12 +273,12 @@ window.MartialController = {
             let html = `
                 <div class="personal-result" style="text-align: center; padding: 30px;">
                     <h2 style="font-size: 28px; margin-bottom: 20px; color: #8b4513;">${playerWon ? '✔ 比武获胜' : '✘ 比试落败'}</h2>
-                    <p style="font-size: 16px; margin-bottom: 20px;">${playerWon ? '你拳法进步，赢得师傅赞赏！' : '师傅武艺高超，你虽败犹荣。'}</p>
+                    <p style="font-size: 16px; margin-bottom: 20px;">${playerWon ? '你拳法进步，赢得对方赞赏！' : '对手武艺高超，你虽败犹荣。'}</p>
                     <div style="background: #f5f0e1; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
                         <p>你的剩余体力：${game.player.hp} / ${game.player.maxHp}</p>
-                        <p>师傅剩余体力：${game.enemy.hp} / ${game.enemy.maxHp}</p>
+                        <p>对手剩余体力：${game.enemy.hp} / ${game.enemy.maxHp}</p>
                     </div>
-                    <p>获得：${finalMerit} 功勋，${finalMoney} 金钱</p>
+                    <p>功勋奖励：${result.meritGained > 0 ? '+' : ''}${result.meritGained}</p>
                     <div style="margin-top: 30px;">
                         <button class="btn primary-btn" id="personal-done-btn">返回</button>
                     </div>
@@ -291,8 +287,8 @@ window.MartialController = {
 
             document.getElementById('farming-game-view').innerHTML = html;
             document.getElementById('personal-done-btn').addEventListener('click', () => {
-                gameView.advanceTwoMonths();
-                gameState.currentTask = null;
+                // 时间推进：按任务限时推进
+                TimeSystem.advanceDays(gameState, template.timeLimitDays);
                 gameState.martialGame = null;
                 gameState.currentScene = GameScene.CITY_VIEW;
                 gameView.renderAll();

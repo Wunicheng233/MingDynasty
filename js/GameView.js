@@ -383,6 +383,10 @@ window.GameView = class GameView {
             case 'navigation':
                 NavigationGame.start(this, this.gameState);
                 break;
+            case 'dialog':
+                // 对话选择类任务使用口才游戏框架
+                EloquenceGame.start(this, this.gameState);
+                break;
             case 'ritual':
                 RitualGame.start(this, this.gameState);
                 break;

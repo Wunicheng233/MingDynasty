@@ -195,19 +195,15 @@ window.SpyGame = {
             resultDesc = '你的行踪被敌人发现，不得不撤退，只走到了离出口还有 ' + distanceToExit + ' 格的位置。';
         }
 
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(15 * ratio);
+        const template = getMissionTemplateById(gameState.currentTask.templateId);
+        // 实际进度 = 目标值 * 完成率
+        const actualProgress = Math.round(gameState.currentTask.targetValue * ratio);
+        const success = actualProgress > 0;
 
-        gameState.merit += finalMerit;
-        gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            gameState.addSkillExp(task.requiredSkill, expGained);
-        }
+        // 使用新的主命系统结算
+        const result = gameState.completeMission(success, actualProgress);
 
-        const skillName = getSkillById(task.requiredSkill)?.name || '';
-        gameState.checkRolePromotion();
-        gameState.addLog(`任务【${task.name}】${resultTitle} 最终警报值${game.alarm}，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`);
+        gameState.addLog(`【${template.name}】${resultTitle} 最终警报值${game.alarm}`);
 
         // 显示结果页
         let html = `
@@ -217,7 +213,7 @@ window.SpyGame = {
                 <div style="background: #f5f0e1; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
                     <p>最终警报值：${game.alarm} / ${game.maxAlarm}</p>
                 </div>
-                <p>获得：${finalMerit} 功勋，${finalMoney} 金钱</p>
+                <p>功勋奖励：${result.meritGained > 0 ? '+' : ''}${result.meritGained}</p>
                 <div style="margin-top: 30px;">
                     <button class="btn primary-btn" id="spy-done-btn">返回</button>
                 </div>
@@ -226,8 +222,8 @@ window.SpyGame = {
 
         document.getElementById('farming-game-view').innerHTML = html;
         document.getElementById('spy-done-btn').addEventListener('click', () => {
-            gameView.advanceTwoMonths();
-            gameState.currentTask = null;
+            // 时间推进：按任务限时推进
+            TimeSystem.advanceDays(gameState, template.timeLimitDays);
             gameState.spyGame = null;
             gameState.currentScene = GameScene.CITY_VIEW;
             gameView.renderAll();

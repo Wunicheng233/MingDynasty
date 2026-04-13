@@ -433,18 +433,15 @@ window.BattleController = {
      * 结束战斗结算
      */
     finish(battle, gameState, gameView, playerWin) {
-        const task = gameState.currentTask;
+        const template = getMissionTemplateById(gameState.currentTask.templateId);
         let ratio = playerWin ? 1 : Math.max(0.3, battle.player.troops / battle.player.maxTroops);
 
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = Math.round(task.baseDifficulty * 5 * ratio);
+        // 实际进度 = 目标值 * 完成率
+        const actualProgress = Math.round(gameState.currentTask.targetValue * ratio);
+        const successResult = actualProgress > 0;
 
-        gameState.merit += finalMerit;
-        gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            gameState.addSkillExp(task.requiredSkill, expGained);
-        }
+        // 使用新的主命系统结算
+        const result = gameState.completeMission(successResult, actualProgress);
 
         // 增加合战胜利次数用于称号
         if (playerWin) {
@@ -459,10 +456,7 @@ window.BattleController = {
             }
         }
 
-        const skillName = getSkillById(task.requiredSkill)?.name || '';
-        gameState.checkRolePromotion();
-
-        let resultMsg = `合战【${task.name}】完成！你${playerWin ? '获胜' : '战败'}，获得 ${finalMerit} 功勋，${finalMoney} 金钱，${expGained} ${skillName}经验。`;
+        let resultMsg = `合战【${template.name}】完成！你${playerWin ? '获胜' : '战败'}`;
         gameState.addLog(resultMsg);
 
         const logContainer = document.getElementById('battle-log');
@@ -472,8 +466,8 @@ window.BattleController = {
 
         // 延迟返回
         setTimeout(() => {
-            gameView.advanceTwoMonths();
-            gameState.currentTask = null;
+            // 时间推进：按任务限时推进
+            TimeSystem.advanceDays(gameState, template.timeLimitDays);
             gameState.battleGame = null;
             gameState.currentScene = GameScene.CITY_VIEW;
             gameView.renderAll();
