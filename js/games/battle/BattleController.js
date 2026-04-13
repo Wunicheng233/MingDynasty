@@ -326,11 +326,11 @@ window.BattleController = {
         this.processSpecialEffects(battle, aiTactic, 'enemy');
 
         // 添加日志
-        let pDesc = `你打出${pTactic ? `【${pTactic.name}】 + ` : ''}${pCombination.name}(${pCards.map(c => c.number).join('-')})`;
+        let pDesc = `你打出${pTactic ? '【' + pTactic.name + '】 + ' : ''}${pCombination.name}(${pCards.map(c => c.number).join('-')})`;
         pDesc += `，对敌方造成 ${safePDamage} 伤害。`;
         BattleRenderer.addLog(battle, pDesc);
 
-        let aiDesc = `敌方打出${aiTactic ? `【${aiTactic.name}】 + ` : ''}${aiCombination.name}(${aiCards.map(c => c.number).join('-')})`;
+        let aiDesc = `敌方打出${aiTactic ? '【' + aiTactic.name + '】 + ' : ''}${aiCombination.name}(${aiCards.map(c => c.number).join('-')})`;
         aiDesc += `，对你方造成 ${safeAiDamage} 伤害。`;
         BattleRenderer.addLog(battle, aiDesc);
 

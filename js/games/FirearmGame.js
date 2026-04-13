@@ -20,7 +20,7 @@ window.FirearmGame = {
         const speed = 0.4 + skillLevel * 0.15;
 
         // 初始化游戏状态：子弹十字准星在xy方向移动
-        gameState.firearmGame = {
+        Object.assign(gameState.firearmGame, {
             x: 50,
             y: 50,
             directionX: Math.random() > 0.5 ? 1 : -1,
@@ -28,7 +28,7 @@ window.FirearmGame = {
             speed: speed,
             animationId: null,
             isPractice: title !== null
-        };
+        });
 
         const headerTitle = title || (task ? task.name : '火器射击练习');
         let html = `

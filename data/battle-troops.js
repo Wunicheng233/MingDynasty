@@ -61,7 +61,7 @@ const BATTLE_TROOPS = [
         mobility: 7,
         strongAgainst: ['cavalry'],
         weakAgainst: ['infantry'],
-        skillBonus: 'archery',
+        skillBonus: 'strategy',
         waterOnly: false
     },
     {
@@ -87,7 +87,7 @@ const BATTLE_TROOPS = [
         mobility: 8,
         strongAgainst: [],
         weakAgainst: [],
-        skillBonus: 'water',
+        skillBonus: 'navy',
         waterOnly: true
     }
 ];

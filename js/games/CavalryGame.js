@@ -24,13 +24,13 @@ window.CavalryGame = {
             targetProgress = 10;
         }
 
-        // 初始化游戏状态 - 按照策划设计
-        gameState.cavalryGame = {
+        // 合并游戏数据到已经初始化的对象（保留MinigameInitializer设置的动画属性）
+        Object.assign(gameState.cavalryGame, {
             playerProgress: 0,
             enemyProgress: 0,
             targetProgress: targetProgress,
             playerStunned: false
-        };
+        });
 
         this.render(gameState);
     },

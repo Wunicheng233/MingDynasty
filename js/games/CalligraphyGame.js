@@ -10,12 +10,12 @@ window.CalligraphyGame = {
     start(gameView, gameState, title = null) {
         const task = gameState.currentTask;
         // 初始化游戏状态
-        gameState.calligraphyGame = {
+        Object.assign(gameState.calligraphyGame, {
             currentRound: 0,
             totalRounds: 5,
             correctCount: 0,
             isPractice: title !== null
-        };
+        });
         // 题目题库
         this.questions = [
             {sentence: "___横刀立马，誓诛元贼安天下", options: ["我", "吾", "俺", "余"], answer: "吾"},

@@ -23,13 +23,13 @@ window.MedicineGame = {
         const selectedHerbs = allHerbs.sort(() => Math.random() - 0.5).slice(0, herbCount);
 
         // 初始化游戏状态
-        gameState.medicineGame = {
+        Object.assign(gameState.medicineGame, {
             sequence: selectedHerbs,
             playerSequence: [],
             totalCount: herbCount,
             shown: false,
             isPractice: title !== null
-        };
+        });
         const game = gameState.medicineGame;
 
         const headerTitle = title || (task ? task.name : '学习医术');

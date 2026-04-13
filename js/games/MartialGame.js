@@ -47,8 +47,8 @@ window.MartialGame = {
         // 敌人牌堆 - 基于敌人模板添加特殊技
         const enemyDeck = MartialCalculator.buildEnemyDeck(enemyTemplate);
 
-        // 初始化游戏状态 - 敌人和玩家结构统一
-        gameState.martialGame = {
+        // 初始化游戏状态 - 敌人和玩家结构统一（保留MinigameInitializer设置的动画属性）
+        Object.assign(gameState.martialGame, {
             player: {
                 name: '你',
                 hp: maxHp,
@@ -77,7 +77,7 @@ window.MartialGame = {
             playerNextPriorityBonus: 0,
             enemyNextPriorityBonus: 0,
             isPractice: title !== null // 是否是武馆拜师学艺（非主命任务）
-        };
+        });
 
         // 抽初始手牌 - 用户要求：双方初始都是5张
         MartialCalculator.drawCardsToHand(gameState.martialGame.player, 5);

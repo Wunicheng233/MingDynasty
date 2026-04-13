@@ -27,15 +27,15 @@ window.FarmingGame = {
             initialMoney = 50;
         }
 
-        // 初始化游戏状态 - 按照策划设计
-        gameState.farmingGame = {
+        // 合并游戏数据到已经初始化的对象（保留MinigameInitializer设置的动画属性）
+        Object.assign(gameState.farmingGame, {
             totalFields: totalFields,
             clearedFields: 0,
             money: initialMoney,
             labor: 3,
             irrigation: 1,
             eventLog: []
-        };
+        });
 
         this.renderRound(gameState);
     },

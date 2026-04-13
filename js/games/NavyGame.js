@@ -25,15 +25,15 @@ window.NavyGame = {
             total = 10;
         }
 
-        // 初始化游戏状态 - 按照策划
-        gameState.navyGame = {
+        // 合并游戏数据到已经初始化的对象（保留MinigameInitializer设置的动画属性）
+        Object.assign(gameState.navyGame, {
             progress: 0,
             total: total,
             stamina: 10,
             morale: 10,
             lastEvent: null,
             gameOver: false
-        };
+        });
 
         this.render(gameState, gameView);
     },

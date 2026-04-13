@@ -176,7 +176,7 @@ window.LawGame = {
         statements.sort(() => Math.random() - 0.5);
 
         // 初始化游戏状态
-        gameState.lawGame = {
+        Object.assign(gameState.lawGame, {
             case: randomCase,
             statements: statements,
             selectedStatements: [],
@@ -184,7 +184,7 @@ window.LawGame = {
             correctContradiction: randomCase.contradiction.map(idx => randomCase.statements[idx]),
             step: 'select_contradiction', // select_contradiction -> select_law -> result
             isPractice: title !== null
-        };
+        });
 
         this.renderContradictionStep(gameState, gameView, title);
     },

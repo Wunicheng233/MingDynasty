@@ -134,11 +134,11 @@ window.TradeGame = {
         ];
 
         // 随机选6题
-        gameState.tradeGame = {
+        Object.assign(gameState.tradeGame, {
             questions: [],
             current: 0,
             correct: 0
-        };
+        });
         const game = gameState.tradeGame;
 
         // 随机打乱选6题

@@ -91,7 +91,7 @@ const BATTLE_TACTIC_ATTACK = [
             isFire: true
         },
         duration: 'instant',
-        acquire: { skill: 'gongzheng', level: 1 }
+        acquire: { skill: 'engineering', level: 1 }
     },
     {
         id: 'cavalry_charge',
@@ -136,7 +136,7 @@ const BATTLE_TACTIC_ATTACK = [
             noCounterAttack: true
         },
         duration: 'instant',
-        acquire: { skill: 'cavalry', level: 3, secondSkill: 'archery', secondLevel: 2 }
+        acquire: { skill: 'cavalry', level: 3, secondSkill: 'strategy', secondLevel: 2 }
     },
     {
         id: 'sanduanji',
@@ -199,7 +199,7 @@ const BATTLE_TACTIC_ATTACK = [
             archerOnly: true
         },
         duration: 'instant',
-        acquire: { skill: 'archery', level: 2 }
+        acquire: { skill: 'strategy', level: 2 }
     },
     {
         id: 'mayu_attack',
@@ -214,7 +214,7 @@ const BATTLE_TACTIC_ATTACK = [
             archerOnly: true
         },
         duration: 'instant',
-        acquire: { skill: 'archery', level: 3 }
+        acquire: { skill: 'strategy', level: 3 }
     },
     {
         id: 'fire_arrow',
@@ -230,7 +230,7 @@ const BATTLE_TACTIC_ATTACK = [
             isFire: true
         },
         duration: 'instant',
-        acquire: { skill: 'archery', level: 1 }
+        acquire: { skill: 'strategy', level: 1 }
     },
     {
         id: 'beilao',
@@ -245,7 +245,7 @@ const BATTLE_TACTIC_ATTACK = [
             infantryOnly: true
         },
         duration: 'instant',
-        acquire: { skill: 'water', level: 3 }
+        acquire: { skill: 'navy', level: 3 }
     },
 ];
 
@@ -311,7 +311,7 @@ const BATTLE_TACTIC_SUPPORT = [
             siegeOnly: true
         },
         duration: 'permanent',
-        acquire: { skill: 'gongzheng', level: 3 }
+        acquire: { skill: 'engineering', level: 3 }
     },
     {
         id: 'luoshi',
@@ -326,7 +326,7 @@ const BATTLE_TACTIC_SUPPORT = [
             siegeOnly: true
         },
         duration: 'instant',
-        acquire: { skill: 'gongzheng', level: 2 }
+        acquire: { skill: 'engineering', level: 2 }
     },
     {
         id: 'mazhen',
@@ -401,7 +401,7 @@ const BATTLE_TACTIC_SUPPORT = [
             siegeOnly: true
         },
         duration: 'instant',
-        acquire: { skill: 'gongzheng', level: 3 }
+        acquire: { skill: 'engineering', level: 3 }
     },
     {
         id: 'didao_gongcheng',
@@ -461,7 +461,7 @@ const BATTLE_TACTIC_SUPPORT = [
             guaranteedFirst: true
         },
         duration: 'instant',
-        acquire: { skill: 'water', level: 1 }
+        acquire: { skill: 'navy', level: 1 }
     },
 ];
 
@@ -483,7 +483,7 @@ const BATTLE_TACTIC_NAVAL = [
             navalOnly: true
         },
         duration: 'instant',
-        acquire: { skill: 'water', level: 2 }
+        acquire: { skill: 'navy', level: 2 }
     },
     {
         id: 'huochuan_tuji',
@@ -499,7 +499,7 @@ const BATTLE_TACTIC_NAVAL = [
             navalOnly: true
         },
         duration: 'instant',
-        acquire: { skill: 'water', level: 2, secondSkill: 'gongzheng', secondLevel: 2 }
+        acquire: { skill: 'navy', level: 2, secondSkill: 'engineering', secondLevel: 2 }
     },
     {
         id: 'tiesuo_lianhuan',
@@ -530,7 +530,7 @@ const BATTLE_TACTIC_NAVAL = [
             navalOnly: true
         },
         duration: 'instant',
-        acquire: { skill: 'water', level: 3 }
+        acquire: { skill: 'navy', level: 3 }
     },
 ];
 

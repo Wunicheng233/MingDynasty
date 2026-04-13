@@ -64,9 +64,6 @@ window.GameState = class GameState {
         // 当前进行中的任务
         this.currentTask = null;
 
-        // 评定会未做出选择，必须选择才能离开导航（true = 禁止导航离开）
-        this.evaluationPendingSelection = false;
-
         // 耕地小游戏状态
         this.farmingGame = null;
 
@@ -668,29 +665,11 @@ window.GameState = class GameState {
 
     /**
      * 开始接受并执行一个主命
-     * @param {MissionTemplate} missionTemplate - 主命模板
+     * @param {string} missionId - 任务ID
+     * @returns {boolean} 是否成功接受
      */
-    startMission(missionTemplate) {
-        this.currentTask = {
-            templateId: missionTemplate.id,
-            missionId: missionTemplate.mission_id,
-            name: missionTemplate.name,
-            category: missionTemplate.category,
-            startYear: this.year,
-            startMonth: this.month,
-            startDay: this.day,
-            deadlineDay: this.day + missionTemplate.timeLimitDays,
-            timeLimitDays: missionTemplate.timeLimitDays,
-            targetParam: missionTemplate.targetParam,
-            completionType: missionTemplate.completionType,
-            gameType: missionTemplate.gameType,
-            progress: 0,
-            targetValue: this.calculateMissionTarget(missionTemplate),
-            startedAt: `${this.year}-${this.month}-${this.day}`
-        };
-
-        this.addLog(`接受主命：${missionTemplate.name}，限时${missionTemplate.timeLimitDays}天完成`);
-        this.currentScene = GameScene.TASK_LIST;
+    startMission(missionId) {
+        return MissionSystem.acceptMission(this, missionId);
     }
 
     /**
@@ -698,10 +677,7 @@ window.GameState = class GameState {
      * @returns {boolean} true表示已超时
      */
     checkMissionTimeout() {
-        if (!this.currentTask) {
-            return false;
-        }
-        return this.day > this.currentTask.deadlineDay;
+        return MissionSystem.checkMissionTimeout(this);
     }
 
     /**
@@ -709,10 +685,7 @@ window.GameState = class GameState {
      * @returns {number}
      */
     getRemainingDaysForMission() {
-        if (!this.currentTask) {
-            return 0;
-        }
-        return Math.max(0, this.currentTask.deadlineDay - this.day);
+        return MissionSystem.getRemainingDays(this);
     }
 
     /**
@@ -722,112 +695,7 @@ window.GameState = class GameState {
      * @returns {Object} 结算结果 {meritGained: number, skillsExp: Object}
      */
     completeMission(success, actualProgress = 0) {
-        if (!this.currentTask) {
-            return { success: false, meritGained: 0 };
-        }
-
-        const template = getMissionTemplateById(this.currentTask.templateId);
-        if (!template) {
-            this.currentTask = null;
-            return { success: false, meritGained: 0 };
-        }
-
-        let result = {
-            success: success,
-            meritGained: 0,
-            skillsExp: {},
-            newCard: null
-        };
-
-        if (success) {
-            // 计算功勋奖励
-            let merit = template.baseReward;
-
-            // 根据完成度倍率奖励
-            if (actualProgress >= this.currentTask.targetValue * 2) {
-                merit = merit * 2;
-                this.addLog(`超额完成目标！获得双倍功勋：${merit}`);
-            } else if (actualProgress >= this.currentTask.targetValue) {
-                this.addLog(`完成目标！获得功勋：${merit}`);
-            } else {
-                // 未达标但仍算部分完成，按比例给功勋
-                merit = Math.round(merit * (actualProgress / this.currentTask.targetValue));
-                this.addLog(`未完全达成目标，获得部分功勋：${merit}`);
-            }
-
-            this.merit += merit;
-            result.meritGained = merit;
-
-            // 给关联技能增加经验
-            if (template.requiredSkills && template.requiredSkills.length > 0) {
-                template.requiredSkills.forEach(skillId => {
-                    // 基础经验奖励 = 难度 * 5
-                    const exp = template.baseDifficulty * 5;
-                    this.addSkillExp(skillId, exp);
-                    result.skillsExp[skillId] = exp;
-                });
-            }
-
-            // 检查是否有卡片奖励（某些任务完成后给卡片）
-            // 高难度任务有概率奖励技能卡或称号卡
-            let cardReward = null;
-            if (template.baseDifficulty >= 3 && Math.random() < 0.15) {
-                // 15%概率给技能卡（难度>=3）
-                const possibleCards = CARDS.filter(c =>
-                    c.type === 'skill' &&
-                    template.requiredSkills.includes(c.skillId) &&
-                    !this.hasCard(c.cardId)
-                );
-                if (possibleCards.length > 0) {
-                    const randomCard = possibleCards[Math.floor(Math.random() * possibleCards.length)];
-                    this.acquireCard(randomCard.cardId);
-                    cardReward = randomCard;
-                    result.newCard = randomCard;
-                    this.addLog(`完成任务获得技能卡：${randomCard.name}`);
-                }
-            }
-            // 难度4以上有5%概率获得称号卡
-            if (template.baseDifficulty >= 4 && Math.random() < 0.05) {
-                const titleCards = CARDS.filter(c => c.type === 'title' && !this.hasCard(c.cardId));
-                if (titleCards.length > 0) {
-                    const randomCard = titleCards[Math.floor(Math.random() * titleCards.length)];
-                    this.acquireCard(randomCard.cardId);
-                    cardReward = randomCard;
-                    result.newCard = randomCard;
-                    this.addLog(`完成任务获得称号卡：${randomCard.name}`);
-                }
-            }
-
-            // 额外功勋奖励（来自主公亲密度和重臣好感）
-            const player = this.getPlayerCharacter();
-            if (player && player.faction) {
-                const extraBonus = SkillSystem.calculateBonusMeritFromRelationship(this, player.faction);
-                if (extraBonus > 0) {
-                    this.merit += extraBonus;
-                    result.meritGained += extraBonus;
-                    this.addLog(`主公器重，额外获得功勋：+${extraBonus}`);
-                }
-            }
-
-            this.addLog(`主命【${template.name}】完成，功勋+${result.meritGained}`);
-
-            // 检查身份晋升
-            const newRole = this.checkRolePromotion();
-            if (newRole) {
-                result.promotion = newRole;
-            }
-        } else {
-            // 任务失败，扣除部分功勋
-            const penalty = Math.round(template.baseReward * 0.3);
-            this.merit = Math.max(0, this.merit - penalty);
-            this.addLog(`主命【${template.name}】失败，扣除功勋${penalty}`);
-            result.meritGained = -penalty;
-        }
-
-        // 清空当前任务
-        this.currentTask = null;
-
-        return result;
+        return MissionSystem.completeMission(this, success, actualProgress);
     }
 
     /**

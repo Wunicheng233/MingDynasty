@@ -10,10 +10,10 @@ window.NavigationGame = {
     start(gameView, gameState) {
         const task = gameState.currentTask;
         // 初始化游戏状态
-        gameState.navigationGame = {
+        Object.assign(gameState.navigationGame, {
             targetDegree: Math.floor(Math.random() * 360),
             attempts: 0
-        };
+        });
 
         let html = `
             <div class="navigation-header">

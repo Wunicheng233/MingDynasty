@@ -176,16 +176,6 @@ window.MarketScene = {
     },
 
     /**
-     * 选择商品
-     */
-    selectGoods(goodsId, gameState) {
-        const goods = getGoodsTemplateById(goodsId);
-        this.state.selectedGoods = goods;
-        this.state.quantity = 1;
-        GameView.render(gameState);
-    },
-
-    /**
      * 切换买卖模式
      */
     switchMode(mode) {

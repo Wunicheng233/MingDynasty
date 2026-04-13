@@ -89,21 +89,21 @@ window.TaskSystem = {
             const possibleCards = CARDS.filter(c =>
                 c.type === 'skill' &&
                 template.requiredSkills.includes(c.skillId) &&
-                !gameState.hasCard(c.cardId)
+                !gameState.hasCard(c.card_id)
             );
             if (possibleCards.length > 0) {
                 cardReward = possibleCards[Math.floor(Math.random() * possibleCards.length)];
-                gameState.acquireCard(cardReward.cardId);
+                gameState.acquireCard(cardReward.card_id);
                 gameState.addLog(`完成任务获得技能卡：${cardReward.name}`);
             }
         }
 
         // 难度4+额外5%称号卡概率
         if (!cardReward && template.baseDifficulty >= 4 && Math.random() < 0.05) {
-            const titleCards = CARDS.filter(c => c.type === 'title' && !gameState.hasCard(c.cardId));
+            const titleCards = CARDS.filter(c => c.type === 'title' && !gameState.hasCard(c.card_id));
             if (titleCards.length > 0) {
                 cardReward = titleCards[Math.floor(Math.random() * titleCards.length)];
-                gameState.acquireCard(cardReward.cardId);
+                gameState.acquireCard(cardReward.card_id);
                 gameState.addLog(`完成任务获得称号卡：${cardReward.name}`);
             }
         }

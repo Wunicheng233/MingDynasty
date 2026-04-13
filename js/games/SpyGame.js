@@ -35,12 +35,12 @@ window.SpyGame = {
         }
 
         // 初始化游戏状态
-        gameState.spyGame = {
+        Object.assign(gameState.spyGame, {
             playerPos: {x: 0, y: 0},
             alarm: 0,
             maxAlarm: maxAlarm,
             size: size
-        };
+        });
 
         // 生成迷宫：起点(0,0)，终点(size-1,size-1)，保证通路
         // 0: 路, 1: 墙, 2: 出口

@@ -12,7 +12,8 @@ window.EngineeringGame = {
         // 随机目标重量在 1400-1800 之间
         const targetWeight = Math.floor(Math.random() * 400) + 1400;
 
-        gameState.engineeringGame = {
+        // 合并游戏数据到已经初始化的对象（保留MinigameInitializer设置的动画属性）
+        Object.assign(gameState.engineeringGame, {
             targetWeight: targetWeight,
             currentWeight: 0,
             // 可用石块: 大块500，中块250，小块50
@@ -22,7 +23,7 @@ window.EngineeringGame = {
                 {name: '小块碎石', weight: 50}
             ],
             isPractice: title !== null
-        };
+        });
 
         this.render(gameState, title);
     },

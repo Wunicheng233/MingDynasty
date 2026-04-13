@@ -170,14 +170,14 @@ window.StrategyGame = {
         }
 
         // 随机选 3 道题，难度匹配技能等级（降低整体难度，更容易完成）
-        gameState.strategyGame = {
+        Object.assign(gameState.strategyGame, {
             problems: this.selectProblems(this.problems, skillLevel, 3),
             current: 0,
             correct: 0,
             answered: false,
             showTutorial: true,
             isPractice: title !== null
-        };
+        });
 
         this.renderTutorial(gameState, gameView, title);
     },

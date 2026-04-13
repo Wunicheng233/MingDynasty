@@ -30,24 +30,32 @@ window.GameResultManager = {
      * 处理任务模式结算（主命任务）
      * @param {Object} gameState - 游戏主状态
      * @param {Object} gameView - 游戏视图
-     * @param {Object} task - 任务模板
+     * @param {Object} taskInstance - 任务实例 (gameState.currentTask)
      * @param {number} ratio - 完成率 0-1
      * @param {string} resultText - 结果文本
      * @description 用于主命任务，结算后返回城市，推进两个月
      */
-    settleMission(gameState, gameView, task, ratio, resultText) {
-        const finalMerit = Math.round(task.rewardMerit * ratio);
-        const finalMoney = Math.round(task.rewardMoney * ratio);
-        const expGained = task.requiredSkill ? Math.round(10 * ratio) : 0;
+    settleMission(gameState, gameView, taskInstance, ratio, resultText) {
+        const template = getMissionTemplateById(taskInstance.templateId);
+        if (!template) {
+            console.error('任务模板不存在:', taskInstance.templateId);
+            this.clearGameState(gameState, 'CITY');
+            gameView.renderAll();
+            return;
+        }
+
+        const finalMerit = Math.round(template.baseReward * ratio);
+        const expGained = template.requiredSkills && template.requiredSkills.length > 0 ? Math.round(10 * ratio) : 0;
 
         gameState.merit += finalMerit;
-        gameState.money += finalMoney;
-        if (task.requiredSkill) {
-            gameState.addSkillExp(task.requiredSkill, expGained);
+        if (expGained > 0 && template.requiredSkills) {
+            template.requiredSkills.forEach(skillId => {
+                gameState.addSkillExp(skillId, expGained / template.requiredSkills.length);
+            });
         }
 
         gameState.checkRolePromotion();
-        gameState.addLog(`任务【${task.name}】完成：${resultText} 获得 ${finalMerit} 功勋，${finalMoney} 金钱${task.requiredSkill ? '，' + expGained + ' ' + task.requiredSkill + '经验' : ''}。`);
+        gameState.addLog(`任务【${template.name}】完成：${resultText} 获得 ${finalMerit} 功勋${expGained > 0 ? '，' + expGained + ' 技能经验' : ''}。`);
 
         gameView.advanceTwoMonths();
         this.clearGameState(gameState, 'CITY');

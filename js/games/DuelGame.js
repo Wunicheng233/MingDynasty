@@ -11,14 +11,14 @@ window.DuelGame = {
         const task = gameState.currentTask;
         // 玩家和对手各30血，每回合抽3张牌
         const playerDeck = drawNCards(15, getAllDuelCards());
-        gameState.duelGame = {
+        Object.assign(gameState.duelGame, {
             playerHp: 30,
             enemyHp: 30,
             playerHand: playerDeck.slice(0, 3),
             drawPile: playerDeck.slice(3),
             combo: 0,
             isPractice: title !== null // 是否是武馆切磋（非主命任务）
-        };
+        });
 
         const game = gameState.duelGame;
         const headerTitle = title || (task ? task.name : '个人切磋');

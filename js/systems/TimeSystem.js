@@ -32,7 +32,7 @@ window.TimeSystem = {
         }
 
         // 检查当前任务是否超时
-        if (gameState.currentTask && SkillSystem.checkMissionTimeout(gameState)) {
+        if (gameState.currentTask && MissionSystem.checkMissionTimeout(gameState)) {
             const template = getMissionTemplateById(gameState.currentTask.templateId);
             gameState.addLog(`主命【${template.name}】超时未完成，任务失败！`);
             gameState.completeMission(false);

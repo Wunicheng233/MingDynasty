@@ -75,13 +75,13 @@ window.RitualGame = {
         const shuffled = [...question.items].sort(() => Math.random() - 0.5);
 
         // 初始化游戏状态
-        gameState.ritualGame = {
+        Object.assign(gameState.ritualGame, {
             question: question,
             correctOrder: question.items,
             shuffled: shuffled,
             selected: [],
             isPractice: title !== null
-        };
+        });
         const game = gameState.ritualGame;
 
         const headerTitle = title || (task ? task.name : '演习礼乐');

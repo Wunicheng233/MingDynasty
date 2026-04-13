@@ -115,8 +115,54 @@ window.MissionSystem = {
                 });
             }
 
+            // 检查是否有卡片奖励（某些任务完成后给卡片）
+            // 高难度任务有概率奖励技能卡或称号卡
+            let cardReward = null;
+            if (template.baseDifficulty >= 3 && Math.random() < 0.15) {
+                // 15%概率给技能卡（难度>=3）
+                const possibleCards = CARDS.filter(c =>
+                    c.type === 'skill' &&
+                    template.requiredSkills.includes(c.skillId) &&
+                    !gameState.hasCard(c.cardId)
+                );
+                if (possibleCards.length > 0) {
+                    const randomCard = possibleCards[Math.floor(Math.random() * possibleCards.length)];
+                    gameState.acquireCard(randomCard.cardId);
+                    cardReward = randomCard;
+                    result.newCard = randomCard;
+                    gameState.addLog(`完成任务获得技能卡：${randomCard.name}`);
+                }
+            }
+            // 难度4以上有5%概率获得称号卡
+            if (template.baseDifficulty >= 4 && Math.random() < 0.05) {
+                const titleCards = CARDS.filter(c => c.type === 'title' && !gameState.hasCard(c.cardId));
+                if (titleCards.length > 0) {
+                    const randomCard = titleCards[Math.floor(Math.random() * titleCards.length)];
+                    gameState.acquireCard(randomCard.cardId);
+                    cardReward = randomCard;
+                    result.newCard = randomCard;
+                    gameState.addLog(`完成任务获得称号卡：${randomCard.name}`);
+                }
+            }
+
+            // 额外功勋奖励（来自主公亲密度和重臣好感）
+            const player = gameState.getPlayerCharacter();
+            if (player && player.faction) {
+                const extraBonus = SkillSystem.calculateBonusMeritFromRelationship(gameState, player.faction);
+                if (extraBonus > 0) {
+                    gameState.merit += extraBonus;
+                    result.meritGained += extraBonus;
+                    gameState.addLog(`主公器重，额外获得功勋：+${extraBonus}`);
+                }
+            }
+
+            gameState.addLog(`主命【${template.name}】完成，功勋+${result.meritGained}`);
+
             // 检查身份晋升
-            SkillSystem.checkRolePromotion(gameState);
+            const newRole = SkillSystem.checkRolePromotion(gameState);
+            if (newRole) {
+                result.promotion = newRole;
+            }
         } else {
             // 任务失败，扣除部分功勋
             const penalty = Math.round(template.baseReward * 0.3);

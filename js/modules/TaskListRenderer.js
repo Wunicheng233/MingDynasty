@@ -20,7 +20,7 @@ window.TaskListRenderer = {
                 <h2>${isEvaluationDay ? '评定会' : '主命'}</h2>
                 ${gameState.currentTask ? `
                     <div class="current-task-info">
-                        当前任务: <strong>${gameState.currentTask.name}</strong>
+                        当前任务: <strong>${getMissionTemplateById(gameState.currentTask.templateId).name}</strong>
                         <span class="remaining-days">剩余天数: ${gameState.getRemainingDaysForMission()} 天</span>
                     </div>
                 ` : ''}
