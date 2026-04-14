@@ -372,9 +372,8 @@ window.InfantryGame = {
         let headerTitle;
         if (title) {
             headerTitle = title;
-        } else if (gameState.currentTask) {
-            const template = getMissionTemplateById(gameState.currentTask.templateId);
-            headerTitle = template.name;
+        } else if (gameState.currentTask && gameState.currentTask.name) {
+            headerTitle = gameState.currentTask.name;
         } else {
             headerTitle = '象棋残局训练';
         }
@@ -436,9 +435,8 @@ window.InfantryGame = {
         let headerTitle;
         if (title) {
             headerTitle = title;
-        } else if (gameState.currentTask) {
-            const template = getMissionTemplateById(gameState.currentTask.templateId);
-            headerTitle = template.name;
+        } else if (gameState.currentTask && gameState.currentTask.name) {
+            headerTitle = gameState.currentTask.name;
         } else {
             headerTitle = '象棋残局训练';
         }
@@ -700,7 +698,7 @@ window.InfantryGame = {
             gameView.renderAll();
         } else {
             // 正常任务结算 - 使用新主命系统
-            const template = getMissionTemplateById(gameState.currentTask.templateId);
+            const template = getMissionTemplateById(gameState.currentTask.templateId) || gameState.currentTask;
             // 实际进度 = 目标值 * 完成率
             const actualProgress = Math.round(gameState.currentTask.targetValue * ratio);
             const success = actualProgress > 0;

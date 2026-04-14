@@ -7,7 +7,7 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    max-height: calc(100vh - 180px);
+    max-height: calc(100vh - 120px);
     overflow-y: auto;
 }
 
@@ -91,6 +91,16 @@
 .morale-fill.enemy {
     height: 100%;
     background: linear-gradient(90deg, #e67e22, #e67e22);
+}
+
+.hp-fill.player {
+    height: 100%;
+    background-color: #2ecc71;
+}
+
+.hp-fill.enemy {
+    height: 100%;
+    background-color: #e74c3c;
 }
 
 /* 环境信息 */
@@ -336,7 +346,7 @@
     border: 1px solid #d4c4a8;
     border-radius: 6px;
     padding: 12px;
-    max-height: 450px;
+    max-height: 600px;
     overflow-y: auto;
     overflow-x: hidden;
     word-wrap: break-word;

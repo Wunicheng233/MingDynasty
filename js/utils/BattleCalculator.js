@@ -114,8 +114,8 @@ window.BattleCalculator = {
         const attackerAttack = typeof attacker.attack === 'number' ? attacker.attack : 10;
         const defenderDefense = typeof defender.defense === 'number' ? defender.defense : 10;
 
-        // 基础伤害公式：(攻击方兵力 × 攻击力) / (防御方防御力 × 0.5 + 50)
-        const baseDamage = (attackerTroops * attackerAttack) / (defenderDefense * 0.5 + 50);
+        // 基础伤害公式：(攻击方兵力 × 攻击力) / (防御方防御力 × 0.5 + 120)
+        const baseDamage = (attackerTroops * attackerAttack) / (defenderDefense * 0.5 + 120);
 
         let damage = baseDamage;
 
@@ -298,7 +298,7 @@ window.BattleCalculator = {
         if (battle.battleType === 'siege' && e.fortification <= 0) {
             return { winner: 'player', reason: '城池防御被攻破' };
         }
-        // 超过最大回合，判定兵力多的赢
+        // 超过最大回合，判定兵力多的赢（现在设为999回合，几乎不会触发）
         if (battle.environment.currentTurn > battle.maxTurns) {
             if (p.troops > e.troops) {
                 return { winner: 'player', reason: '回合结束，我方剩余兵力更多' };

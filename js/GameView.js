@@ -36,24 +36,36 @@ window.GameView = class GameView {
      * 绑定事件
      */
     bindEvents() {
-        this.nextDayBtn.addEventListener('click', () => {
-            this.onNextDayClick();
-        });
-        this.navCharacterBtn.addEventListener('click', () => {
-            this.onNavClick(GameScene.CHARACTER_VIEW);
-        });
-        this.navCityBtn.addEventListener('click', () => {
-            this.onNavClick(GameScene.CITY_VIEW);
-        });
-        this.navMapBtn.addEventListener('click', () => {
-            this.onNavClick(GameScene.MAP_VIEW);
-        });
-        this.navTaskBtn.addEventListener('click', () => {
-            this.onNavClick(GameScene.TASK_LIST);
-        });
-        this.navCardBtn.addEventListener('click', () => {
-            this.onNavClick(GameScene.CARD_COLLECTION);
-        });
+        if (this.nextDayBtn) {
+            this.nextDayBtn.addEventListener('click', () => {
+                this.onNextDayClick();
+            });
+        }
+        if (this.navCharacterBtn) {
+            this.navCharacterBtn.addEventListener('click', () => {
+                this.onNavClick(GameScene.CHARACTER_VIEW);
+            });
+        }
+        if (this.navCityBtn) {
+            this.navCityBtn.addEventListener('click', () => {
+                this.onNavClick(GameScene.CITY_VIEW);
+            });
+        }
+        if (this.navMapBtn) {
+            this.navMapBtn.addEventListener('click', () => {
+                this.onNavClick(GameScene.MAP_VIEW);
+            });
+        }
+        if (this.navTaskBtn) {
+            this.navTaskBtn.addEventListener('click', () => {
+                this.onNavClick(GameScene.TASK_LIST);
+            });
+        }
+        if (this.navCardBtn) {
+            this.navCardBtn.addEventListener('click', () => {
+                this.onNavClick(GameScene.CARD_COLLECTION);
+            });
+        }
     }
 
     /**
@@ -229,6 +241,7 @@ window.GameView = class GameView {
      * 快捷方法：更新耕地指示器
      */
     updateFarmingDisplay() {
+        if (!this.gameState.farmingGame) return;
         this.updateIndicator('farming-indicator', this.gameState.farmingGame.power);
         const roundEl = document.getElementById('farming-round');
         if (roundEl) {
@@ -240,6 +253,7 @@ window.GameView = class GameView {
      * 快捷方法：更新筑城指示器
      */
     updateEngineeringDisplay() {
+        if (!this.gameState.engineeringGame) return;
         this.updateIndicator('engineering-indicator', this.gameState.engineeringGame.value);
     }
 
@@ -247,6 +261,7 @@ window.GameView = class GameView {
      * 快捷方法：更新水军指示器
      */
     updateNavyDisplay() {
+        if (!this.gameState.navyGame) return;
         this.updateIndicator('navy-indicator', this.gameState.navyGame.position);
     }
 
@@ -254,6 +269,7 @@ window.GameView = class GameView {
      * 快捷方法：更新火器指示器
      */
     updateFirearmDisplay() {
+        if (!this.gameState.firearmGame) return;
         this.updateIndicator('firearm-x-indicator', this.gameState.firearmGame.x);
         this.updateIndicator('firearm-y-indicator', this.gameState.firearmGame.y);
     }
@@ -334,7 +350,7 @@ window.GameView = class GameView {
         // 状态初始化已经在MinigameInitializer完成
         switch (gameType) {
             case 'agriculture':
-                animatedStart(FarmingGame.start, 'farmingGame');
+                animatedStart(FarmingGame.start.bind(FarmingGame), 'farmingGame');
                 break;
             case 'eloquence':
                 EloquenceGame.start(this, this.gameState);
@@ -346,7 +362,7 @@ window.GameView = class GameView {
                 CavalryGame.start(this, this.gameState);
                 break;
             case 'engineering':
-                animatedStart(EngineeringGame.start, 'engineeringGame');
+                animatedStart(EngineeringGame.start.bind(EngineeringGame), 'engineeringGame');
                 break;
             case 'trade':
                 TradeGame.start(this, this.gameState);
@@ -355,7 +371,7 @@ window.GameView = class GameView {
                 LawGame.start(this, this.gameState);
                 break;
             case 'navy':
-                animatedStart(NavyGame.start, 'navyGame');
+                animatedStart(NavyGame.start.bind(NavyGame), 'navyGame');
                 break;
             case 'strategy':
                 if (taskId === 17) {
@@ -391,7 +407,10 @@ window.GameView = class GameView {
                 RitualGame.start(this, this.gameState);
                 break;
             case 'firearm':
-                animatedStart(FirearmGame.start, 'firearmGame');
+                animatedStart(FirearmGame.start.bind(FirearmGame), 'firearmGame');
+                break;
+            case 'archery':
+                ArcheryGame.start(this, this.gameState);
                 break;
             case 'duel':
                 DuelGame.start(this, this.gameState);

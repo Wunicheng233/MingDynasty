@@ -186,6 +186,11 @@ const MINIGAME_CONFIGS = {
             };
         }
     },
+    archery: {
+        init: (gameState, template) => {
+            gameState.archeryGame = {};
+        }
+    },
     battle: {
         init: (gameState, template) => {
             gameState.battleGame = null;

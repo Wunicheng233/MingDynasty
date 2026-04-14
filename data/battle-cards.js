@@ -199,7 +199,7 @@ const BATTLE_TACTIC_ATTACK = [
             archerOnly: true
         },
         duration: 'instant',
-        acquire: { skill: 'strategy', level: 2 }
+        acquire: { skill: 'archery', level: 2 }
     },
     {
         id: 'mayu_attack',
@@ -214,7 +214,7 @@ const BATTLE_TACTIC_ATTACK = [
             archerOnly: true
         },
         duration: 'instant',
-        acquire: { skill: 'strategy', level: 3 }
+        acquire: { skill: 'archery', level: 3 }
     },
     {
         id: 'fire_arrow',
@@ -230,7 +230,7 @@ const BATTLE_TACTIC_ATTACK = [
             isFire: true
         },
         duration: 'instant',
-        acquire: { skill: 'strategy', level: 1 }
+        acquire: { skill: 'archery', level: 1 }
     },
     {
         id: 'beilao',
@@ -265,7 +265,7 @@ const BATTLE_TACTIC_SUPPORT = [
             damageMultiplier: 1.5
         },
         duration: 'instant',
-        acquire: { skill: 'strategy', level: 2 }
+        acquire: { skill: 'archery', level: 2 }
     },
     {
         id: 'fubing',

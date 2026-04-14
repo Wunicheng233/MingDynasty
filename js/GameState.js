@@ -70,6 +70,12 @@ window.GameState = class GameState {
         // 口才小游戏状态
         this.eloquenceGame = null;
 
+        // 武学拜师学艺小游戏状态
+        this.martialGame = {};
+
+        // 个人切磋单挑小游戏状态
+        this.duelGame = {};
+
         // 获取玩家角色模板
         const playerTemplate = getCharacterTemplateByNumId(this.playerCharacterId);
 

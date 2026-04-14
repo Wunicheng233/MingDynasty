@@ -110,6 +110,20 @@ const SKILLS = [
         }
     },
     {
+        id: "archery",
+        name: "弓术",
+        category: "个人",
+        description: "弓箭射击，武举必考项目，名将花云善射",
+        maxLevel: 3,
+        expPerLevel: 100,
+        minigame: "百步穿杨",
+        levelEffects: {
+            1: { unlock_tactics: ["火矢"], full_bonus: 0 },
+            2: { unlock_tactics: ["强弓"], full_bonus: 10 },
+            3: { unlock_tactics: ["五月雨击"], full_bonus: 20 }
+        }
+    },
+    {
         id: "medicine",
         name: "医术",
         category: "个人",

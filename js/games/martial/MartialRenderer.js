@@ -21,9 +21,8 @@ window.MartialRenderer = {
         let headerTitle;
         if (title) {
             headerTitle = title;
-        } else if (gameState.currentTask) {
-            const template = getMissionTemplateById(gameState.currentTask.templateId);
-            headerTitle = template.name;
+        } else if (gameState.currentTask && gameState.currentTask.name) {
+            headerTitle = gameState.currentTask.name;
         } else {
             headerTitle = '拜师学艺';
         }
