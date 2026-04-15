@@ -98,6 +98,14 @@ window.EventScene = {
      */
     chooseOption(event, gameState, choiceIndex) {
         const currentScene = this.getCurrentScene(event, gameState.currentEventScene);
+        if (!currentScene || !currentScene.choices) {
+            // 事件场景无效，关闭事件
+            gameState.currentEvent = null;
+            gameState.currentEventScene = null;
+            gameState.currentScene = GameScene.CITY_VIEW;
+            gameView.renderAll();
+            return;
+        }
         const choice = currentScene.choices[choiceIndex];
 
         // 执行选择，得到下一个场景ID

@@ -78,24 +78,6 @@ window.CityViewRenderer = {
                 '锦衣卫所': '🔍'
             };
 
-            // 汉字到拼音文件名映射（和你实际文件名对应）
-            const pinyinMap = {
-                '市集': 'shiji',
-                '武馆': 'wuguan',
-                '商帮会馆': 'shangbang_huiguan',
-                '官衙': 'guanya',
-                '校场': 'jiaochang',
-                '工部作坊': 'gongbu_zuofang',
-                '刑部司': 'xingbu_si',
-                '国子监': 'guozijian',
-                '书院': 'shuyuan',
-                '寺庙': 'simiao',
-                '酒馆': 'jiuguan',
-                '铁匠铺': 'tiejiangpu',
-                '医馆': 'yiguan',
-                '锦衣卫所': 'jinyiwei_suo'
-            };
-
             city.facilities.forEach(facility => {
                 // 给可进入的设施加上点击按钮
                 // 所有策划文档中定义的设施都支持点击进入
@@ -116,11 +98,8 @@ window.CityViewRenderer = {
                     '锦衣卫所': true
                 };
                 const emojiIcon = facilityIcons[facility] || '🏘️';
-                // 使用拼音文件名（和你实际保存的一致）
-                const imageSlug = pinyinMap[facility];
-                const iconHtml = `<div class="facility-icon-img">
-                    <img src="images/facilities/icon/${imageSlug}.png" alt="${facility}" onerror="this.parentElement.innerHTML='${emojiIcon}';this.parentElement.className='facility-icon'">
-                </div>`;
+                // 直接使用emoji图标，不再依赖PNG图片（已删除所有图片资源）
+                const iconHtml = `<div class="facility-icon">${emojiIcon}</div>`;
                 if (clickableFacilities[facility]) {
                     html += `
                         <button class="facility-card-btn" data-facility="${facility}">
