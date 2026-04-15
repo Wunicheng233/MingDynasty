@@ -179,10 +179,8 @@ window.FacilityScene = {
             '医馆': 'yiguan',
             '锦衣卫所': 'jinyiwei_suo'
         };
-        // 设施背景图（如果有图片的话）
-        const imageSlug = pinyinMap[config.title];
+        // 设施背景图 - 移除PNG图片，使用CSS背景色
         html += `<div class="facility-background-img">
-            <img src="images/facilities/background/${imageSlug}.png" alt="${config.title}" onerror="this.style.display='none'">
         </div>`;
 
         // 描述文本 - 替换换行

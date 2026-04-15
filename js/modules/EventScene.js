@@ -103,7 +103,7 @@ window.EventScene = {
             gameState.currentEvent = null;
             gameState.currentEventScene = null;
             gameState.currentScene = GameScene.CITY_VIEW;
-            gameView.renderAll();
+            window.game.gameView.renderAll();
             return;
         }
         const choice = currentScene.choices[choiceIndex];

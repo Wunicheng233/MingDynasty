@@ -38,9 +38,8 @@ window.CityViewRenderer = {
                     </div>
                 </div>
 
-                <!-- 城市背景图 -->
+                <!-- 城市背景图 - 移除PNG图片，使用CSS背景色 -->
                 <div class="city-background-img">
-                    <img src="images/cities/city-bg-${scale}.png" alt="${city.name}" onerror="this.style.display='none'">
                 </div>
 
                 <div class="city-actions-top">
