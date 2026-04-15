@@ -50,8 +50,8 @@ window.GameState = class GameState {
         this.currentCityId = 1;
 
         // 玩家势力（从角色模板读取初始值）
-        const playerTemplate = this.getPlayerCharacter();
-        this.playerFaction = playerTemplate ? playerTemplate.faction : null;
+        const playerTemplate1 = this.getPlayerCharacter();
+        this.playerFaction = playerTemplate1 ? playerTemplate1.faction : null;
 
         // 玩家金钱
         this.money = 10;

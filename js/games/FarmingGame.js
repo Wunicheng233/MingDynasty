@@ -221,10 +221,10 @@ window.FarmingGame = {
         const template = getMissionTemplateById(gameState.currentTask.templateId);
         // 实际进度 = 目标值 * 完成率
         const actualProgress = Math.round(gameState.currentTask.targetValue * ratio);
-        const success = actualProgress > 0;
+        const missionSuccess = actualProgress > 0;
 
         // 使用新的主命系统结算
-        const result = gameState.completeMission(success, actualProgress);
+        const result = gameState.completeMission(missionSuccess, actualProgress);
 
         gameState.addLog(`【${template.name}】${resultText}`);
 
