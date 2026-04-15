@@ -73,14 +73,14 @@ window.BattleRenderer = {
                         <div class="status-row">
                             <span>兵力:</span>
                             <div class="hp-bar">
-                                <div class="hp-fill player" style="width: ${pPercent}%; background-color: #2ecc71 !important;"></div>
+                                <div class="hp-fill player" style="width: ${pPercent}%"></div>
                             </div>
                             <span>${p.troops} / ${p.maxTroops}</span>
                         </div>
                         <div class="status-row">
                             <span>士气:</span>
                             <div class="morale-bar">
-                                <div class="morale-fill player" style="width: ${p.morale}%; background-color: #f1c40f !important;"></div>
+                                <div class="morale-fill player" style="width: ${p.morale}%"></div>
                             </div>
                             <span>${p.morale}</span>
                         </div>
@@ -101,14 +101,14 @@ window.BattleRenderer = {
                         <div class="status-row">
                             <span>兵力:</span>
                             <div class="hp-bar">
-                                <div class="hp-fill enemy" style="width: ${ePercent}%; background-color: #e74c3c !important;"></div>
+                                <div class="hp-fill enemy" style="width: ${ePercent}%"></div>
                             </div>
                             <span>${e.troops} / ${e.maxTroops}</span>
                         </div>
                         <div class="status-row">
                             <span>士气:</span>
                             <div class="morale-bar">
-                                <div class="morale-fill enemy" style="width: ${e.morale}%; background-color: #e67e22 !important;"></div>
+                                <div class="morale-fill enemy" style="width: ${e.morale}%"></div>
                             </div>
                             <span>${e.morale}</span>
                         </div>
@@ -171,7 +171,7 @@ window.BattleRenderer = {
                 <h3>阶段一：手牌调整（可弃掉最多3张，补到5张）</h3>
                 <div class="hand-area">
                     <h4>你的手牌</h4>
-                    <div class="battle-cards" id="player-hand-cards" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <div class="battle-cards" id="player-hand-cards">
                         ${this.renderHandCards(battle.player.handCards, true, 'discard')}
                     </div>
                 </div>
@@ -212,9 +212,9 @@ window.BattleRenderer = {
                 <p>使用秘策可将一张手牌替换为你已学会的任意战术卡。</p>
                 <div class="secret-tactics-list">
                     <h4>你的战术卡:</h4>
-                    <div class="battle-cards" id="tactic-list" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <div class="battle-cards" id="tactic-list">
                         ${playerTactics.map(t => `
-                            <div class="battle-card ${t.color}" data-card-id="${t.id}" style="width: 140px; height: 90px;">
+                            <div class="battle-card ${t.color}" data-card-id="${t.id}">
                                 <div class="battle-card-header">
                                     <span class="battle-card-name">${t.emoji} ${t.name}</span>
                                 </div>
@@ -236,16 +236,16 @@ window.BattleRenderer = {
     renderPlayPhase(battle) {
         return `
             <div class="battle-play-area">
-                <h3>阶段三：选择出牌（<small>要么出1张战术卡，要么出1-3张基础卡，不能同时出</small>）</h3>
+                <h3>阶段三：选择出牌</h3>
                 <div class="selected-cards">
                     <div class="selected-section">
-                        <label>战术卡（选中则不能选基础卡）:</label>
+                        <label>战术卡（最多 1 张）:</label>
                         <div id="selected-tactic" class="selected-slot ${battle.player.selectedTactic ? battle.player.selectedTactic.color : ''} ${battle.player.selectedTactic ? 'filled' : ''}">
                             ${battle.player.selectedTactic ? `${battle.player.selectedTactic.emoji} ${battle.player.selectedTactic.name}` : '无'}
                         </div>
                     </div>
                     <div class="selected-section">
-                        <label>基础卡（选中1-3张则不能选战术卡，组成数字组合）:</label>
+                        <label>基础卡（最多 3 张，组成数字组合）:</label>
                         <div class="selected-slots" id="normal-slots">
                             <div id="slot-0" class="selected-slot empty">—</div>
                             <div id="slot-1" class="selected-slot empty">—</div>
@@ -254,8 +254,8 @@ window.BattleRenderer = {
                     </div>
                 </div>
                 <div class="hand-area">
-                    <h4>你的手牌</h4>
-                    <div class="battle-cards" id="player-hand-cards" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <h4>剩余手牌</h4>
+                    <div class="battle-cards" id="player-hand-cards">
                         ${this.renderHandCards(battle.player.handCards, true, 'play')}
                     </div>
                 </div>
@@ -275,14 +275,14 @@ window.BattleRenderer = {
             // 绿色基础数字卡 - 使用背景图+居中大数字（只需要一张背景图）
             if (card.type === 'battle_normal' && card.color === 'green') {
                 return `
-                    <div class="battle-card ${card.color} number-card ${canSelect ? 'selectable' : ''}" data-card-id="${card.id}" data-phase="${phase}" style="width: 80px; height: 110px;">
+                    <div class="battle-card ${card.color} number-card ${canSelect ? 'selectable' : ''}" data-card-id="${card.id}" data-phase="${phase}">
                         <span class="card-number">${card.number}</span>
                     </div>
                 `;
             }
             // 红色战术卡 - 正常渲染
             return `
-                <div class="battle-card ${card.color} ${canSelect ? 'selectable' : ''}" data-card-id="${card.id}" data-phase="${phase}" style="width: 140px; height: 90px;">
+                <div class="battle-card ${card.color} ${canSelect ? 'selectable' : ''}" data-card-id="${card.id}" data-phase="${phase}">
                     <div class="battle-card-header">
                         <span class="battle-card-name">${card.emoji} ${card.name}</span>
                     </div>
@@ -311,8 +311,8 @@ window.BattleRenderer = {
      * 检查是否可以确认出牌
      */
     canConfirmPlay(battle) {
-        // 要么选了战术卡，要么至少选一张基础卡
-        return battle.player.selectedTactic !== null || battle.player.selectedNormal.length > 0;
+        // 至少选一张基础卡
+        return battle.player.selectedNormal.length > 0;
     },
 
     /**
@@ -362,9 +362,9 @@ window.BattleRenderer = {
     /**
      * 更新确认按钮状态
      */
-    updateConfirmPlayButton(selectedNormal, selectedTactic) {
+    updateConfirmPlayButton(selectedNormal) {
         const btn = document.getElementById('btn-confirm-play');
-        btn.disabled = !(selectedTactic !== null || selectedNormal.length > 0);
+        btn.disabled = selectedNormal.length === 0;
     },
 
     /**

@@ -52,18 +52,18 @@ window.EventScheduler = {
 
         // 势力条件
         if (trigger.faction !== undefined) {
-            const player = gameState.getPlayerCharacter();
-            if (!player || player.faction !== trigger.faction) {
+            // 玩家势力存储在gameState，默认从角色模板读取初始值
+            const playerFaction = gameState.playerFaction || gameState.getPlayerCharacter()?.faction;
+            if (playerFaction !== trigger.faction) {
                 return false;
             }
         }
 
         // 身份条件，可接受单个值或数组
         if (trigger.identity) {
-            const player = gameState.getPlayerCharacter();
             const identityMatch = Array.isArray(trigger.identity)
-                ? trigger.identity.includes(player ? player.role : null)
-                : player && player.role === trigger.identity;
+                ? trigger.identity.includes(gameState.currentRoleId)
+                : gameState.currentRoleId === trigger.identity;
             if (!identityMatch) {
                 return false;
             }
@@ -87,12 +87,15 @@ window.EventScheduler = {
             }
         }
 
-        // 亲密度条件 {characterId: number, minLevel: number}
+        // 亲密度条件 {characterId: number, minLevel: number, maxLevel: number}
         if (trigger.intimacy) {
-            const { characterId, minLevel } = trigger.intimacy;
+            const { characterId, minLevel, maxLevel } = trigger.intimacy;
             const intimacy = gameState.getIntimacy(characterId);
             const level = EconomicCalculator.getIntimacyLevel(intimacy);
-            if (level < minLevel) {
+            if (minLevel !== undefined && level < minLevel) {
+                return false;
+            }
+            if (maxLevel !== undefined && level > maxLevel) {
                 return false;
             }
         }
@@ -112,6 +115,20 @@ window.EventScheduler = {
                 if (!gameState.collectedCards[cardId]) {
                     return false;
                 }
+            }
+        }
+
+        // 最低功勋条件
+        if (trigger.meritMin !== undefined) {
+            if (gameState.merit < trigger.meritMin) {
+                return false;
+            }
+        }
+
+        // 最低金钱条件
+        if (trigger.moneyMin !== undefined) {
+            if (gameState.money < trigger.moneyMin) {
+                return false;
             }
         }
 
@@ -251,17 +268,14 @@ window.EventScheduler = {
                 return null;
 
             case EffectTypes.CHANGE_IDENTITY:
-                const player = gameState.getPlayerCharacter();
-                if (player) {
-                    player.role = effect.value;
-                }
+                // 修改玩家当前身份（存储在gameState）
+                gameState.currentRoleId = effect.value;
+                gameState.checkRolePromotion();
                 return null;
 
             case EffectTypes.CHANGE_FACTION:
-                const p = gameState.getPlayerCharacter();
-                if (p) {
-                    p.faction = effect.value;
-                }
+                // 修改玩家当前势力（存储在gameState）
+                gameState.playerFaction = effect.value;
                 return null;
 
             case EffectTypes.ADVANCE_TIME:
@@ -272,8 +286,46 @@ window.EventScheduler = {
                 gameState.addSkillExp(effect.skillId, effect.exp);
                 return null;
 
+            case EffectTypes.ADD_SKILL_LEVEL:
+                // 直接提升技能等级
+                for (let i = 0; i < effect.levels; i++) {
+                    gameState.addSkillExp(effect.skillId, 9999); // 足够大的经验值确保升一级
+                }
+                return null;
+
             case EffectTypes.CHANGE_ROLE:
                 gameState.currentRoleId = effect.value;
+                return null;
+
+            case EffectTypes.CHANGE_CITY_OWNER:
+                // 改变城池所属势力
+                const cityEconomy = gameState.getCityEconomy(effect.cityId);
+                if (cityEconomy) {
+                    cityEconomy.ownerFaction = effect.factionId;
+                    gameState.addLog(`城池已归属新势力：${effect.cityId}`);
+                }
+                return null;
+
+            case EffectTypes.UNLOCK_FACILITY:
+                // 解锁城市设施
+                const cityTpl = getCityTemplateById(effect.cityId);
+                if (cityTpl) {
+                    if (!cityTpl.facilities) {
+                        cityTpl.facilities = [];
+                    }
+                    if (!cityTpl.facilities.includes(effect.facility)) {
+                        cityTpl.facilities.push(effect.facility);
+                        gameState.addLog(`解锁新设施：${effect.facility}`);
+                    }
+                }
+                return null;
+
+            case EffectTypes.UNLOCK_MISSION_CATEGORY:
+                // 开放主命任务分类
+                // 主命系统已经按身份和分类筛选，这里只需要标记即可
+                // 后续可扩展存储解锁的分类到gameState
+                gameState.setEventFlag(`MISSION_CAT_${effect.category}_UNLOCKED`, true);
+                gameState.addLog(`开放主命分类：${effect.category}`);
                 return null;
 
             case EffectTypes.ADD_MERIT:
@@ -297,8 +349,9 @@ window.EventScheduler = {
                 for (const cityTpl of allCities) {
                     const cityEconomy = gameState.getCityEconomy(cityTpl.id);
                     // 只有属于玩家势力的城市才收税
-                    // 玩家势力是1（郭子兴军/朱元璋军），玩家身份足够高才能收税
-                    if (cityEconomy.ownerFaction === gameState.getPlayerCharacter().faction) {
+                    // 玩家势力从gameState获取
+                    const playerFaction = gameState.playerFaction || gameState.getPlayerCharacter().faction;
+                    if (cityEconomy.ownerFaction === playerFaction) {
                         const tax = EconomicCalculator.calculateCityTax(cityEconomy, cityTpl);
                         totalTax += tax;
                         const loyaltyChange = EconomicCalculator.calculateLoyaltyChange(cityEconomy.taxRate || 0.15);

@@ -38,7 +38,7 @@ window.BattleGame = {
         const secretUses = 1 + strategyLevel; // Lv1=2, Lv2=3, Lv3=4, Lv4=5
 
         // 敌方信息简化：根据任务难度设定
-        const enemyTroopsCount = 300 + task.baseDifficulty * 20;
+        const enemyTroopsCount = 100 + task.baseDifficulty * 10;
         const enemyMorale = 70 + task.baseDifficulty;
 
         // 发牌：牌堆由所有绿色基础卡 + 玩家已收集的战术卡组成
@@ -52,11 +52,17 @@ window.BattleGame = {
         deck = deck.sort(() => Math.random() - 0.5);
 
         // 计算玩家攻防
-        const command = player.command || 70;
-        const martial = player.martial || 70;
-        const skillLevel = gameState.getSkillLevel(playerTroop.skillBonus);
-        const pAttack = calculateTroopAttack(command, martial, playerTroop, skillLevel);
-        const pDefense = calculateTroopDefense(command, playerTroop, skillLevel);
+        const pAttack = calculateTroopAttack(
+            player.command || 70,
+            player.martial || 70,
+            playerTroop,
+            gameState.getSkillLevel(playerTroop.skillBonus)
+        );
+        const pDefense = calculateTroopDefense(
+            player.command || 70,
+            playerTroop,
+            gameState.getSkillLevel(playerTroop.skillBonus)
+        );
 
         // 敌方AI默认阵型
         const enemyFormation = getFormationById('none');
@@ -76,12 +82,12 @@ window.BattleGame = {
             battleType: battleType,
             phase: 'preBattle', // preBattle → discard → secret → play → result
             currentTurn: 1,
-            maxTurns: 30,
+            maxTurns: 5,
 
             player: {
                 general: player,
-                troops: 300,
-                maxTroops: 300,
+                troops: 100,
+                maxTroops: 100,
                 morale: 80,
                 formation: null, // 待选择
                 unitType: playerTroop,

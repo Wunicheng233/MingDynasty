@@ -116,26 +116,19 @@ window.BattleController = {
 
         // 出牌阶段
         if (battle.phase === 'play') {
-            // 每回合开始清空选择，不继承上一回合
-            let selectedNormal = [];
-            let selectedTactic = null;
-            battle.player.selectedNormal = [];
-            battle.player.selectedTactic = null;
+            let selectedNormal = [...battle.player.selectedNormal];
+            let selectedTactic = battle.player.selectedTactic;
 
             // 更新选中显示
             BattleRenderer.updatePlaySelection(selectedNormal, selectedTactic);
 
-            // 点击手牌 - 互斥选择：要么战术卡，要么基础卡
+            // 点击手牌
             document.querySelectorAll('#player-hand-cards .battle-card.selectable').forEach(cardEl => {
                 cardEl.addEventListener('click', () => {
                     const cardId = cardEl.dataset.cardId;
                     const card = battle.player.handCards.find(c => c.id === cardId);
 
                     if (card.color === 'green') {
-                        // 基础卡：如果已经选了战术卡，不允许选
-                        if (selectedTactic !== null) {
-                            return; // 已经选了战术卡，不能选基础卡
-                        }
                         // 基础卡，加到选中
                         const index = selectedNormal.findIndex(c => c.id === cardId);
                         if (index >= 0) {
@@ -147,10 +140,6 @@ window.BattleController = {
                             cardEl.classList.add('selected');
                         }
                     } else if (card.color === 'red') {
-                        // 战术卡：如果已经选了基础卡，不允许选
-                        if (selectedNormal.length > 0) {
-                            return; // 已经选了基础卡，不能选战术卡
-                        }
                         // 战术卡，切换选择
                         if (selectedTactic && selectedTactic.id === card.id) {
                             selectedTactic = null;
@@ -165,7 +154,7 @@ window.BattleController = {
                     }
 
                     BattleRenderer.updatePlaySelection(selectedNormal, selectedTactic);
-                    BattleRenderer.updateConfirmPlayButton(selectedNormal, selectedTactic);
+                    BattleRenderer.updateConfirmPlayButton(selectedNormal);
                 });
             });
 
@@ -175,7 +164,7 @@ window.BattleController = {
                 selectedTactic = null;
                 document.querySelectorAll('#player-hand-cards .battle-card').forEach(c => c.classList.remove('selected'));
                 BattleRenderer.updatePlaySelection(selectedNormal, selectedTactic);
-                BattleRenderer.updateConfirmPlayButton(selectedNormal, selectedTactic);
+                BattleRenderer.updateConfirmPlayButton(selectedNormal);
             });
 
             // 确认出牌
@@ -317,56 +306,14 @@ window.BattleController = {
         );
 
         // 保证一定是数字，避免 NaN
-        let safePDamage = typeof pDamage === 'number' && !isNaN(pDamage) ? pDamage : 1;
-        let safeAiDamage = typeof aiDamage === 'number' && !isNaN(aiDamage) ? aiDamage : 1;
-
-        // 获取双方优先级：战术卡优先级最高 rank=5，否则用组合rank
-        // 优先级高的一方是主动进攻，优先级低的是被动防守反击
-        const getRank = (tactic, combo) => tactic ? 5 : combo.rank;
-        const pRank = getRank(pTactic, pCombination);
-        const aiRank = getRank(aiTactic, aiCombination);
-
-        // 处理特殊战术效果（先处理，因为可能影响伤害）
-        this.processSpecialEffects(battle, pTactic, 'player');
-        this.processSpecialEffects(battle, aiTactic, 'enemy');
-
-        let finalPDamage, finalAiDamage;
-        let description;
-
-        if (pRank > aiRank) {
-            // 玩家主动进攻 → 正常计算全额伤害（用玩家的牌）
-            finalPDamage = safePDamage;
-            // 敌方防守反击 → 伤害 = 进攻伤害 × (防守方兵力 / 进攻方兵力) × (防守士气 / 100) × 0.5
-            finalAiDamage = Math.round(
-                finalPDamage *
-                (battle.enemy.troops / battle.player.troops) *
-                (battle.enemy.morale / 100) *
-                0.5
-            );
-            description = '你优先级更高，主动进攻（使用本回合出牌全额伤害）；敌方防守反击（伤害仅和兵力士气相关）。';
-        } else if (aiRank > pRank) {
-            // 敌方主动进攻 → 正常计算全额伤害（用敌方的牌）
-            finalAiDamage = safeAiDamage;
-            // 玩家防守反击 → 伤害 = 进攻伤害 × (防守方兵力 / 进攻方兵力) × (防守士气 / 100) × 0.5
-            finalPDamage = Math.round(
-                finalAiDamage *
-                (battle.player.troops / battle.enemy.troops) *
-                (battle.player.morale / 100) *
-                0.5
-            );
-            description = '敌方优先级更高，主动进攻（使用本回合出牌全额伤害）；你防守反击（伤害仅和兵力士气相关）。';
-        } else {
-            // 优先级相同，双方都全额进攻，都用自己的牌计算
-            finalPDamage = safePDamage;
-            finalAiDamage = safeAiDamage;
-            description = '双方优先级相同，同时全额进攻，都使用本回合出牌计算伤害。';
-        }
+        const safePDamage = typeof pDamage === 'number' && !isNaN(pDamage) ? pDamage : 1;
+        const safeAiDamage = typeof aiDamage === 'number' && !isNaN(aiDamage) ? aiDamage : 1;
 
         // 应用伤害
-        battle.enemy.troops -= finalPDamage;
-        battle.player.troops -= finalAiDamage;
+        battle.enemy.troops -= safePDamage;
+        battle.player.troops -= safeAiDamage;
 
-        // 限制范围，保证不会 NaN/负数
+        // 限制范围，保证不会 NaN
         battle.player.troops = Math.max(0, typeof battle.player.troops === 'number' && !isNaN(battle.player.troops) ? battle.player.troops : 1);
         battle.enemy.troops = Math.max(0, typeof battle.enemy.troops === 'number' && !isNaN(battle.enemy.troops) ? battle.enemy.troops : 1);
         battle.player.morale = Math.max(0, Math.min(100, typeof battle.player.morale === 'number' && !isNaN(battle.player.morale) ? battle.player.morale : 50));
@@ -374,14 +321,17 @@ window.BattleController = {
         battle.player.morale = Math.max(0, Math.min(100, battle.player.morale));
         battle.enemy.morale = Math.max(0, Math.min(100, battle.enemy.morale));
 
+        // 处理特殊战术效果
+        this.processSpecialEffects(battle, pTactic, 'player');
+        this.processSpecialEffects(battle, aiTactic, 'enemy');
+
         // 添加日志
-        BattleRenderer.addLog(battle, description);
-        let pDesc = `你打出${pTactic ? '【' + pTactic.name + '】' : pCombination.name}(${pCards.map(c => c.number).join('-')})`;
-        pDesc += `，对敌方造成 ${finalPDamage} 伤害。`;
+        let pDesc = `你打出${pTactic ? '【' + pTactic.name + '】 + ' : ''}${pCombination.name}(${pCards.map(c => c.number).join('-')})`;
+        pDesc += `，对敌方造成 ${safePDamage} 伤害。`;
         BattleRenderer.addLog(battle, pDesc);
 
-        let aiDesc = `敌方打出${aiTactic ? '【' + aiTactic.name + '】' : aiCombination.name}(${aiCards.map(c => c.number).join('-')})`;
-        aiDesc += `，对你方造成 ${finalAiDamage} 伤害。`;
+        let aiDesc = `敌方打出${aiTactic ? '【' + aiTactic.name + '】 + ' : ''}${aiCombination.name}(${aiCards.map(c => c.number).join('-')})`;
+        aiDesc += `，对你方造成 ${safeAiDamage} 伤害。`;
         BattleRenderer.addLog(battle, aiDesc);
 
         // 检查战斗是否结束
@@ -391,11 +341,11 @@ window.BattleController = {
             return;
         }
 
-        // 抽新牌：每回合抽 (兵种等级 + 1) 张
-        this.refillHand(battle.player, gameState);
+        // 抽新牌到5张
+        this.refillHand(battle.player);
 
         // AI抽牌
-        this.aiRefillHand(battle.enemy, gameState);
+        this.aiRefillHand(battle.enemy);
 
         // 下回合
         battle.environment.currentTurn++;
@@ -455,13 +405,10 @@ window.BattleController = {
     },
 
     /**
-     * 每回合抽牌：抽 (兵种等级 + 1) 张
+     * 补牌到5张
      */
-    refillHand(player, gameState) {
-        const skillId = player.unitType.skillBonus;
-        const skillLevel = gameState.getSkillLevel(skillId);
-        const drawCount = skillLevel + 1;
-        for (let i = 0; i < drawCount && player.drawPile.length > 0; i++) {
+    refillHand(player) {
+        while (player.handCards.length < 5 && player.drawPile.length > 0) {
             player.handCards.push(player.drawPile.shift());
         }
     },
@@ -469,17 +416,14 @@ window.BattleController = {
     /**
      * AI补牌
      */
-    aiRefillHand(ai, gameState) {
+    aiRefillHand(ai) {
         // AI先弃牌
         const toDiscard = BattleAI.selectCardsToDiscard(ai.handCards, 3);
         toDiscard.forEach(c => {
             ai.handCards = ai.handCards.filter(hc => hc.id !== c.id);
         });
-        // 抽牌：每回合抽 (兵种等级 + 1) 张
-        const skillId = ai.unitType.skillBonus;
-        const skillLevel = gameState.getSkillLevel(skillId);
-        const drawCount = skillLevel + 1;
-        for (let i = 0; i < drawCount && ai.drawPile.length > 0; i++) {
+        // 补牌
+        while (ai.handCards.length < 5 && ai.drawPile.length > 0) {
             ai.drawPile.push(getAllBattleCards()[Math.floor(Math.random() * getAllBattleCards().length)]);
             ai.handCards.push(ai.drawPile.shift());
         }
@@ -489,7 +433,7 @@ window.BattleController = {
      * 结束战斗结算
      */
     finish(battle, gameState, gameView, playerWin) {
-        const template = getMissionTemplateById(gameState.currentTask.templateId) || gameState.currentTask;
+        const template = getMissionTemplateById(gameState.currentTask.templateId);
         let ratio = playerWin ? 1 : Math.max(0.3, battle.player.troops / battle.player.maxTroops);
 
         // 实际进度 = 目标值 * 完成率

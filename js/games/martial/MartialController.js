@@ -255,7 +255,7 @@ window.MartialController = {
             });
         } else {
             // 正常任务结算 - 使用新主命系统
-            const template = getMissionTemplateById(gameState.currentTask.templateId) || gameState.currentTask;
+            const template = getMissionTemplateById(gameState.currentTask.templateId);
             // 实际进度 = 目标值 * 完成率
             const actualProgress = Math.round(gameState.currentTask.targetValue * ratio);
             const successResult = actualProgress > 0;

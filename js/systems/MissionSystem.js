@@ -66,9 +66,10 @@ window.MissionSystem = {
      * @param {GameState} gameState
      * @param {boolean} success - 是否成功完成
      * @param {number} actualProgress - 实际完成进度
+     * @param {string} gameType - 调用的小游戏类型，用于验证任务匹配
      * @returns {Object} 结算结果 {meritGained: number, skillsExp: Object}
      */
-    completeMission(gameState, success, actualProgress = 0) {
+    completeMission(gameState, success, actualProgress = 0, gameType = null) {
         if (!gameState.currentTask) {
             return { success: false, meritGained: 0 };
         }
@@ -77,6 +78,12 @@ window.MissionSystem = {
         if (!template) {
             gameState.currentTask = null;
             return { success: false, meritGained: 0 };
+        }
+
+        // 检查任务是否匹配小游戏类型
+        if (template.completionType === 'external' && gameType && template.gameType !== gameType) {
+            // 任务不匹配当前小游戏，不完成
+            return { success: false, meritGained: 0, message: '任务类型不匹配' };
         }
 
         let result = {

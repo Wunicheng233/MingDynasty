@@ -39,7 +39,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 80,
         timeLimitDays: 20,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "eloquence",
         targetParam: "recruit_amount",
         description: "前往城镇说服百姓参军，口才好就能招募更多士兵。"
@@ -54,7 +54,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 70,
         timeLimitDays: 15,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "infantry",
         targetParam: "training_score",
         description: "前往校场进行步兵操练，考核你对步兵战术的掌握。"
@@ -69,7 +69,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 1,
         baseReward: 50,
         timeLimitDays: 30,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "trade",
         targetParam: "purchase_complete",
         description: "采购军事物资（米/马/火器），本金不足需要自行垫付，低价买入完成任务。"
@@ -84,7 +84,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 3,
         baseReward: 120,
         timeLimitDays: 25,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "spy",
         targetParam: "scout_complete",
         description: "潜入敌城收集情报，成功侦查获得敌城布防信息。"
@@ -99,8 +99,8 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 4,
         baseReward: 500,
         timeLimitDays: 60,
-        completionType: "battle",
-        gameType: "battle",
+        completionType: "external",
+        gameType: "none",
         targetParam: "capture_city",
         description: "率军出征攻打敌方城池，击败敌军占领城池。"
     },
@@ -114,7 +114,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 3,
         baseReward: 100,
         timeLimitDays: 20,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "navy",
         targetParam: "navy_training",
         description: "前往水寨进行水军训练，指挥战船躲避暗礁完成操练。"
@@ -131,9 +131,8 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 80,
         timeLimitDays: 20,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "trade",
-        targetParam: "tax_amount",
         description: "前往城镇征收赋税，与商户农民交涉，完成征收指标。"
     },
     {
@@ -146,9 +145,8 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 90,
         timeLimitDays: 30,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "agriculture",
-        targetParam: "reclaim_acres",
         description: "开垦荒地增加粮食产量，分配资源完成开垦指标。"
     },
     {
@@ -161,9 +159,8 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 100,
         timeLimitDays: 25,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "engineering",
-        targetParam: "wall_repair",
         description: "加固城池城墙，调配石料达到目标重量。"
     },
     {
@@ -176,9 +173,8 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 3,
         baseReward: 120,
         timeLimitDays: 15,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "law",
-        targetParam: "correct_verdict",
         description: "审理民间案件，找出证词矛盾，依据《大明律》做出判决。"
     },
     {
@@ -191,9 +187,8 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 3,
         baseReward: 150,
         timeLimitDays: 40,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "engineering",
-        targetParam: "canal_complete",
         description: "修建水利工程，便利农田灌溉，减少水患。"
     },
     {
@@ -206,8 +201,8 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 130,
         timeLimitDays: 20,
-        completionType: "dialog",
-        gameType: "dialog",
+        completionType: "external",
+        gameType: "none",
         targetParam: "relief_complete",
         description: "灾荒后赈济灾民，调配粮食安抚民心。"
     },
@@ -223,9 +218,8 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 100,
         timeLimitDays: 30,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "ritual",
-        targetParam: "mission_complete",
         description: "出使友好势力，完成外交礼节递交国书。"
     },
     {
@@ -238,8 +232,8 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 3,
         baseReward: 150,
         timeLimitDays: 45,
-        completionType: "minigame",
-        gameType: "eloquence",
+        completionType: "external",
+        gameType: "none",
         targetParam: "alliance_agree",
         description: "游说对方势力缔结盟约，共同对抗第三方。"
     },
@@ -253,8 +247,8 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 4,
         baseReward: 180,
         timeLimitDays: 30,
-        completionType: "minigame",
-        gameType: "eloquence",
+        completionType: "external",
+        gameType: "none",
         targetParam: "persuasion_success",
         description: "劝降敌方守城将领，使其开城投降。"
     },
@@ -268,7 +262,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 200,
         timeLimitDays: 50,
-        completionType: "complete",
+        completionType: "external",
         gameType: "none",
         targetParam: "tribute_complete",
         description: "向元廷/朝廷进贡，保持表面和平，换取发展时间。"
@@ -285,9 +279,8 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 1,
         baseReward: 30,
         timeLimitDays: 20,
-        completionType: "explore",
+        completionType: "external",
         gameType: "explore",
-        targetParam: "find_talent",
         description: "在各城镇探访隐居人才，招入麾下。"
     },
     {
@@ -300,8 +293,8 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 3,
         baseReward: 80,
         timeLimitDays: 15,
-        completionType: "minigame",
-        gameType: "spy",
+        completionType: "external",
+        gameType: "none",
         targetParam: "sabotage_complete",
         description: "潜入敌城破坏城防，降低防御度。"
     },
@@ -315,7 +308,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 3,
         baseReward: 90,
         timeLimitDays: 20,
-        completionType: "complete",
+        completionType: "external",
         gameType: "none",
         targetParam: "rumor_spread",
         description: "散布流言离间敌方君臣关系，降低敌人士气。"
@@ -330,8 +323,8 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 4,
         baseReward: 120,
         timeLimitDays: 15,
-        completionType: "minigame",
-        gameType: "spy",
+        completionType: "external",
+        gameType: "none",
         targetParam: "fire_complete",
         description: "潜入纵火焚烧敌军粮草，削弱敌方持续作战能力。"
     },
@@ -347,9 +340,8 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 3,
         baseReward: 100,
         timeLimitDays: 20,
-        completionType: "personal",
+        completionType: "external",
         gameType: "duel",
-        targetParam: "arrest_success",
         description: "缉拿朝廷通缉的要犯，击败擒获归案。"
     },
     {
@@ -362,8 +354,8 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 70,
         timeLimitDays: 25,
-        completionType: "personal",
-        gameType: "duel",
+        completionType: "external",
+        gameType: "none",
         targetParam: "escort_complete",
         description: "护送粮草前往前线，路上可能遭遇山贼拦截。"
     },
@@ -377,9 +369,8 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 90,
         timeLimitDays: 15,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "medicine",
-        targetParam: "heal_complete",
         description: "战后医治伤兵，按药方抓药治疗伤员。"
     },
     {
@@ -392,8 +383,8 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 4,
         baseReward: 200,
         timeLimitDays: 60,
-        completionType: "minigame",
-        gameType: "engineering",
+        completionType: "external",
+        gameType: "none",
         targetParam: "construction_complete",
         description: "督建凤阳皇陵，监管工程进度质量。"
     },
@@ -409,7 +400,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 100,
         timeLimitDays: 30,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "trade",
         targetParam: "funds_raised",
         description: "向城中富商筹措军资金，充实国库。"
@@ -424,7 +415,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 1,
         baseReward: 60,
         timeLimitDays: 25,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "trade",
         targetParam: "grain_bought",
         description: "从各地收购粮草储备，以备军需。"
@@ -439,7 +430,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 1,
         baseReward: 50,
         timeLimitDays: 20,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "trade",
         targetParam: "grain_sold",
         description: "高价出售囤积兵粮，换取军资金。"
@@ -454,7 +445,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 120,
         timeLimitDays: 40,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "agriculture",
         targetParam: "acres_developed",
         description: "开垦荒地扩大农田面积，增加粮食产量。"
@@ -469,7 +460,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 3,
         baseReward: 130,
         timeLimitDays: 35,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "engineering",
         targetParam: "mine_developed",
         description: "勘探并开发矿山，获取铁矿银矿等资源。"
@@ -484,7 +475,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 80,
         timeLimitDays: 30,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "engineering",
         targetParam: "repair_complete",
         description: "修补加固城墙，提升城防度。"
@@ -499,7 +490,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 3,
         baseReward: 300,
         timeLimitDays: 60,
-        completionType: "dialog",
+        completionType: "external",
         gameType: "dialog",
         targetParam: "exam_complete",
         description: "举办科举考试，选拔天下人才入朝为官。（明朝独有）"
@@ -514,7 +505,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 3,
         baseReward: 280,
         timeLimitDays: 45,
-        completionType: "combined",
+        completionType: "external",
         gameType: "duel",
         targetParam: "exam_complete",
         description: "举办武举考试，选拔勇武将才。（明朝独有）"
@@ -531,7 +522,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 150,
         timeLimitDays: 30,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "eloquence",
         targetParam: "recruited_total",
         description: "在全国范围内征召士兵，扩充军队。"
@@ -546,7 +537,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 130,
         timeLimitDays: 25,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "infantry",
         targetParam: "training_score",
         description: "组织大规模军事训练，提升全军战斗力。"
@@ -561,7 +552,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 100,
         timeLimitDays: 40,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "trade",
         targetParam: "horses_bought",
         description: "从草原购买优良战马，组建骑兵部队。"
@@ -576,7 +567,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 3,
         baseReward: 160,
         timeLimitDays: 50,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "firearm",
         targetParam: "firearms_bought",
         description: "铸造购买火铳火炮，装备神机营。"
@@ -593,7 +584,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 1,
         baseReward: 40,
         timeLimitDays: 30,
-        completionType: "explore",
+        completionType: "external",
         gameType: "explore",
         targetParam: "talent_found",
         description: "在各地寻访隐居人才，记录其能力位置。"
@@ -608,7 +599,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 80,
         timeLimitDays: 25,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "spy",
         targetParam: "info_gathered",
         description: "潜入敌城收集城池布防、粮草等情报。"
@@ -623,7 +614,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 70,
         timeLimitDays: 30,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "eloquence",
         targetParam: "persuasion_success",
         description: "招揽在野浪人加入我方势力。"
@@ -638,7 +629,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 4,
         baseReward: 140,
         timeLimitDays: 20,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "spy",
         targetParam: "sabotage_done",
         description: "潜入敌城破坏城墙设施，降低防御。"
@@ -653,7 +644,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 3,
         baseReward: 100,
         timeLimitDays: 15,
-        completionType: "complete",
+        completionType: "external",
         gameType: "none",
         targetParam: "rumor_done",
         description: "在敌城散布流言，离间敌方君臣关系。"
@@ -670,7 +661,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 3,
         baseReward: 200,
         timeLimitDays: 50,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "ritual",
         targetParam: "alliance_success",
         description: "与其他势力缔结盟约，共同对抗强敌。"
@@ -685,7 +676,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 50,
         timeLimitDays: 10,
-        completionType: "complete",
+        completionType: "external",
         gameType: "none",
         targetParam: "break_complete",
         description: "宣布与同盟势力断绝盟约关系。"
@@ -700,7 +691,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 2,
         baseReward: 150,
         timeLimitDays: 40,
-        completionType: "complete",
+        completionType: "external",
         gameType: "none",
         targetParam: "tribute_complete",
         description: "向朝廷进贡宝物，换取暂时和平。"
@@ -715,7 +706,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 5,
         baseReward: 300,
         timeLimitDays: 15,
-        completionType: "battle",
+        completionType: "external",
         gameType: "battle",
         targetParam: "war_declared",
         description: "正式向敌国宣战，发起全面战争。"
@@ -730,7 +721,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 3,
         baseReward: 250,
         timeLimitDays: 30,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "ritual",
         targetParam: "peace_agreed",
         description: "派遣使者与敌方谈判，达成和平协议。"
@@ -747,7 +738,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 3,
         baseReward: 180,
         timeLimitDays: 60,
-        completionType: "combined",
+        completionType: "external",
         gameType: "trade",
         targetParam: "salt_voucher_complete",
         description: "向边关运送军粮换取盐引，贩卖食盐获利。（开中法，明朝独有）"
@@ -762,7 +753,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 4,
         baseReward: 200,
         timeLimitDays: 30,
-        completionType: "minigame",
+        completionType: "external",
         gameType: "spy",
         targetParam: "surveillance_complete",
         description: "锦衣卫密探任务，监视不忠官员，收集罪证。（厂卫特色）"
@@ -777,7 +768,7 @@ const MISSION_TEMPLATES = [
         baseDifficulty: 3,
         baseReward: 250,
         timeLimitDays: 45,
-        completionType: "complete",
+        completionType: "external",
         gameType: "none",
         targetParam: "assessment_complete",
         description: "考核地方官员政绩，罢黜无能，晋升贤能。（张居正考成法）"

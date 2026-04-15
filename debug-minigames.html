@@ -211,36 +211,14 @@
     <script src="data/forces.js"></script>
     <script src="data/roles.js"></script>
     <script src="data/skills.js"></script>
-    <!-- 卡片库按类型拆分 - 先加载类型定义，再加载数据 -->
     <script src="data/cards.js"></script>
-    <script src="data/cards/characters.js"></script>
-    <script src="data/cards/skills.js"></script>
-    <script src="data/cards/tactics.js"></script>
-    <script src="data/cards/martial.js"></script>
-    <script src="data/cards/secrets.js"></script>
-    <script src="data/cards/titles.js"></script>
-    <script src="data/cards/places.js"></script>
-    <script src="data/cards/event-cards.js"></script>
-    <script src="data/cards/treasures.js"></script>
-    <!-- 合战卡片按用途拆分 - 先加载类型定义，再加载数据 -->
     <script src="data/battle-cards.js"></script>
-    <script src="data/battle-cards/normal.js"></script>
-    <script src="data/battle-cards/attack.js"></script>
-    <script src="data/battle-cards/support.js"></script>
-    <script src="data/battle-cards/naval.js"></script>
-    <script src="data/battle-cards/special.js"></script>
-    <script src="data/battle-cards/duel.js"></script>
     <script src="data/battle-formations.js"></script>
     <script src="data/battle-troops.js"></script>
     <script src="data/tasks.js"></script>
     <script src="data/personal-battle.js"></script>
     <script src="data/goods.js"></script>
-    <!-- 事件库按类型拆分 - 先加载类型定义，再加载数据 -->
     <script src="data/events.js"></script>
-    <script src="data/events/main.js"></script>
-    <script src="data/events/branch.js"></script>
-    <script src="data/events/random.js"></script>
-    <script src="data/events/periodic.js"></script>
 
     <!-- 工具模块 -->
     <script src="js/utils/BattleCalculator.js"></script>
@@ -308,7 +286,6 @@
     <script src="js/games/NavigationGame.js"></script>
     <script src="js/games/RitualGame.js"></script>
     <script src="js/games/FirearmGame.js"></script>
-    <script src="js/games/ArcheryGame.js"></script>
     <script src="js/games/DuelGame.js"></script>
     <script src="js/games/BattleGame.js"></script>
     <script src="js/GameView.js"></script>
@@ -332,7 +309,6 @@
             {gameType: 'navigation', skill: '航海', name: '罗盘导航', desc: '罗盘导航'},
             {gameType: 'ritual', skill: '礼制', name: '朝仪习礼', desc: '顺序排列礼仪步骤'},
             {gameType: 'firearm', skill: '火器', name: '神机校射', desc: 'XY坐标瞄准射击'},
-            {gameType: 'archery', skill: '弓术', name: '百步穿杨', desc: '根据目标距离选择合适的拉力射箭，命中越多得分越高'},
             {gameType: 'battle', skill: '兵法', name: '合战演习', desc: '完整军团对战，卡牌组合+阵型相克'}
         ];
 
@@ -354,69 +330,63 @@
 
         // 开始一个小游戏
         function startGame(gameType) {
-            try {
-                // 切换布局：隐藏列表，显示游戏
-                document.body.classList.add('game-running');
+            // 切换布局：隐藏列表，显示游戏
+            document.body.classList.add('game-running');
 
-                // 创建一个假任务 - debug调试模式
-                const skillMapping = {
-                    agriculture: 'agriculture',
-                    eloquence: 'eloquence',
-                    infantry: 'infantry',
-                    cavalry: 'cavalry',
-                    engineering: 'engineering',
-                    trade: 'trade',
-                    law: 'law',
-                    navy: 'navy',
-                    strategy: 'strategy',
-                    martial: 'martial',
-                    medicine: 'medicine',
-                    calligraphy: 'calligraphy',
-                    spy: 'spy',
-                    navigation: 'navigation',
-                    ritual: 'ritual',
-                    firearm: 'firearm',
-                    archery: 'archery',
-                    battle: 'strategy'
-                };
-                const template = {
-                    id: 999,
-                    templateId: 999,
-                    mission_id: 'DEBUG',
-                    name: `[调试] ${MINIGAMES.find(g => g.gameType === gameType).name}`,
-                    category: 'debug',
-                    minRank: 'peasant',
-                    requiredSkills: [],
-                    requiredSkill: skillMapping[gameType] || gameType,
-                    baseDifficulty: 2,
-                    baseReward: 50,
-                    baseRewardMerit: 50,
-                    baseRewardMoney: 50,
-                    rewardMerit: 50,
-                    rewardMoney: 50,
-                    timeLimitDays: 30,
-                    completionType: 'minigame',
-                    gameType: gameType,
-                    targetParam: null
-                };
+            // 创建一个假任务 - debug调试模式
+            const skillMapping = {
+                agriculture: 'agriculture',
+                eloquence: 'eloquence',
+                infantry: 'infantry',
+                cavalry: 'cavalry',
+                engineering: 'engineering',
+                trade: 'trade',
+                law: 'law',
+                navy: 'navy',
+                strategy: 'strategy',
+                martial: 'martial',
+                medicine: 'medicine',
+                calligraphy: 'calligraphy',
+                spy: 'spy',
+                navigation: 'navigation',
+                ritual: 'ritual',
+                firearm: 'firearm',
+                battle: 'strategy'
+            };
+            const template = {
+                id: 999,
+                templateId: 999,
+                mission_id: 'DEBUG',
+                name: `[调试] ${MINIGAMES.find(g => g.gameType === gameType).name}`,
+                category: 'debug',
+                minRank: 'peasant',
+                requiredSkills: [],
+                requiredSkill: skillMapping[gameType] || gameType,
+                baseDifficulty: 2,
+                baseReward: 50,
+                baseRewardMerit: 50,
+                baseRewardMoney: 50,
+                rewardMerit: 50,
+                rewardMoney: 50,
+                timeLimitDays: 30,
+                completionType: 'minigame',
+                gameType: gameType,
+                targetParam: null
+            };
 
-                // 直接设置currentTask，不需要经过MissionSystem的完整流程
-                // 因为这是调试模式，不需要保存/超时等逻辑
-                gameState.currentTask = template;
-                gameState.currentScene = GameScene.FARMING_GAME;
+            // 直接设置currentTask，不需要经过MissionSystem的完整流程
+            // 因为这是调试模式，不需要保存/超时等逻辑
+            gameState.currentTask = template;
+            gameState.currentScene = GameScene.FARMING_GAME;
 
-                // 初始化小游戏状态
-                MinigameInitializer.initMinigame(gameState, template);
+            // 初始化小游戏状态
+            MinigameInitializer.initMinigame(gameState, template);
 
-                // 渲染 - 会自动调用 startMinigameByType
-                gameView.renderAll();
+            // 渲染 - 会自动调用 startMinigameByType
+            gameView.renderAll();
 
-                // 滚动到游戏
-                document.getElementById('game-container').scrollIntoView({behavior: 'smooth'});
-            } catch (e) {
-                alert('初始化小游戏出错: ' + e.message + '\nstack: ' + e.stack);
-                console.error('初始化小游戏出错', e);
-            }
+            // 滚动到游戏
+            document.getElementById('game-container').scrollIntoView({behavior: 'smooth'});
         }
 
         // 返回调试列表
@@ -430,11 +400,9 @@
             gameView.renderAll();
         }
 
-        // 初始化 - 等待DOM完全加载
-        document.addEventListener('DOMContentLoaded', function() {
-            renderList();
-            gameView.renderAll();
-        });
+        // 初始化
+        renderList();
+        gameView.renderAll();
     </script>
 </body>
 </html>

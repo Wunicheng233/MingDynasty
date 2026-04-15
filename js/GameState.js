@@ -49,6 +49,10 @@ window.GameState = class GameState {
         // 当前所在城市ID - 初始在濠州
         this.currentCityId = 1;
 
+        // 玩家势力（从角色模板读取初始值）
+        const playerTemplate = this.getPlayerCharacter();
+        this.playerFaction = playerTemplate ? playerTemplate.faction : null;
+
         // 玩家金钱
         this.money = 10;
 
@@ -69,12 +73,6 @@ window.GameState = class GameState {
 
         // 口才小游戏状态
         this.eloquenceGame = null;
-
-        // 武学拜师学艺小游戏状态
-        this.martialGame = {};
-
-        // 个人切磋单挑小游戏状态
-        this.duelGame = {};
 
         // 获取玩家角色模板
         const playerTemplate = getCharacterTemplateByNumId(this.playerCharacterId);
