@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小游戏调试 - 大明王朝</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Pixelify+Sans:wght@400;700&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/views.css">
+    <link rel="stylesheet" href="css/games.css">
+    <link rel="stylesheet" href="css/battle.css">
+    <style>
+        body {
+            padding-bottom: 100px;
+            background-color: #efe6d5;
+        }
+        .debug-header {
+            background: #8b4513;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .debug-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+            color: #fff;
+        }
+        .debug-header p {
+            margin: 0;
+            color: #f8e9d8;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .minigame-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .minigame-item {
+            background: #fff;
+            border: 2px solid #d4c4a8;
+            border-radius: 12px;
+            padding: 22px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 8px rgba(139, 69, 19, 0.08);
+        }
+        .minigame-item:hover {
+            border-color: #8b4513;
+            background: #faf5e8;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(139, 69, 19, 0.15);
+        }
+        .minigame-item h3 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
+            color: #8b4513;
+        }
+        .minigame-item p {
+            margin: 0 0 12px 0;
+            font-size: 15px;
+            color: #6b5b45;
+            line-height: 1.4;
+        }
+        .minigame-item .skill-name {
+            display: inline-block;
+            background: #8b4513;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+        .debug-menu-container {
+            padding: 20px 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: block;
+        }
+        .back-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: #fff;
+            color: #8b4513 !important;
+            border: 2px solid #8b4513;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 1000;
+            font-weight: bold;
+            transition: all 0.2s;
+            display: none;
+        }
+        .back-btn:hover {
+            background: #8b4513;
+            color: #fff;
+        }
+        #debug-list-container {
+            padding: 0 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: block;
+        }
+        #game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            overflow: hidden;
+            margin-bottom: 30px;
+            display: none;
+        }
+        /* 游戏开始后切换布局 */
+        .game-running #debug-list-container {
+            display: none;
+        }
+        .game-running #game-container {
+            display: block;
+        }
+        .game-running .back-btn {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- 状态栏 -->
+        <div id="status-bar" class="status-bar">
+            <div class="status-date" id="status-date"></div>
+            <div class="status-actions">
+                <button id="next-day-btn" class="btn secondary-btn">次日</button>
+            </div>
+            <div class="status-stats">
+                <span class="stat-item">金钱: <span id="money">0</span></span>
+                <span class="stat-item">功勋: <span id="merit">0</span></span>
+            </div>
+        </div>
+
+        <!-- 中间主显示区 -->
+        <div id="main-display" class="main-display">
+            <div id="character-view" class="character-view" style="display: none;">
+                <!-- 角色属性视图 -->
+            </div>
+            <div id="city-view" class="scene-view" style="display: none;">
+                <!-- 城市视图 -->
+            </div>
+            <div id="character-list-view" class="scene-view" style="display: none;">
+                <!-- 城中人物列表视图 -->
+            </div>
+            <div id="social-view" class="scene-view" style="display: none;">
+                <!-- 社交互动视图 -->
+            </div>
+            <div id="task-list-view" class="scene-view" style="display: none;">
+                <!-- 任务列表视图 -->
+            </div>
+            <div id="farming-game-view" class="scene-view" style="display: none;">
+                <!-- 小游戏共享容器 -->
+            </div>
+            <div id="card-collection-view" class="scene-view" style="display: none;">
+                <!-- 卡片图鉴视图 -->
+            </div>
+            <div id="map-view" class="map-view" style="display: none;">
+                <!-- 城市地图视图 -->
+            </div>
+            <div id="market-view" class="scene-view" style="display: none;">
+                <!-- 市集交易视图 -->
+            </div>
+            <div id="event-view" class="scene-view" style="display: none;">
+                <!-- 剧情事件视图 -->
+            </div>
+        </div>
+
+        <!-- 底部导航区 -->
+        <div id="navigation-bar" class="navigation-bar" style="display: none;">
+            <button id="nav-character" class="nav-btn">角色</button>
+            <button id="nav-city" class="nav-btn">城市</button>
+            <button id="nav-map" class="nav-btn">地图</button>
+            <button id="nav-task" class="nav-btn">任务</button>
+            <button id="nav-card" class="nav-btn">卡片</button>
+        </div>
+
+        <!-- 日志区域 -->
+        <div id="interaction-area" class="interaction-area">
+            <div id="log-area" class="log-area"></div>
+        </div>
+    </div>
+
+    <div class="debug-menu-container">
+        <div id="debug-list-container">
+            <div class="debug-header">
+                <h1>🎮 小游戏调试面板</h1>
+                <p>点击下方任意小游戏即可直接开始游戏，方便调试。<br>所有数据都是临时的，不会保存到主游戏。</p>
+            </div>
+            <div class="minigame-list" id="minigame-list">
+                <!-- 动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <button class="back-btn" id="back-to-list-btn" onclick="backToList()">返回调试列表</button>
+
+    <!-- 数据文件 - 全部先加载 -->
+    <script src="data/characters.js"></script>
+    <script src="data/cities.js"></script>
+    <script src="data/forces.js"></script>
+    <script src="data/roles.js"></script>
+    <script src="data/skills.js"></script>
+    <script src="data/cards.js"></script>
+    <script src="data/battle-cards.js"></script>
+    <script src="data/battle-formations.js"></script>
+    <script src="data/battle-troops.js"></script>
+    <script src="data/tasks.js"></script>
+    <script src="data/personal-battle.js"></script>
+    <script src="data/goods.js"></script>
+    <script src="data/events.js"></script>
+
+    <!-- 工具模块 -->
+    <script src="js/utils/BattleCalculator.js"></script>
+    <script src="js/utils/BattleAI.js"></script>
+    <script src="js/utils/EconomicCalculator.js"></script>
+    <script src="js/utils/EventScheduler.js"></script>
+    <script src="js/utils/CharacterRendererUtils.js"></script>
+    <script src="js/utils/GameInitializer.js"></script>
+    <script src="js/utils/SaveManager.js"></script>
+
+    <!-- 子系统模块 - 拆分自GameState -->
+    <script src="js/systems/CardSystem.js"></script>
+    <script src="js/systems/SocialSystem.js"></script>
+    <script src="js/systems/SkillSystem.js"></script>
+    <script src="js/systems/SaveSystem.js"></script>
+    <script src="js/systems/TimeSystem.js"></script>
+    <script src="js/systems/MissionSystem.js"></script>
+
+    <!-- 核心游戏状态定义必须先加载，因为GameScene被管理器使用 -->
+    <script src="js/GameState.js"></script>
+
+    <!-- 管理器模块 -->
+    <script src="js/managers/AnimationManager.js"></script>
+    <script src="js/managers/SceneManager.js"></script>
+    <script src="js/managers/MinigameInitializer.js"></script>
+    <script src="js/managers/GameResultManager.js"></script>
+
+    <!-- 基类和框架 - 依赖管理器，所以放在管理器之后 -->
+    <script src="js/base/BaseGame.js"></script>
+
+    <!-- 渲染模块 - 拆分出去保持代码整洁 -->
+    <script src="js/modules/CharacterViewRenderer.js"></script>
+    <script src="js/modules/CityViewRenderer.js"></script>
+    <script src="js/modules/TaskListRenderer.js"></script>
+    <script src="js/modules/CharacterListRenderer.js"></script>
+    <script src="js/modules/SocialRenderer.js"></script>
+    <script src="js/modules/CardCollectionRenderer.js"></script>
+    <script src="js/modules/MapRenderer.js"></script>
+    <script src="js/modules/MarketScene.js"></script>
+    <script src="js/modules/EventScene.js"></script>
+    <script src="js/modules/FacilityScene.js"></script>
+
+    <!-- 小游戏模块 - 每个小游戏独立文件 -->
+    <!-- 个人战拆分模块 -->
+    <script src="js/games/martial/MartialCalculator.js"></script>
+    <script src="js/games/martial/MartialRenderer.js"></script>
+    <script src="js/games/martial/MartialController.js"></script>
+    <!-- 合战拆分模块 -->
+    <script src="js/games/battle/BattleRenderer.js"></script>
+    <script src="js/games/battle/BattleController.js"></script>
+    <!-- 各个小游戏 -->
+    <script src="js/games/FarmingGame.js"></script>
+    <script src="js/games/EloquenceGame.js"></script>
+    <script src="js/games/InfantryGame.js"></script>
+    <script src="js/games/CavalryGame.js"></script>
+    <script src="js/games/EngineeringGame.js"></script>
+    <script src="js/games/TradeGame.js"></script>
+    <script src="js/games/LawGame.js"></script>
+    <script src="js/games/NavyGame.js"></script>
+    <script src="js/games/StrategyGame.js"></script>
+    <script src="js/games/MartialGame.js"></script>
+    <script src="js/games/MedicineGame.js"></script>
+    <script src="js/games/CalligraphyGame.js"></script>
+    <script src="js/games/SpyGame.js"></script>
+    <script src="js/games/NavigationGame.js"></script>
+    <script src="js/games/RitualGame.js"></script>
+    <script src="js/games/FirearmGame.js"></script>
+    <script src="js/games/DuelGame.js"></script>
+    <script src="js/games/BattleGame.js"></script>
+    <script src="js/GameView.js"></script>
+
+    <script>
+        // 调试小游戏
+        const MINIGAMES = [
+            {gameType: 'agriculture', skill: '农政', name: '劝课农桑', desc: '开垦荒地，力量停在红色区域得分'},
+            {gameType: 'eloquence', skill: '口才', name: '游说纵横', desc: '情绪博弈，说服目标'},
+            {gameType: 'infantry', skill: '步战', name: '步军演武', desc: '石头剪刀布，战术克制'},
+            {gameType: 'cavalry', skill: '骑战', name: '赛马争先', desc: '赛马竞速，策略选择'},
+            {gameType: 'engineering', skill: '工政', name: '筑城考工', desc: '放下石块，接近目标重量'},
+            {gameType: 'trade', skill: '商政', name: '珠算商贾', desc: '配对翻牌，记忆考验'},
+            {gameType: 'law', skill: '律政', name: '明律断案', desc: '找出相同证据，配对成功结案'},
+            {gameType: 'navy', skill: '水战', name: '楼船破浪', desc: '左右移动躲开暗礁'},
+            {gameType: 'strategy', skill: '兵法', name: '围棋死活', desc: '围棋死活题，计算杀棋活棋'},
+            {gameType: 'martial', skill: '武艺', name: '武馆切磋', desc: '个人战切磋（框架完整）'},
+            {gameType: 'medicine', skill: '医术', name: '本草配方', desc: '记忆药材顺序，按序抓取'},
+            {gameType: 'calligraphy', skill: '文墨', name: '文墨填空', desc: '文墨填空'},
+            {gameType: 'spy', skill: '密探', name: '潜龙谍影', desc: '迷宫寻路，找到出口'},
+            {gameType: 'navigation', skill: '航海', name: '罗盘导航', desc: '罗盘导航'},
+            {gameType: 'ritual', skill: '礼制', name: '朝仪习礼', desc: '顺序排列礼仪步骤'},
+            {gameType: 'firearm', skill: '火器', name: '神机校射', desc: 'XY坐标瞄准射击'},
+            {gameType: 'battle', skill: '兵法', name: '合战演习', desc: '完整军团对战，卡牌组合+阵型相克'}
+        ];
+
+        // 初始化游戏状态
+        let gameState = new GameState();
+        let gameView = new GameView(gameState);
+
+        // 渲染小游戏列表
+        function renderList() {
+            const container = document.getElementById('minigame-list');
+            container.innerHTML = MINIGAMES.map(g => `
+                <div class="minigame-item" onclick="startGame('${g.gameType}')">
+                    <h3>${g.name}</h3>
+                    <p>${g.desc}</p>
+                    <span class="skill-name">${g.skill}</span>
+                </div>
+            `).join('');
+        }
+
+        // 开始一个小游戏
+        function startGame(gameType) {
+            // 切换布局：隐藏列表，显示游戏
+            document.body.classList.add('game-running');
+
+            // 创建一个假任务 - debug调试模式
+            const skillMapping = {
+                agriculture: 'agriculture',
+                eloquence: 'eloquence',
+                infantry: 'infantry',
+                cavalry: 'cavalry',
+                engineering: 'engineering',
+                trade: 'trade',
+                law: 'law',
+                navy: 'navy',
+                strategy: 'strategy',
+                martial: 'martial',
+                medicine: 'medicine',
+                calligraphy: 'calligraphy',
+                spy: 'spy',
+                navigation: 'navigation',
+                ritual: 'ritual',
+                firearm: 'firearm',
+                battle: 'strategy'
+            };
+            const template = {
+                id: 999,
+                templateId: 999,
+                mission_id: 'DEBUG',
+                name: `[调试] ${MINIGAMES.find(g => g.gameType === gameType).name}`,
+                category: 'debug',
+                minRank: 'peasant',
+                requiredSkills: [],
+                requiredSkill: skillMapping[gameType] || gameType,
+                baseDifficulty: 2,
+                baseReward: 50,
+                baseRewardMerit: 50,
+                baseRewardMoney: 50,
+                rewardMerit: 50,
+                rewardMoney: 50,
+                timeLimitDays: 30,
+                completionType: 'minigame',
+                gameType: gameType,
+                targetParam: null
+            };
+
+            // 直接设置currentTask，不需要经过MissionSystem的完整流程
+            // 因为这是调试模式，不需要保存/超时等逻辑
+            gameState.currentTask = template;
+            gameState.currentScene = GameScene.FARMING_GAME;
+
+            // 初始化小游戏状态
+            MinigameInitializer.initMinigame(gameState, template);
+
+            // 渲染 - 会自动调用 startMinigameByType
+            gameView.renderAll();
+
+            // 滚动到游戏
+            document.getElementById('game-container').scrollIntoView({behavior: 'smooth'});
+        }
+
+        // 返回调试列表
+        function backToList() {
+            // 切换布局：显示列表，隐藏游戏
+            document.body.classList.remove('game-running');
+            // 重置游戏状态
+            gameState = new GameState();
+            gameView = new GameView(gameState);
+            renderList();
+            gameView.renderAll();
+        }
+
+        // 初始化
+        renderList();
+        gameView.renderAll();
+    </script>
+</body>
+</html>

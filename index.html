@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大明王朝 - MingDynasty</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Pixelify+Sans:wght@400;700&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/views.css">
+    <link rel="stylesheet" href="css/games.css">
+    <link rel="stylesheet" href="css/battle.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- 顶部状态栏 -->
+        <div id="status-bar" class="status-bar">
+            <div class="status-date" id="status-date"></div>
+            <div class="status-actions">
+                <button id="next-day-btn" class="btn secondary-btn">次日</button>
+            </div>
+            <div class="status-stats">
+                <span class="stat-item">金钱: <span id="money">0</span></span>
+                <span class="stat-item">功勋: <span id="merit">0</span></span>
+            </div>
+        </div>
+
+        <!-- 中间主显示区 -->
+        <div id="main-display" class="main-display">
+            <div id="character-view" class="character-view">
+                <!-- 角色属性视图将在这里动态渲染 -->
+            </div>
+            <div id="city-view" class="scene-view" style="display: none;">
+                <!-- 城市视图 -->
+            </div>
+            <div id="character-list-view" class="scene-view" style="display: none;">
+                <!-- 城中人物列表视图 -->
+            </div>
+            <div id="social-view" class="scene-view" style="display: none;">
+                <!-- 社交互动视图 -->
+            </div>
+            <div id="task-list-view" class="scene-view" style="display: none;">
+                <!-- 任务列表视图 -->
+            </div>
+            <div id="farming-game-view" class="scene-view" style="display: none;">
+                <!-- 小游戏共享容器 -->
+            </div>
+            <div id="card-collection-view" class="scene-view" style="display: none;">
+                <!-- 卡片图鉴视图 -->
+            </div>
+            <div id="map-view" class="map-view" style="display: none;">
+                <!-- 城市地图视图 -->
+            </div>
+            <div id="market-view" class="scene-view" style="display: none;">
+                <!-- 市集交易视图 -->
+            </div>
+            <div id="event-view" class="scene-view" style="display: none;">
+                <!-- 剧情事件视图 -->
+            </div>
+        </div>
+
+        <!-- 底部导航区 -->
+        <div id="navigation-bar" class="navigation-bar">
+            <button id="nav-character" class="nav-btn active">角色</button>
+            <button id="nav-city" class="nav-btn">城市</button>
+            <button id="nav-map" class="nav-btn">地图</button>
+            <button id="nav-task" class="nav-btn">主命</button>
+            <button id="nav-card" class="nav-btn">卡片</button>
+        </div>
+
+        <!-- 日志区域 -->
+        <div id="interaction-area" class="interaction-area">
+            <div id="log-area" class="log-area"></div>
+        </div>
+    </div>
+
+    <!-- 数据文件 - 全部先加载 -->
+    <script src="data/characters.js"></script>
+    <script src="data/cities.js"></script>
+    <script src="data/forces.js"></script>
+    <script src="data/roles.js"></script>
+    <script src="data/skills.js"></script>
+    <script src="data/cards.js"></script>
+    <script src="data/battle-cards.js"></script>
+    <script src="data/battle-formations.js"></script>
+    <script src="data/battle-troops.js"></script>
+    <script src="data/tasks.js"></script>
+    <script src="data/personal-battle.js"></script>
+    <script src="data/goods.js"></script>
+    <script src="data/events.js"></script>
+
+    <!-- 工具模块 -->
+    <script src="js/utils/BattleCalculator.js"></script>
+    <script src="js/utils/BattleAI.js"></script>
+    <script src="js/utils/EconomicCalculator.js"></script>
+    <script src="js/utils/EventScheduler.js"></script>
+    <script src="js/utils/CharacterRendererUtils.js"></script>
+    <script src="js/utils/GameInitializer.js"></script>
+    <script src="js/utils/SaveManager.js"></script>
+
+    <!-- 子系统模块 - 拆分自GameState -->
+    <script src="js/systems/CardSystem.js"></script>
+    <script src="js/systems/SocialSystem.js"></script>
+    <script src="js/systems/SkillSystem.js"></script>
+    <script src="js/systems/TaskSystem.js"></script>
+    <script src="js/systems/SaveSystem.js"></script>
+    <script src="js/systems/TimeSystem.js"></script>
+    <script src="js/systems/MissionSystem.js"></script>
+
+    <!-- 核心游戏状态定义必须先加载，因为GameScene被管理器使用 -->
+    <script src="js/GameState.js"></script>
+
+    <!-- 管理器模块 -->
+    <script src="js/managers/AnimationManager.js"></script>
+    <script src="js/managers/SceneManager.js"></script>
+    <script src="js/managers/MinigameInitializer.js"></script>
+    <script src="js/managers/GameResultManager.js"></script>
+
+    <!-- 基类和框架 - 依赖管理器，所以放在管理器之后 -->
+    <script src="js/base/BaseGame.js"></script>
+
+    <!-- 游戏模块 -->
+    <!-- 渲染模块 - 拆分出去保持代码整洁 -->
+    <script src="js/modules/CharacterViewRenderer.js"></script>
+    <script src="js/modules/CityViewRenderer.js"></script>
+    <script src="js/modules/TaskListRenderer.js"></script>
+    <script src="js/modules/CharacterListRenderer.js"></script>
+    <script src="js/modules/SocialRenderer.js"></script>
+    <script src="js/modules/CardCollectionRenderer.js"></script>
+    <script src="js/modules/MapRenderer.js"></script>
+    <script src="js/modules/MarketScene.js"></script>
+    <script src="js/modules/EventScene.js"></script>
+    <script src="js/modules/FacilityScene.js"></script>
+    <!-- 小游戏模块 - 每个小游戏独立文件 -->
+    <script src="js/games/FarmingGame.js"></script>
+    <script src="js/games/EloquenceGame.js"></script>
+    <script src="js/games/InfantryGame.js"></script>
+    <script src="js/games/CavalryGame.js"></script>
+    <script src="js/games/EngineeringGame.js"></script>
+    <script src="js/games/TradeGame.js"></script>
+    <script src="js/games/LawGame.js"></script>
+    <script src="js/games/NavyGame.js"></script>
+    <script src="js/games/StrategyGame.js"></script>
+    <!-- 个人战拆分模块 -->
+    <script src="js/games/martial/MartialCalculator.js"></script>
+    <script src="js/games/martial/MartialRenderer.js"></script>
+    <script src="js/games/martial/MartialController.js"></script>
+    <script src="js/games/MartialGame.js"></script>
+    <script src="js/games/MedicineGame.js"></script>
+    <script src="js/games/CalligraphyGame.js"></script>
+    <script src="js/games/SpyGame.js"></script>
+    <script src="js/games/NavigationGame.js"></script>
+    <script src="js/games/RitualGame.js"></script>
+    <script src="js/games/FirearmGame.js"></script>
+    <script src="js/games/DuelGame.js"></script>
+    <!-- 合战拆分模块 -->
+    <script src="js/games/battle/BattleRenderer.js"></script>
+    <script src="js/games/battle/BattleController.js"></script>
+    <script src="js/games/BattleGame.js"></script>
+    <script src="js/GameView.js"></script>
+
+    <!-- 主游戏入口 -->
+    <script src="main.js"></script>
+</body>
+</html>
