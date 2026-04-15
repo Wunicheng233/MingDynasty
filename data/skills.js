@@ -240,20 +240,6 @@ const SKILLS = [
         }
     },
     {
-        id: "navigation",
-        name: "航海",
-        category: "特殊",
-        description: "远洋航海，郑和下西洋",
-        maxLevel: 3,
-        expPerLevel: 100,
-        minigame: "罗盘导航",
-        levelEffects: {
-            1: { error_margin: 15 },
-            2: { error_margin: 10 },
-            3: { error_margin: 5 }
-        }
-    },
-    {
         id: "calligraphy",
         name: "文墨",
         category: "特殊",

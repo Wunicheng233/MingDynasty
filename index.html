@@ -76,18 +76,50 @@
     </div>
 
     <!-- 数据文件 - 全部先加载 -->
+    <!-- 人物按势力拆分 - 先加载数据，再加载主文件聚合 -->
+    <script src="data/characters/guo-zixing.js"></script>
+    <script src="data/characters/zhu-yuanzhang.js"></script>
+    <script src="data/characters/other-rebels.js"></script>
+    <script src="data/characters/yuan-dynasty.js"></script>
+    <script src="data/characters/neutral.js"></script>
+    <script src="data/characters/civilians.js"></script>
     <script src="data/characters.js"></script>
     <script src="data/cities.js"></script>
     <script src="data/forces.js"></script>
     <script src="data/roles.js"></script>
     <script src="data/skills.js"></script>
+    <!-- 卡片库按类型拆分 - 先加载类型定义，再加载数据，最后聚合 -->
+    <script src="data/cards/card-types.js"></script>
+    <script src="data/cards/characters.js"></script>
+    <script src="data/cards/skills.js"></script>
+    <script src="data/cards/tactics.js"></script>
+    <script src="data/cards/martial.js"></script>
+    <script src="data/cards/secrets.js"></script>
+    <script src="data/cards/titles.js"></script>
+    <script src="data/cards/places.js"></script>
+    <script src="data/cards/event-cards.js"></script>
+    <script src="data/cards/treasures.js"></script>
     <script src="data/cards.js"></script>
+    <!-- 合战卡片按用途拆分 - 先加载类型定义，再加载数据，最后聚合 -->
+    <script src="data/battle-cards/battle-types.js"></script>
+    <script src="data/battle-cards/normal.js"></script>
+    <script src="data/battle-cards/attack.js"></script>
+    <script src="data/battle-cards/support.js"></script>
+    <script src="data/battle-cards/naval.js"></script>
+    <script src="data/battle-cards/special.js"></script>
+    <script src="data/battle-cards/duel.js"></script>
     <script src="data/battle-cards.js"></script>
     <script src="data/battle-formations.js"></script>
     <script src="data/battle-troops.js"></script>
     <script src="data/tasks.js"></script>
     <script src="data/personal-battle.js"></script>
     <script src="data/goods.js"></script>
+    <!-- 事件库按类型拆分 - 先加载类型定义，再加载数据，最后聚合 -->
+    <script src="data/events/event-types.js"></script>
+    <script src="data/events/main.js"></script>
+    <script src="data/events/branch.js"></script>
+    <script src="data/events/random.js"></script>
+    <script src="data/events/periodic.js"></script>
     <script src="data/events.js"></script>
 
     <!-- 工具模块 -->

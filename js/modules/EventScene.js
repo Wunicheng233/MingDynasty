@@ -98,6 +98,10 @@ window.EventScene = {
      */
     chooseOption(event, gameState, choiceIndex) {
         const currentScene = this.getCurrentScene(event, gameState.currentEventScene);
+        if (!currentScene) {
+            console.warn('Event scene not found, maybe event already ended');
+            return;
+        }
         const choice = currentScene.choices[choiceIndex];
 
         // 执行选择，得到下一个场景ID

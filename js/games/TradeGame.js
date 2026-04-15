@@ -488,7 +488,15 @@ window.TradeGame = {
         }
 
         const game = gameState.tradeGame;
+        if (!game) {
+            console.warn('Trade game already finished, ignoring click');
+            return;
+        }
         const currentQ = game.questions[game.currentQuestion];
+        if (!currentQ) {
+            console.warn('Trade question not found, ignoring click');
+            return;
+        }
         const feedbackEl = document.getElementById('trade-feedback');
 
         const correct = Math.abs(selectedAnswer - currentQ.answer) < 0.001;
@@ -523,6 +531,10 @@ window.TradeGame = {
         }
 
         const game = gameState.tradeGame;
+        if (!game) {
+            console.warn('Trade game already finished, ignoring finish call');
+            return;
+        }
         const task = gameState.currentTask;
 
         // 计算完成率
