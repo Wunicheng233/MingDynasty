@@ -3,7 +3,13 @@
  * 记住药材顺序，然后按顺序点击抓取
  */
 
-window.MedicineGame = {
+import SkillSystem from '../systems/SkillSystem.js';
+import TimeSystem from '../systems/TimeSystem.js';
+import { GameScene } from '../GameState.js';
+import GameResultManager from '../managers/GameResultManager.js';
+import { getMissionTemplateById } from '../../data/tasks.js';
+
+const MedicineGame = {
     /**
      * 启动游戏
      */
@@ -28,7 +34,8 @@ window.MedicineGame = {
             playerSequence: [],
             totalCount: herbCount,
             shown: false,
-            isPractice: title !== null
+            isPractice: title !== null,
+            hideTimer: null
         });
         const game = gameState.medicineGame;
 
@@ -54,15 +61,22 @@ window.MedicineGame = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
 
         // 5秒后消失并启用按钮
-        setTimeout(() => {
-            document.getElementById('medicine-sequence').style.opacity = '0';
+        game.hideTimer = setTimeout(() => {
+            const sequenceEl = document.getElementById('medicine-sequence');
+            if (sequenceEl) {
+                sequenceEl.style.opacity = '0';
+            }
             document.querySelectorAll('.medicine-btn').forEach(btn => {
                 btn.disabled = false;
             });
             game.shown = true;
+            game.hideTimer = null;
         }, 5000);
 
         this.bindEvents(gameState, gameView);
@@ -143,3 +157,6 @@ window.MedicineGame = {
         }
     }
 };
+
+export default MedicineGame;
+window.MedicineGame = MedicineGame;

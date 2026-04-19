@@ -3,7 +3,9 @@
  * 提取各个渲染器共享的重复渲染逻辑，避免代码重复
  */
 
-window.CharacterRendererUtils = {
+import { getAllSkills } from '../../data/skills.js';
+
+const CharacterRendererUtils = {
     /**
      * 基础属性中文名称映射
      */
@@ -160,3 +162,6 @@ window.CharacterRendererUtils = {
         `;
     }
 };
+
+export default CharacterRendererUtils;
+window.CharacterRendererUtils = CharacterRendererUtils;

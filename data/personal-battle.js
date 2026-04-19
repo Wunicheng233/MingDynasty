@@ -7,7 +7,7 @@
  * 预定义数字组合技
  * 按照策划文档：明朝特色数字组合
  */
-window.PERSONAL_COMBOS = [
+export const PERSONAL_COMBOS = [
     {
         name: '洪武定鼎',
         numbers: [1, 1, 1],
@@ -127,7 +127,7 @@ window.PERSONAL_COMBOS = [
 /**
  * 预定义特殊技卡片
  */
-window.PERSONAL_SPECIALS = [
+export const PERSONAL_SPECIALS = [
     {
         id: 'taizu_boxing',
         name: '太祖长拳',
@@ -200,3 +200,7 @@ window.PERSONAL_SPECIALS = [
         priority: 10
     }
 ];
+
+// 保留全局暴露用于兼容性调试
+window.PERSONAL_COMBOS = PERSONAL_COMBOS;
+window.PERSONAL_SPECIALS = PERSONAL_SPECIALS;

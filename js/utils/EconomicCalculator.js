@@ -3,7 +3,10 @@
  * 物价计算、价格波动、投资收益等核心算法
  */
 
-window.EconomicCalculator = {
+import { getGoodsTemplateById } from '../../data/goods.js';
+import { getCityTemplateByCityId } from '../../data/cities.js';
+
+const EconomicCalculator = {
     /**
      * 货币换算：文转换为贯（显示用）
      * @param {number} wen - 文
@@ -272,3 +275,8 @@ window.EconomicCalculator = {
         return Math.max(5, Math.round(gain));
     }
 };
+
+export default EconomicCalculator;
+
+// 保留全局暴露用于兼容性调试
+window.EconomicCalculator = EconomicCalculator;

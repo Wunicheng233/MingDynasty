@@ -127,23 +127,28 @@ const GOODS_TEMPLATES = [
  * @param {string} goodsId
  * @returns {GoodsTemplate|undefined}
  */
-window.getGoodsTemplateById = function getGoodsTemplateById(goodsId) {
+export function getGoodsTemplateById(goodsId) {
     return GOODS_TEMPLATES.find(g => g.goodsId === goodsId);
-};
+}
 
 /**
  * 获取所有商品模板
  * @returns {GoodsTemplate[]}
  */
-window.getAllGoodsTemplates = function getAllGoodsTemplates() {
+export function getAllGoodsTemplates() {
     return GOODS_TEMPLATES;
-};
+}
 
 /**
  * 根据类别获取商品
  * @param {string} category
  * @returns {GoodsTemplate[]}
  */
-window.getGoodsByCategory = function getGoodsByCategory(category) {
+export function getGoodsByCategory(category) {
     return GOODS_TEMPLATES.filter(g => g.category === category);
-};
+}
+
+// 保留全局暴露用于兼容性调试
+window.getGoodsTemplateById = getGoodsTemplateById;
+window.getAllGoodsTemplates = getAllGoodsTemplates;
+window.getGoodsByCategory = getGoodsByCategory;

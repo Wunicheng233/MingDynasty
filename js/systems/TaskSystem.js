@@ -7,7 +7,11 @@
  * - 君主阶段：发布主命 → 管理家臣 → 经营扩张 → 统一天下
  */
 
-window.TaskSystem = {
+import SkillSystem from './SkillSystem.js';
+import { getRoleById } from '../../data/roles.js';
+import { getAllCards } from '../../data/cards.js';
+
+const TaskSystem = {
     /**
      * 检查并处理评定会/朝会
      * @param {GameState} gameState
@@ -86,7 +90,8 @@ window.TaskSystem = {
 
         // 15%概率给技能卡
         if (Math.random() < 0.15) {
-            const possibleCards = CARDS.filter(c =>
+            const allCards = getAllCards();
+            const possibleCards = allCards.filter(c =>
                 c.type === 'skill' &&
                 template.requiredSkills.includes(c.skillId) &&
                 !gameState.hasCard(c.card_id)
@@ -100,7 +105,8 @@ window.TaskSystem = {
 
         // 难度4+额外5%称号卡概率
         if (!cardReward && template.baseDifficulty >= 4 && Math.random() < 0.05) {
-            const titleCards = CARDS.filter(c => c.type === 'title' && !gameState.hasCard(c.card_id));
+            const allCards = getAllCards();
+            const titleCards = allCards.filter(c => c.type === 'title' && !gameState.hasCard(c.card_id));
             if (titleCards.length > 0) {
                 cardReward = titleCards[Math.floor(Math.random() * titleCards.length)];
                 gameState.acquireCard(cardReward.card_id);
@@ -204,3 +210,6 @@ window.TaskSystem = {
         return result;
     }
 };
+
+export default TaskSystem;
+window.TaskSystem = TaskSystem;

@@ -3,7 +3,13 @@
  * 6回合内将对方情绪值提升到100即可成功
  */
 
-window.EloquenceGame = {
+import SkillSystem from '../systems/SkillSystem.js';
+import TimeSystem from '../systems/TimeSystem.js';
+import { GameScene } from '../GameState.js';
+import GameResultManager from '../managers/GameResultManager.js';
+import { getMissionTemplateById } from '../../data/tasks.js';
+
+const EloquenceGame = {
     /**
      * 启动游戏
      */
@@ -70,7 +76,10 @@ window.EloquenceGame = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
         this.bindEvents(gameState, gameView);
     },
 
@@ -187,3 +196,6 @@ window.EloquenceGame = {
         gameView.renderAll();
     }
 };
+
+export default EloquenceGame;
+window.EloquenceGame = EloquenceGame;

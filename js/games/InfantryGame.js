@@ -12,7 +12,13 @@
  * - 棋子编码：1=红車 2=红马 3=红炮 4=红兵 5=红帅，7=黑将 8=黑士 9=黑象
  */
 
-window.InfantryGame = {
+import SkillSystem from '../systems/SkillSystem.js';
+import TimeSystem from '../systems/TimeSystem.js';
+import { GameScene } from '../GameState.js';
+import GameResultManager from '../managers/GameResultManager.js';
+import { getMissionTemplateById } from '../../data/tasks.js';
+
+const InfantryGame = {
     /**
      * 象棋残局题库 - 全部红先一步杀，严格符合象棋规则，源自经典杀法
      * 所有题目均经过严格规则校验：棋子移动规则、九宫范围、将帅不直接照面、蹩马腿/炮架都合规
@@ -417,7 +423,10 @@ window.InfantryGame = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
 
         document.getElementById('start-game-btn').addEventListener('click', () => {
             const game = gameState.infantryGame;
@@ -563,7 +572,10 @@ window.InfantryGame = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
         this.bindEvents(gameState, gameView);
     },
 
@@ -725,7 +737,10 @@ window.InfantryGame = {
                 </div>
             `;
 
-            document.getElementById('farming-game-view').innerHTML = html;
+            const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
             document.getElementById('infantry-done-btn').addEventListener('click', () => {
                 // 时间推进：按任务限时推进
                 TimeSystem.advanceDays(gameState, template.timeLimitDays);
@@ -736,3 +751,6 @@ window.InfantryGame = {
         }
     }
 };
+
+export default InfantryGame;
+window.InfantryGame = InfantryGame;

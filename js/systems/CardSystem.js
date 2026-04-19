@@ -2,7 +2,10 @@
  * 卡片收集系统 - 拆分自GameState
  * 负责卡片收集、称号管理、全局收集持久化
  */
-window.CardSystem = {
+
+import { CardTypes, getCardById, getAllCards, getCardTypeName } from '../../data/cards.js';
+
+const CardSystem = {
     /**
      * 检查并收集新卡片 - 统一入口
      * @param {GameState} gameState - 游戏状态实例
@@ -280,3 +283,6 @@ window.CardSystem = {
         return count;
     }
 };
+
+export default CardSystem;
+window.CardSystem = CardSystem;

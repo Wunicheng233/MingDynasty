@@ -1,7 +1,19 @@
 /**
  * 游戏场景枚举
  */
-window.GameScene = {
+
+import { getCharacterTemplateByNumId } from '../data/characters.js';
+import { getCityTemplateById } from '../data/cities.js';
+import { getAvailableMissionsForRole, getAllMissionTemplates, getMissionTemplateById } from '../data/tasks.js';
+import GameInitializer from './utils/GameInitializer.js';
+import CardSystem from './systems/CardSystem.js';
+import SocialSystem from './systems/SocialSystem.js';
+import SkillSystem from './systems/SkillSystem.js';
+import SaveSystem from './systems/SaveSystem.js';
+import TimeSystem from './systems/TimeSystem.js';
+import MissionSystem from './systems/MissionSystem.js';
+
+export const GameScene = {
     CHARACTER_VIEW: 'character',
     CITY_VIEW: 'city',
     MAP_VIEW: 'map',
@@ -36,7 +48,7 @@ const IntimacyLevel = {
  * 游戏状态管理类
  * 重构后：核心状态管理，通过委托调用各子系统
  */
-window.GameState = class GameState {
+export default class GameState {
     constructor() {
         // 当前日期 - 元朝末年，至正十二年
         this.year = 1352;
@@ -54,7 +66,9 @@ window.GameState = class GameState {
         this.playerFaction = playerTemplate1 ? playerTemplate1.faction : null;
 
         // 玩家金钱
-        this.money = 10;
+        // 进位规则：一两 = 1000贯 = 1,000,000钱，一贯 = 1000钱
+        // 底层存储单位：钱
+        this.money = 10 * 1000; // 初始10贯 = 10 * 1000 = 10000钱
 
         // 玩家功勋
         this.merit = 0;
@@ -62,8 +76,8 @@ window.GameState = class GameState {
         // 游戏日志
         this.logs = [];
 
-        // 当前场景
-        this.currentScene = GameScene.CHARACTER_VIEW;
+        // 当前场景 - 直接进入大地图（游戏主枢纽）
+        this.currentScene = GameScene.MAP_VIEW;
 
         // 当前进行中的任务
         this.currentTask = null;
@@ -156,9 +170,11 @@ window.GameState = class GameState {
         SocialSystem.applyHuaixiGroupBonus(this);
 
         // 初始化完成后检测一次触发事件（处理开局事件）
-        if (typeof EventScheduler !== 'undefined') {
-            EventScheduler.checkAndTrigger(this);
-        }
+        // 暂时禁用初始剧情，以后再添加回来
+        // if (typeof EventScheduler !== 'undefined') {
+        //     EventScheduler.checkAndTrigger(this);
+        // }
+
     }
 
     // ========== 卡片系统委托 ==========
@@ -756,3 +772,7 @@ window.GameState = class GameState {
         return true;
     }
 };
+
+// 全局暴露用于兼容调试
+window.GameScene = GameScene;
+window.GameState = GameState;

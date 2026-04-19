@@ -3,7 +3,12 @@
  * 资源分配航行，总航程15段，合理分配体力与士气
  */
 
-window.NavyGame = {
+import SkillSystem from '../systems/SkillSystem.js';
+import TimeSystem from '../systems/TimeSystem.js';
+import { GameScene } from '../GameState.js';
+import { getMissionTemplateById } from '../../data/tasks.js';
+
+const NavyGame = {
     /**
      * 启动游戏
      */
@@ -85,7 +90,10 @@ window.NavyGame = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
 
         document.getElementById('action-full').addEventListener('click', () => {
             this.onAction('full', gameState, gameView);
@@ -232,7 +240,10 @@ window.NavyGame = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
         document.getElementById('navy-done-btn').addEventListener('click', () => {
             // 时间推进：按任务限时推进
             TimeSystem.advanceDays(gameState, template.timeLimitDays);
@@ -242,3 +253,6 @@ window.NavyGame = {
         });
     }
 };
+
+export default NavyGame;
+window.NavyGame = NavyGame;

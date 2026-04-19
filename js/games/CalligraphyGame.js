@@ -3,7 +3,13 @@
  * 选出正确的字填入古诗文/奏章名句
  */
 
-window.CalligraphyGame = {
+import SkillSystem from '../systems/SkillSystem.js';
+import TimeSystem from '../systems/TimeSystem.js';
+import { GameScene } from '../GameState.js';
+import GameResultManager from '../managers/GameResultManager.js';
+import { getMissionTemplateById } from '../../data/tasks.js';
+
+const CalligraphyGame = {
     /**
      * 启动游戏
      */
@@ -86,7 +92,10 @@ window.CalligraphyGame = {
             <div class="calligraphy-result" id="calligraphy-result"></div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
         this.bindEvents(gameState, gameView);
     },
 
@@ -162,3 +171,6 @@ window.CalligraphyGame = {
         }
     }
 };
+
+export default CalligraphyGame;
+window.CalligraphyGame = CalligraphyGame;

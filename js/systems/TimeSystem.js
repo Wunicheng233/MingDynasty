@@ -3,7 +3,13 @@
  * 负责日期管理、时间推进、季节性衰减
  */
 
-window.TimeSystem = {
+import { getMissionTemplateById } from '../../data/tasks.js';
+import EventScheduler from '../utils/EventScheduler.js';
+import SocialSystem from './SocialSystem.js';
+import SkillSystem from './SkillSystem.js';
+import MissionSystem from './MissionSystem.js';
+
+const TimeSystem = {
     /**
      * 推进N天
      * @param {GameState} gameState
@@ -111,3 +117,6 @@ window.TimeSystem = {
         return `${gameState.year}年${gameState.month}月${gameState.day}日`;
     }
 };
+
+export default TimeSystem;
+window.TimeSystem = TimeSystem;

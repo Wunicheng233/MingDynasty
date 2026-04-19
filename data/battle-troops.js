@@ -96,32 +96,32 @@ const BATTLE_TROOPS = [
  * 获取所有兵种
  * @returns {BattleTroop[]}
  */
-window.getAllBattleTroops = function getAllBattleTroops() {
+export function getAllTroops() {
     return BATTLE_TROOPS;
-};
+}
 
 /**
  * 根据ID获取兵种
  * @param {string} id
  * @returns {BattleTroop|undefined}
  */
-window.getTroopById = function getTroopById(id) {
+export function getTroopById(id) {
     return BATTLE_TROOPS.find(t => t.id === id);
-};
+}
 
 /**
  * 获取可用于当前战斗的兵种列表
  * @param {string} battleType - 'field'|'siege'|'naval'
  * @returns {BattleTroop[]}
  */
-window.getAvailableTroopsForBattle = function getAvailableTroopsForBattle(battleType) {
+export function getAvailableTroopsForBattle(battleType) {
     if (battleType === 'naval') {
         // 水战可用：水军、弓兵、火器
         return BATTLE_TROOPS.filter(t => !t.waterOnly || t.id === 'navy' || t.id === 'archer' || t.id === 'firearm');
     }
     // 陆战/攻城：所有除了水军
     return BATTLE_TROOPS.filter(t => !t.waterOnly);
-};
+}
 
 /**
  * 计算兵种相克倍率
@@ -129,7 +129,7 @@ window.getAvailableTroopsForBattle = function getAvailableTroopsForBattle(battle
  * @param {string} defenderTroopId
  * @returns {number} 倍率
  */
-window.getTroopMultiplier = function getTroopMultiplier(attackerTroopId, defenderTroopId) {
+export function getTroopMultiplier(attackerTroopId, defenderTroopId) {
     const attacker = getTroopById(attackerTroopId);
     if (!attacker) return 1.0;
 
@@ -140,7 +140,7 @@ window.getTroopMultiplier = function getTroopMultiplier(attackerTroopId, defende
         return 0.7;
     }
     return 1.0;
-};
+}
 
 /**
  * 计算部队攻击力
@@ -150,12 +150,12 @@ window.getTroopMultiplier = function getTroopMultiplier(attackerTroopId, defende
  * @param {number} skillLevel - 对应技能等级
  * @returns {number}
  */
-window.calculateTroopAttack = function calculateTroopAttack(generalCommand, generalForce, troop, skillLevel) {
+export function calculateTroopAttack(generalCommand, generalForce, troop, skillLevel) {
     // 公式：攻击力 = 统率 × 0.3 + 武力 × 0.1 + 兵种基础攻击 × (1 + 技能等级 × 0.1)
     const base = generalCommand * 0.3 + generalForce * 0.1;
     const troopBonus = troop.baseAttack * (1 + skillLevel * 0.1);
     return Math.round(base + troopBonus);
-};
+}
 
 /**
  * 计算部队防御力
@@ -164,9 +164,17 @@ window.calculateTroopAttack = function calculateTroopAttack(generalCommand, gene
  * @param {number} skillLevel - 对应技能等级
  * @returns {number}
  */
-window.calculateTroopDefense = function calculateTroopDefense(generalCommand, troop, skillLevel) {
+export function calculateTroopDefense(generalCommand, troop, skillLevel) {
     // 公式：防御力 = 统率 × 0.2 + 兵种基础防御 × (1 + 技能等级 × 0.05)
     const base = generalCommand * 0.2;
     const troopBonus = troop.baseDefense * (1 + skillLevel * 0.05);
     return Math.round(base + troopBonus);
-};
+}
+
+// 保留全局暴露用于兼容性调试
+window.getAllTroops = getAllTroops;
+window.getTroopById = getTroopById;
+window.getAvailableTroopsForBattle = getAvailableTroopsForBattle;
+window.getTroopMultiplier = getTroopMultiplier;
+window.calculateTroopAttack = calculateTroopAttack;
+window.calculateTroopDefense = calculateTroopDefense;

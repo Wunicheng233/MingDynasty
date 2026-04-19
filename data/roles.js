@@ -39,24 +39,29 @@ const ROLES = [
  * @param {number} merit
  * @returns {Role}
  */
-window.getCurrentRoleByMerit = function getCurrentRoleByMerit(merit) {
+export function getCurrentRoleByMerit(merit) {
     // 按功勋从大到小找，找到第一个满足的
     return [...ROLES].reverse().find(r => merit >= r.requiredMerit);
-};
+}
 
 /**
  * 获取所有身份
  * @returns {Role[]}
  */
-window.getAllRoles = function getAllRoles() {
+export function getAllRoles() {
     return [...ROLES].sort((a, b) => a.order - b.order);
-};
+}
 
 /**
  * 根据ID获取身份
  * @param {string} id
  * @returns {Role|undefined}
  */
-window.getRoleById = function getRoleById(id) {
+export function getRoleById(id) {
     return ROLES.find(r => r.id === id);
-};
+}
+
+// 保留全局暴露用于兼容性调试
+window.getCurrentRoleByMerit = getCurrentRoleByMerit;
+window.getAllRoles = getAllRoles;
+window.getRoleById = getRoleById;

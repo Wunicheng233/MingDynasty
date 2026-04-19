@@ -3,7 +3,13 @@
  * 找出证词矛盾 + 选择正确法律条文定罪
  */
 
-window.LawGame = {
+import SkillSystem from '../systems/SkillSystem.js';
+import TimeSystem from '../systems/TimeSystem.js';
+import { GameScene } from '../GameState.js';
+import GameResultManager from '../managers/GameResultManager.js';
+import { getMissionTemplateById } from '../../data/tasks.js';
+
+const LawGame = {
     /**
      * 启动游戏
      */
@@ -233,7 +239,10 @@ window.LawGame = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
         this.bindContradictionEvents(gameState, gameView);
     },
 
@@ -334,7 +343,10 @@ window.LawGame = {
                 </div>
             `;
 
-            document.getElementById('farming-game-view').innerHTML = html;
+            const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
 
             document.getElementById('law-back-btn').addEventListener('click', () => {
                 this.start(gameView, gameState);
@@ -434,7 +446,10 @@ window.LawGame = {
                 </div>
             `;
 
-            document.getElementById('farming-game-view').innerHTML = html;
+            const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
             document.getElementById('law-done-btn').addEventListener('click', () => {
                 // 返回设施场景
                 gameState.currentScene = GameScene.FACILITY;
@@ -469,7 +484,10 @@ window.LawGame = {
                 </div>
             `;
 
-            document.getElementById('farming-game-view').innerHTML = html;
+            const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
             document.getElementById('law-done-btn').addEventListener('click', () => {
                 // 时间推进：按任务限时推进
                 TimeSystem.advanceDays(gameState, template.timeLimitDays);
@@ -480,3 +498,6 @@ window.LawGame = {
         }
     }
 };
+
+export default LawGame;
+window.LawGame = LawGame;

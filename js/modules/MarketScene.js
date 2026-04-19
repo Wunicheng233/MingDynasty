@@ -3,7 +3,13 @@
  * 处理市集的渲染和用户交互
  */
 
-window.MarketScene = {
+import { getAllGoodsTemplates, getGoodsTemplateById } from '../../data/goods.js';
+import { getCityTemplateById } from '../../data/cities.js';
+import { GameScene } from '../GameState.js';
+import EconomicCalculator from '../utils/EconomicCalculator.js';
+import NavigationManager from '../managers/NavigationManager.js';
+
+const MarketScene = {
     /**
      * 场景状态
      */
@@ -182,7 +188,7 @@ window.MarketScene = {
         this.state.currentMode = mode;
         this.state.selectedGoods = null;
         this.state.quantity = 1;
-        GameView.render(window.gameState);
+        window.game.gameView.renderAll(window.gameState);
     },
 
     /**
@@ -200,7 +206,7 @@ window.MarketScene = {
         if (this.state.quantity < max) {
             this.state.quantity++;
         }
-        GameView.render(window.gameState);
+        window.game.gameView.renderAll(window.gameState);
     },
 
     /**
@@ -210,7 +216,7 @@ window.MarketScene = {
         if (this.state.quantity > 1) {
             this.state.quantity--;
         }
-        GameView.render(window.gameState);
+        window.game.gameView.renderAll(window.gameState);
     },
 
     /**
@@ -219,7 +225,7 @@ window.MarketScene = {
     confirmBuy(gameState) {
         if (!this.state.selectedGoods || this.state.quantity <= 0) {
             this.state.message = '请选择要购买的商品和数量';
-            GameView.render(gameState);
+            window.game.gameView.renderAll(gameState);
             return;
         }
 
@@ -233,7 +239,7 @@ window.MarketScene = {
 
         if (gameState.money < totalCost) {
             this.state.message = '金钱不足，无法购买';
-            GameView.render(gameState);
+            window.game.gameView.renderAll(gameState);
             return;
         }
 
@@ -256,14 +262,14 @@ window.MarketScene = {
     confirmSell(gameState) {
         if (!this.state.selectedGoods || this.state.quantity <= 0) {
             this.state.message = '请选择要卖出的商品和数量';
-            GameView.render(gameState);
+            window.game.gameView.renderAll(gameState);
             return;
         }
 
         const playerQuantity = this.getPlayerGoodsQuantity(gameState, this.state.selectedGoods.goodsId);
         if (playerQuantity < this.state.quantity) {
             this.state.message = '持有商品不足';
-            GameView.render(gameState);
+            window.game.gameView.renderAll(gameState);
             return;
         }
 
@@ -342,5 +348,6 @@ window.MarketScene = {
     }
 };
 
+export default MarketScene;
 // 让点击事件可访问
 window.MarketScene = MarketScene;

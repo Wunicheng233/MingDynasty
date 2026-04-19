@@ -2,7 +2,13 @@
  * 社交关系系统 - 拆分自GameState
  * 负责亲密度管理、送礼、茶会、宴饮、切磋、结义、婚姻
  */
-window.SocialSystem = {
+
+import { getCharacterTemplateByNumId, getAllCharacterTemplates } from '../../data/characters.js';
+import { getCardById } from '../../data/cards.js';
+import { getMissionTemplateById } from '../../data/tasks.js';
+import CardSystem from './CardSystem.js';
+
+const SocialSystem = {
     /**
      * 获取关系key
      */
@@ -591,3 +597,6 @@ window.SocialSystem = {
         }
     }
 };
+
+export default SocialSystem;
+window.SocialSystem = SocialSystem;

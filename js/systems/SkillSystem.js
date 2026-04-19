@@ -2,7 +2,12 @@
  * 技能经验系统 - 拆分自GameState
  * 负责技能经验加成、升级、身份晋升
  */
-window.SkillSystem = {
+
+import { getSkillById } from '../../data/skills.js';
+import { getRoleById, getCurrentRoleByMerit } from '../../data/roles.js';
+import { getFactionById } from '../../data/forces.js';
+
+const SkillSystem = {
     /**
      * 添加技能经验，处理升级
      * @param {GameState} gameState
@@ -205,3 +210,6 @@ window.SkillSystem = {
         return ['内政', '军备', '调略', '外交', '国策'];
     }
 };
+
+export default SkillSystem;
+window.SkillSystem = SkillSystem;

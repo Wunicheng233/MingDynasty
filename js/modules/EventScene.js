@@ -3,7 +3,12 @@
  * 显示事件文本内容和玩家选项，处理选择交互
  */
 
-window.EventScene = {
+import EventScheduler from '../utils/EventScheduler.js';
+import NavigationManager from '../managers/NavigationManager.js';
+import TextFormatter from '../utils/TextFormatter.js';
+import { getCityTemplateById } from '../../data/cities.js';
+
+const EventScene = {
     /**
      * 渲染事件场景
      * @param {Object} gameState - 游戏状态
@@ -75,10 +80,12 @@ window.EventScene = {
      */
     getLocationText(gameState) {
         const city = getCityTemplateById(gameState.currentCityId);
-        const yearStr = gameState.year >= 1368
-            ? `洪武 ${gameState.year - 1368}年`
-            : `至正 ${gameState.year - 1341 + 1}年`;
-        return `${yearStr} ${gameState.month}月 · ${city ? city.name : '行路'}`;
+        const yearNum = gameState.year >= 1368
+            ? gameState.year - 1368
+            : gameState.year - 1341 + 1;
+        const dynasty = gameState.year >= 1368 ? '洪武' : '至正';
+        const yearStr = `${dynasty} ${TextFormatter.numberToChinese(yearNum)}年`;
+        return `${yearStr} ${TextFormatter.numberToChinese(gameState.month)}月 · ${city ? city.name : '行路'}`;
     },
 
     /**
@@ -102,8 +109,8 @@ window.EventScene = {
             // 事件场景无效，关闭事件
             gameState.currentEvent = null;
             gameState.currentEventScene = null;
-            gameState.currentScene = GameScene.CITY_VIEW;
-            window.game.gameView.renderAll();
+            // 返回城镇 - 使用新导航系统返回
+            NavigationManager.popScreen('scroll-collapse');
             return;
         }
         const choice = currentScene.choices[choiceIndex];
@@ -138,7 +145,138 @@ window.EventScene = {
         const gameState = window.game.gameState;
         gameState.currentEvent = null;
         gameState.currentEventScene = null;
-        gameState.currentScene = GameScene.CITY_VIEW;
-        window.game.gameView.renderAll();
+        // 返回城镇 - 使用新导航系统返回
+        NavigationManager.popScreen('scroll-collapse');
+    },
+
+    // 注入样式，统一风格
+    stylesInjected: false,
+    ensureStylesInjected() {
+        if (this.stylesInjected) return;
+        this.stylesInjected = true;
+
+        const style = document.createElement('style');
+        style.textContent = `
+.event-scene {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding: var(--space-md);
+    background-color: var(--color-bg-primary);
+}
+
+.event-scene .event-content {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: rgba(253, 251, 247, 0.9);
+    backdrop-filter: blur(4px);
+    border: var(--border-double);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-xl);
+}
+
+.event-header {
+    text-align: center;
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-md);
+    border-bottom: var(--border-default);
+}
+
+.event-header h2 {
+    font-family: var(--font-serif);
+    font-size: var(--text-heading-md);
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.event-location {
+    font-family: var(--font-serif);
+    font-size: var(--text-body-sm);
+    color: var(--color-text-tertiary);
+    margin-top: var(--space-sm);
+}
+
+.event-illustration {
+    text-align: center;
+    margin-bottom: var(--space-lg);
+}
+
+.event-illustration img {
+    max-width: 100%;
+    max-height: 40vh;
+    border-radius: var(--radius-md);
+    border: var(--border-default);
+}
+
+.event-text {
+    font-family: var(--font-serif);
+    font-size: var(--text-body);
+    line-height: 1.8;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-xl);
+}
+
+.event-choices {
+    margin-top: var(--space-xl);
+}
+
+.event-choices h3 {
+    font-family: var(--font-serif);
+    font-size: var(--text-heading-sm);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-md);
+}
+
+.event-choice-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    margin-bottom: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    background-color: var(--color-bg-secondary);
+    border: var(--border-default);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-serif);
+    font-size: var(--text-body);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.event-choice-btn:hover {
+    background-color: rgba(158, 42, 43, 0.05);
+    border-color: var(--color-accent-primary);
+    transform: translateX(4px);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .event-scene {
+        padding: var(--space-sm);
     }
-};
+    .event-scene .event-content {
+        padding: var(--space-md);
+    }
+}
+`;
+        document.head.appendChild(style);
+    }
+    };
+
+// 确保样式注入
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        EventScene.ensureStylesInjected();
+    });
+} else {
+    EventScene.ensureStylesInjected();
+}
+
+export default EventScene;
+window.EventScene = EventScene;

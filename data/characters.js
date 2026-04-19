@@ -414,34 +414,40 @@ const CHARACTER_TEMPLATES = [
  * @param {string} templateId
  * @returns {CharacterTemplate|undefined}
  */
-window.getCharacterTemplateById = function getCharacterTemplateById(templateId) {
+export function getCharacterTemplateById(templateId) {
     return CHARACTER_TEMPLATES.find(c => c.templateId === templateId);
-};
+}
 
 /**
  * 根据数字ID获取人物模板
  * @param {number} id
  * @returns {CharacterTemplate|undefined}
  */
-window.getCharacterTemplateByNumId = function getCharacterTemplateByNumId(id) {
+export function getCharacterTemplateByNumId(id) {
     return CHARACTER_TEMPLATES.find(c => c.id === id);
-};
+}
 
 /**
  * 获取所有人物模板
  * @returns {CharacterTemplate[]}
  */
-window.getAllCharacterTemplates = function getAllCharacterTemplates() {
+export function getAllCharacterTemplates() {
     return CHARACTER_TEMPLATES;
-};
+}
 
 /**
  * 根据势力获取该势力所有人物模板
  * @param {string} factionName
  * @returns {CharacterTemplate[]}
  */
-window.getCharacterTemplatesByFaction = function getCharacterTemplatesByFaction(factionName) {
+export function getCharacterTemplatesByFaction(factionName) {
     return CHARACTER_TEMPLATES.filter(c => c.faction === factionName);
-};
+}
+
+// 保留全局暴露用于兼容性调试
+window.getCharacterTemplateById = getCharacterTemplateById;
+window.getCharacterTemplateByNumId = getCharacterTemplateByNumId;
+window.getAllCharacterTemplates = getAllCharacterTemplates;
+window.getCharacterTemplatesByFaction = getCharacterTemplatesByFaction;
 
 

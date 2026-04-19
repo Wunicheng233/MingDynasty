@@ -2,7 +2,14 @@
  * 合战控制模块 - 拆分自BattleGame
  * 负责事件绑定、回合处理、结算
  */
-window.BattleController = {
+
+import { getAllNormalBattleCards, getAllBattleCards } from '../../../data/battle-cards.js';
+import { getMissionTemplateById } from '../../../data/tasks.js';
+import BattleRenderer from './BattleRenderer.js';
+import TimeSystem from '../../systems/TimeSystem.js';
+import { GameScene } from '../../GameState.js';
+
+const BattleController = {
     /**
      * 绑定战前选择事件
      */
@@ -29,6 +36,8 @@ window.BattleController = {
             battle.player.handCards = drawNCards(5, battle.player.drawPile);
             battle.phase = 'discard';
             BattleRenderer.renderBattle(gameState, gameView);
+            // 绑定事件（解开循环依赖）
+            this.bindBattleEvents(gameState, gameView);
         });
     },
 
@@ -489,3 +498,6 @@ window.BattleController = {
         battle.enemy.drawPile = shuffled.slice(5);
     }
 };
+
+export default BattleController;
+window.BattleController = BattleController;

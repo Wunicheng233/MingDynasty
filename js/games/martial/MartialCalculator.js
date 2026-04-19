@@ -2,7 +2,10 @@
  * 个人战计算模块 - 拆分自MartialGame
  * 负责组合识别、优先度计算、伤害计算
  */
-window.MartialCalculator = {
+
+import { PERSONAL_COMBOS, PERSONAL_SPECIALS } from '../../../data/personal-battle.js';
+
+const MartialCalculator = {
     /**
      * 构建对手牌堆
      */
@@ -328,3 +331,6 @@ window.MartialCalculator = {
         return desc;
     }
 };
+
+export default MartialCalculator;
+window.MartialCalculator = MartialCalculator;

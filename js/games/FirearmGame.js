@@ -3,7 +3,14 @@
  * 准星自动移动，看准时机点击射击，越靠近红心得分越高
  */
 
-window.FirearmGame = {
+import SkillSystem from '../systems/SkillSystem.js';
+import TimeSystem from '../systems/TimeSystem.js';
+import { GameScene } from '../GameState.js';
+import GameResultManager from '../managers/GameResultManager.js';
+import AnimationManager from '../managers/AnimationManager.js';
+import { getMissionTemplateById } from '../../data/tasks.js';
+
+const FirearmGame = {
     /**
      * 启动游戏
      */
@@ -49,7 +56,10 @@ window.FirearmGame = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
         this.startAnimation(gameState);
         this.bindEvents(gameState, gameView);
     },
@@ -135,3 +145,6 @@ window.FirearmGame = {
         }
     }
 };
+
+export default FirearmGame;
+window.FirearmGame = FirearmGame;

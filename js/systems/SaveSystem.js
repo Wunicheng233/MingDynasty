@@ -3,7 +3,10 @@
  * 负责各类数据的localStorage持久化
  * 注：卡片和社交的持久化已分到对应系统中，这里只保留通用功能
  */
-window.SaveSystem = {
+
+import { getAllCityTemplates, getCityTemplateByCityId, getCityTemplateById } from '../../data/cities.js';
+
+const SaveSystem = {
     // 卡片持久化在CardSystem
     // 社交关系持久化在SocialSystem
     // 合战胜利次数在CardSystem
@@ -158,3 +161,6 @@ window.SaveSystem = {
         gameState.currentScene = GameScene.EVENT;
     }
 };
+
+export default SaveSystem;
+window.SaveSystem = SaveSystem;

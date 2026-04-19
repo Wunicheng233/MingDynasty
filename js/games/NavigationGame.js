@@ -3,7 +3,13 @@
  * 猜测方位，根据提示调整指针，找到正确度数
  */
 
-window.NavigationGame = {
+import SkillSystem from '../systems/SkillSystem.js';
+import TimeSystem from '../systems/TimeSystem.js';
+import { GameScene } from '../GameState.js';
+import GameResultManager from '../managers/GameResultManager.js';
+import { getMissionTemplateById } from '../../data/tasks.js';
+
+const NavigationGame = {
     /**
      * 启动游戏
      */
@@ -38,7 +44,10 @@ window.NavigationGame = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
         this.bindEvents(gameState, gameView);
     },
 
@@ -46,15 +55,27 @@ window.NavigationGame = {
      * 绑定事件
      */
     bindEvents(gameState, gameView) {
-        document.getElementById('degree-slider').addEventListener('input', (e) => {
-            const deg = e.target.value;
-            document.getElementById('degree-value').textContent = deg;
-            document.getElementById('compass-needle').style.transform = `rotate(${deg}deg)`;
-        });
+        const slider = document.getElementById('degree-slider');
+        if (slider) {
+            slider.addEventListener('input', (e) => {
+                const deg = e.target.value;
+                const valueDisplay = document.getElementById('degree-value');
+                if (valueDisplay) {
+                    valueDisplay.textContent = deg;
+                }
+                const needle = document.getElementById('compass-needle');
+                if (needle) {
+                    needle.style.transform = `rotate(${deg}deg)`;
+                }
+            });
+        }
 
-        document.getElementById('check-degree-btn').addEventListener('click', () => {
-            this.checkDegree(gameState, gameView);
-        });
+        const checkBtn = document.getElementById('check-degree-btn');
+        if (checkBtn) {
+            checkBtn.addEventListener('click', () => {
+                this.checkDegree(gameState, gameView);
+            });
+        }
     },
 
     /**
@@ -117,3 +138,6 @@ window.NavigationGame = {
         gameView.renderAll();
     }
 };
+
+export default NavigationGame;
+window.NavigationGame = NavigationGame;

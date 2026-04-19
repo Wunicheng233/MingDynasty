@@ -1,0 +1,117 @@
+/**
+ * 《洪武立志传》UI 设计令牌
+ * 按照《01-UI整体设计.md》定义的全局设计变量
+ * 遵循"纸墨之间的王朝"古风设计理念
+ */
+
+:root {
+  /* ========== 2.1 色彩系统 ========== */
+
+  /* 背景色 */
+  --color-bg-primary: #F9F4E8;    /* 页面全局背景（宣纸底） */
+  --color-bg-secondary: #FDFBF7;  /* 卡片、面板背景（牙色） */
+  --color-bg-dark: #3E2C23;       /* 沉浸式弹窗背景（古籍深底） */
+
+  /* 文字色 */
+  --color-text-primary: #2C1A14;   /* 主标题、正文（墨色） */
+  --color-text-secondary: #5A4A3E; /* 辅助说明、次要文字（淡墨） */
+  --color-text-tertiary: #8A7A6A;  /* 占位符、禁用文字 */
+  --color-text-inverse: #FDFBF7;   /* 深色背景上的文字 */
+
+  /* 强调色 */
+  --color-accent-primary: #9E2A2B; /* 主品牌色（朱砂红）：主按钮、标题点缀、选中态 */
+  --color-accent-gold: #C5A059;    /* 辅品牌色（古铜金）：荣誉标识、高级边框 */
+  --color-accent-blue: #3A526B;    /* 黛蓝：次要文本、图标、链接 */
+  --color-accent-green: #2D6A4F;   /* 青碧：成功、增益、正向状态 */
+  --color-accent-orange: #A0522D; /* 赭石：警告、负面状态 */
+
+  /* 边框色 */
+  --color-border-default: #D9CDB8;  /* 默认边框、分割线（淡墨） */
+  --color-border-highlight: #9E2A2B; /* 选中/聚焦边框 */
+  --color-border-gold: #C5A059;      /* 特殊荣誉边框 */
+
+  /* 阴影 */
+  --shadow-sm: 0 2px 4px rgba(80, 60, 40, 0.06);    /* 轻微悬浮（卡片嵌入感） */
+  --shadow-md: 0 4px 8px rgba(80, 60, 40, 0.10);    /* 标准卡片阴影 */
+  --shadow-lg: 0 8px 16px rgba(40, 25, 10, 0.15);   /* 模态框、下拉菜单 */
+  --shadow-xl: 0 12px 24px rgba(40, 25, 10, 0.20);  /* 全局提示、最高层级 */
+
+  /* ========== 2.2 字体系统 ========== */
+
+  /* 字体栈 */
+  --font-serif: "ZCOOL QingKe HuangYou", "Aa润行体", "Source Han Serif SC", "Noto Serif SC", "Songti SC", serif;
+  --font-calligraphy: "Aa润行体", "禹卫书法行书", "ZCOOL QingKe HuangYou", "KaiTi", cursive;
+  --font-mono: "ZCOOL QingKe HuangYou", "Courier New", monospace;
+
+  /* 字号与字重 - 整体放大1.5倍 */
+  --text-display: 54px;
+  --text-display-weight: 700;
+  --text-display-line: 1.3;
+
+  --text-heading-lg: 42px;
+  --text-heading-lg-weight: 600;
+  --text-heading-lg-line: 1.3;
+
+  --text-heading-md: 33px;
+  --text-heading-md-weight: 600;
+  --text-heading-md-line: 1.4;
+
+  --text-heading-sm: 27px;
+  --text-heading-sm-weight: 600;
+  --text-heading-sm-line: 1.4;
+
+  --text-body: 24px;
+  --text-body-weight: 400;
+  --text-body-line: 1.5;
+
+  --text-body-sm: 21px;
+  --text-body-sm-weight: 400;
+  --text-body-sm-line: 1.4;
+
+  --text-button: 24px;
+  --text-button-weight: 500;
+  --text-button-line: 1.2;
+
+  --text-caption: 18px;
+  --text-caption-weight: 500;
+  --text-caption-line: 1.2;
+
+  --text-stamp: 15px;
+  --text-stamp-weight: 400;
+  --text-stamp-line: 1.0;
+
+  /* ========== 2.3 间距系统 ========== */
+  /* 基础单位：8px */
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-2xl: 24px;
+  --space-3xl: 32px;
+  --space-4xl: 40px;
+
+  /* ========== 2.4 圆角系统 ========== */
+
+  --radius-none: 0;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* ========== 2.5 边框系统 ========== */
+
+  --border-default: 1px solid var(--color-border-default);
+  --border-highlight: 1px solid var(--color-border-highlight);
+  --border-gold: 1px solid var(--color-border-gold);
+  /* double边框需要在使用时叠加：var(--border-default) + inset 0 0 0 1px rgba(255,255,240,0.8) */
+
+  --border-dashed: 1px dashed var(--color-border-default);
+
+  /* ========== 2.6 过渡与动画 ========== */
+
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+}

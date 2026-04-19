@@ -10,13 +10,19 @@
 
 body {
     font-family: 'ZCOOL QingKe HuangYou', 'Pixelify Sans', 'Noto Serif SC', "SimSun", "Microsoft YaHei", serif;
-    background-color: #1a365d;
+    background-color: var(--color-bg-primary);
+    background-image: url('../images/backgrounds/bg_start_ink_mountain_1920x1080.jpg');
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay;
     color: #2c3e50;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 10px;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
 }
 
 h1, h2, h3 {
@@ -25,16 +31,18 @@ h1, h2, h3 {
 }
 
 #game-container {
-    width: 100%;
-    max-width: 900px;
-    height: 95vh;
-    max-height: 700px;
-    background-color: #f4e9d8;
-    border: 3px solid #5d4e37;
-    border-radius: 8px;
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    background-color: var(--color-bg-primary);
+    border: none;
+    border-radius: 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    margin: 0;
+    padding: 0;
 }
 
 /* 顶部状态栏 */
@@ -116,7 +124,8 @@ h1, h2, h3 {
     border-top: 1px solid #d4c4a8;
     display: flex;
     flex-direction: column;
-    max-height: 150px;
+    flex: 0 0 150px;
+    height: 150px;
 }
 
 .log-area {
@@ -189,8 +198,9 @@ h1, h2, h3 {
 /* 中间主显示区 */
 .main-display {
     flex: 1;
-    overflow-y: auto;
-    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    padding: 0;
     background-color: #f8f0e3;
 }
 

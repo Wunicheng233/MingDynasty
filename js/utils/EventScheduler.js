@@ -4,7 +4,11 @@
  * 按照数据驱动设计，添加新事件只需修改data/events.js，不需要改这里
  */
 
-window.EventScheduler = {
+import { getCityTemplateById, getAllCityTemplates } from '../../data/cities.js';
+import { getAllEventTemplates, getEventPriority, EventTypes } from '../../data/events.js';
+import EconomicCalculator from './EconomicCalculator.js';
+
+const EventScheduler = {
     /**
      * 检查单个条件是否满足
      * @param {Object} trigger - 触发条件对象
@@ -426,3 +430,8 @@ window.EventScheduler = {
         return choice.nextScene;
     }
 };
+
+export default EventScheduler;
+
+// 保留全局暴露用于兼容性调试
+window.EventScheduler = EventScheduler;

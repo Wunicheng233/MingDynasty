@@ -7,7 +7,7 @@
 /**
  * 事件类型枚举
  */
-window.EventTypes = {
+export const EventTypes = {
     MAIN: 'main',        // 主线事件 - 驱动核心叙事
     BRANCH: 'branch',    // 支线事件 - 可选剧情
     RANDOM: 'random',    // 随机事件 - 概率触发可重复
@@ -17,7 +17,7 @@ window.EventTypes = {
 /**
  * 事件优先级 - 数字越大优先级越高
  */
-window.EventPriority = {
+export const EventPriority = {
     [EventTypes.MAIN]: 100,
     [EventTypes.BRANCH]: 50,
     [EventTypes.PERIODIC]: 20,
@@ -1119,7 +1119,7 @@ const ALL_EVENTS = [
  * @param {string} eventId
  * @returns {EventTemplate|undefined}
  */
-window.getEventTemplateById = function getEventTemplateById(eventId) {
+export function getEventTemplateById(eventId) {
     return ALL_EVENTS.find(e => e.eventId === eventId);
 };
 
@@ -1127,7 +1127,7 @@ window.getEventTemplateById = function getEventTemplateById(eventId) {
  * 获取所有事件模板
  * @returns {EventTemplate[]}
  */
-window.getAllEventTemplates = function getAllEventTemplates() {
+export function getAllEventTemplates() {
     return ALL_EVENTS;
 };
 
@@ -1136,6 +1136,13 @@ window.getAllEventTemplates = function getAllEventTemplates() {
  * @param {EventTemplate} event
  * @returns {number}
  */
-window.getEventPriority = function getEventPriority(event) {
+export function getEventPriority(event) {
     return EventPriority[event.type] || 0;
-};
+}
+
+// 保留全局暴露用于兼容性调试
+window.getEventTemplateById = getEventTemplateById;
+window.getAllEventTemplates = getAllEventTemplates;
+window.getEventPriority = getEventPriority;
+window.EventTypes = EventTypes;
+window.EventPriority = EventPriority;

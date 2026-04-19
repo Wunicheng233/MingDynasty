@@ -10,7 +10,14 @@
  * - 重力影响：拉力越小，箭矢下坠越明显
  */
 
-window.ArcheryGame = {
+import SkillSystem from '../systems/SkillSystem.js';
+import TimeSystem from '../systems/TimeSystem.js';
+import { GameScene } from '../GameState.js';
+import { getMissionTemplateById } from '../../data/tasks.js';
+import GameResultManager from '../managers/GameResultManager.js';
+import AnimationManager from '../managers/AnimationManager.js';
+
+const ArcheryGame = {
     /**
      * 游戏状态
      */
@@ -319,7 +326,10 @@ window.ArcheryGame = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const archeryView = document.getElementById('archery-game-view');
+        if (archeryView) {
+            archeryView.innerHTML = html;
+        }
     },
 
     /**
@@ -557,3 +567,6 @@ window.ArcheryGame = {
         this.game = null;
     }
 };
+
+export default ArcheryGame;
+window.ArcheryGame = ArcheryGame;

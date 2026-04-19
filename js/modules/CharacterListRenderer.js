@@ -3,13 +3,21 @@
  * 社交系统 - 显示当前城市中的所有可互动NPC
  */
 
-window.CharacterListRenderer = {
+import CharacterRendererUtils from '../utils/CharacterRendererUtils.js';
+
+const CharacterListRenderer = {
     /**
      * 渲染当前城市中的人物列表
      */
     render(gameState) {
-        const container = document.getElementById('character-list-view');
-        if (!container) return;
+        // 确保容器存在
+        let container = document.getElementById('character-list-view');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'character-list-view';
+            container.className = 'scene-view';
+            document.getElementById('main-display').appendChild(container);
+        }
 
         const characters = gameState.getCharactersInCurrentCity();
         const playerId = gameState.playerCharacterId;
@@ -83,3 +91,6 @@ window.CharacterListRenderer = {
         });
     }
 };
+
+export default CharacterListRenderer;
+window.CharacterListRenderer = CharacterListRenderer;

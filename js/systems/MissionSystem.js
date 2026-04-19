@@ -3,7 +3,11 @@
  * 负责任务接受、超时检查、完成结算
  */
 
-window.MissionSystem = {
+import { getMissionTemplateById, getAvailableMissionsForRole } from '../../data/tasks.js';
+import { getAllCards } from '../../data/cards.js';
+import SkillSystem from './SkillSystem.js';
+
+const MissionSystem = {
     /**
      * 接受一个新任务
      * @param {GameState} gameState
@@ -127,7 +131,8 @@ window.MissionSystem = {
             let cardReward = null;
             if (template.baseDifficulty >= 3 && Math.random() < 0.15) {
                 // 15%概率给技能卡（难度>=3）
-                const possibleCards = CARDS.filter(c =>
+                const allCards = getAllCards();
+                const possibleCards = allCards.filter(c =>
                     c.type === 'skill' &&
                     template.requiredSkills.includes(c.skillId) &&
                     !gameState.hasCard(c.cardId)
@@ -142,7 +147,8 @@ window.MissionSystem = {
             }
             // 难度4以上有5%概率获得称号卡
             if (template.baseDifficulty >= 4 && Math.random() < 0.05) {
-                const titleCards = CARDS.filter(c => c.type === 'title' && !gameState.hasCard(c.cardId));
+                const allCards = getAllCards();
+                const titleCards = allCards.filter(c => c.type === 'title' && !gameState.hasCard(c.cardId));
                 if (titleCards.length > 0) {
                     const randomCard = titleCards[Math.floor(Math.random() * titleCards.length)];
                     gameState.acquireCard(randomCard.cardId);
@@ -204,3 +210,6 @@ window.MissionSystem = {
         return allAvailable.filter(m => m.category === category);
     }
 };
+
+export default MissionSystem;
+window.MissionSystem = MissionSystem;

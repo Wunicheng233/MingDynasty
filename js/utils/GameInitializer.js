@@ -3,7 +3,9 @@
  * 处理游戏初始数据的创建：默认技能、初始卡片、默认亲密度关系
  */
 
-window.GameInitializer = {
+import { getAllCharacterTemplates } from '../../data/characters.js';
+
+const GameInitializer = {
     /**
      * 初始化默认技能数据结构
      * 从玩家角色模板的初始技能复制过来
@@ -93,3 +95,6 @@ window.GameInitializer = {
         };
     }
 };
+
+export default GameInitializer;
+window.GameInitializer = GameInitializer;

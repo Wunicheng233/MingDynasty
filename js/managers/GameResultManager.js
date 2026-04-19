@@ -4,7 +4,11 @@
  * 提取各个小游戏中重复的奖励计算代码
  */
 
-window.GameResultManager = {
+import { getMissionTemplateById } from '../../data/tasks.js';
+import { GameScene } from '../GameState.js';
+import AnimationManager from './AnimationManager.js';
+
+const GameResultManager = {
     /**
      * 处理练习模式结算（在设施中练习技能）
      * @param {Object} gameState - 游戏主状态
@@ -181,3 +185,6 @@ window.GameResultManager = {
         }
     }
 };
+
+export default GameResultManager;
+window.GameResultManager = GameResultManager;

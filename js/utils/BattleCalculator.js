@@ -3,7 +3,11 @@
  * 组合判定、伤害计算等核心算法
  */
 
-window.BattleCalculator = {
+import { getTroopMultiplier } from '../../data/battle-troops.js';
+import { getFormationRelationship } from '../../data/battle-formations.js';
+import { isFireCard } from '../../data/battle-cards.js';
+
+const BattleCalculator = {
     /**
      * 判定基础卡组合
      * @param {Object[]} normalCards - 打出的基础卡数组（最多3张）
@@ -320,3 +324,8 @@ window.BattleCalculator = {
         return base;
     }
 };
+
+export default BattleCalculator;
+
+// 保留全局暴露用于兼容性调试
+window.BattleCalculator = BattleCalculator;

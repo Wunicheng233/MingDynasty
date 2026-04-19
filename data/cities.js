@@ -199,43 +199,43 @@ const CITY_TEMPLATES = [
  * @param {number} id
  * @returns {CityTemplate|undefined}
  */
-window.getCityTemplateById = function getCityTemplateById(id) {
+export function getCityTemplateById(id) {
     return CITY_TEMPLATES.find(c => c.id === id);
-};
+}
 
 /**
  * 根据cityId获取城镇模板
  * @param {string} cityId
  * @returns {CityTemplate|undefined}
  */
-window.getCityTemplateByCityId = function getCityTemplateByCityId(cityId) {
+export function getCityTemplateByCityId(cityId) {
     return CITY_TEMPLATES.find(c => c.cityId === cityId);
-};
+}
 
 /**
  * 获取所有城镇模板
  * @returns {CityTemplate[]}
  */
-window.getAllCityTemplates = function getAllCityTemplates() {
+export function getAllCityTemplates() {
     return CITY_TEMPLATES;
-};
+}
 
 /**
  * 根据势力ID获取该势力占据的所有城镇
  * @param {number} forceId
  * @returns {CityTemplate[]}
  */
-window.getCityTemplatesByForce = function getCityTemplatesByForce(forceId) {
+export function getCityTemplatesByForce(forceId) {
     return CITY_TEMPLATES.filter(c => c.initialFactionId === forceId);
-};
+}
 
 /**
  * 获取无主城镇
  * @returns {CityTemplate[]}
  */
-window.getUnownedCityTemplates = function getUnownedCityTemplates() {
+export function getUnownedCityTemplates() {
     return CITY_TEMPLATES.filter(c => c.initialFactionId === null);
-};
+}
 
 /**
  * 获取移动距离矩阵 - 计算两个城镇间的基础移动天数
@@ -243,9 +243,17 @@ window.getUnownedCityTemplates = function getUnownedCityTemplates() {
  * @param {number} toId - 目标城镇数字ID
  * @returns {number|null} 基础天数，如果不可直达返回null
  */
-window.getTravelDays = function getTravelDays(fromId, toId) {
+export function getTravelDays(fromId, toId) {
     const fromCity = CITY_TEMPLATES.find(c => c.id === fromId);
     if (!fromCity) return null;
     const connection = fromCity.connections.find(conn => conn.target === toId);
     return connection ? connection.baseDays : null;
-};
+}
+
+// 保留全局暴露用于兼容性调试
+window.getCityTemplateById = getCityTemplateById;
+window.getCityTemplateByCityId = getCityTemplateByCityId;
+window.getAllCityTemplates = getAllCityTemplates;
+window.getCityTemplatesByForce = getCityTemplatesByForce;
+window.getUnownedCityTemplates = getUnownedCityTemplates;
+window.getTravelDays = getTravelDays;

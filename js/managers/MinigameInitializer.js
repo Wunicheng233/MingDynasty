@@ -207,7 +207,7 @@ const MINIGAME_CONFIGS = {
 // Note: firearm 自己处理双坐标轴动画，不需要这里启动
 const ANIMATED_GAMES = ['agriculture', 'engineering', 'navy'];
 
-window.MinigameInitializer = {
+const MinigameInitializer = {
     /**
      * 初始化小游戏状态
      * @param {Object} gameState - 游戏主状态
@@ -241,3 +241,6 @@ window.MinigameInitializer = {
         return Object.keys(MINIGAME_CONFIGS);
     }
 };
+
+export default MinigameInitializer;
+window.MinigameInitializer = MinigameInitializer;

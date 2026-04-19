@@ -2,7 +2,13 @@
  * 个人战控制模块 - 拆分自MartialGame
  * 负责事件绑定、回合处理
  */
-window.MartialController = {
+
+import MartialRenderer from './MartialRenderer.js';
+import TimeSystem from '../../systems/TimeSystem.js';
+import { GameScene } from '../../GameState.js';
+import { getMissionTemplateById } from '../../../data/tasks.js';
+
+const MartialController = {
     /**
      * 绑定事件
      */
@@ -247,7 +253,10 @@ window.MartialController = {
                 </div>
             `;
 
-            document.getElementById('farming-game-view').innerHTML = html;
+            const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
             document.getElementById('personal-done-btn').addEventListener('click', () => {
                 // 返回设施场景
                 gameState.currentScene = GameScene.FACILITY;
@@ -285,7 +294,10 @@ window.MartialController = {
                 </div>
             `;
 
-            document.getElementById('farming-game-view').innerHTML = html;
+            const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
             document.getElementById('personal-done-btn').addEventListener('click', () => {
                 // 时间推进：按任务限时推进
                 TimeSystem.advanceDays(gameState, template.timeLimitDays);
@@ -296,3 +308,8 @@ window.MartialController = {
         }
     }
 };
+
+export default MartialController;
+window.MartialController = MartialController;
+// Keep backward compatibility for existing code that references MartialCalculator
+window.MartialCalculator = MartialController;

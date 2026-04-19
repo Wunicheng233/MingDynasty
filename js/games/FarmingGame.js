@@ -3,7 +3,14 @@
  * 合理分配资金开垦荒地，完成10块地开垦任务
  */
 
-window.FarmingGame = {
+import BaseGame from '../base/BaseGame.js';
+import SkillSystem from '../systems/SkillSystem.js';
+import TimeSystem from '../systems/TimeSystem.js';
+import GameResultManager from '../managers/GameResultManager.js';
+import { GameScene } from '../GameState.js';
+import { getMissionTemplateById } from '../../data/tasks.js';
+
+const FarmingGame = {
     /**
      * 启动游戏
      */
@@ -74,7 +81,10 @@ window.FarmingGame = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
         this.bindEvents(gameState, gameView);
     },
 
@@ -236,3 +246,6 @@ window.FarmingGame = {
         gameView.renderAll();
     }
 };
+
+export default FarmingGame;
+window.FarmingGame = FarmingGame;

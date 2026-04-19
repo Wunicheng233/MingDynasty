@@ -3,7 +3,11 @@
  * 渲染设施描述、交互选项，处理设施入口跳转
  */
 
-window.FacilityScene = {
+import { getCityTemplateById } from '../../data/cities.js';
+import { GameScene } from '../GameState.js';
+import NavigationManager from '../managers/NavigationManager.js';
+
+const FacilityScene = {
     /**
      * 设施描述与选项配置
      * 每个设施定义描述文本和可选操作
@@ -285,8 +289,8 @@ window.FacilityScene = {
                     gameState.currentSocialTarget = npcNumId;
                     // 记住从设施场景进来，返回时会回到设施
                     gameState.previousSceneFromSocial = GameScene.FACILITY;
-                    gameState.currentScene = GameScene.SOCIAL_VIEW;
-                    window.game.gameView.renderAll();
+                    // 进入社交场景 - 使用新导航系统
+                    NavigationManager.pushScreen('social', {}, 'scroll-expand');
                     return;
                 }
 
@@ -308,8 +312,8 @@ window.FacilityScene = {
                 gameState.currentSocialTarget = npcNumId;
                 // 记住从设施场景进来，返回时会回到设施
                 gameState.previousSceneFromSocial = GameScene.FACILITY;
-                gameState.currentScene = GameScene.SOCIAL_VIEW;
-                window.game.gameView.renderAll();
+                // 进入社交场景 - 使用新导航系统
+                NavigationManager.pushScreen('social', {}, 'scroll-expand');
             });
         });
     },
@@ -323,50 +327,49 @@ window.FacilityScene = {
                 this.leave();
                 break;
             case 'enter_market':
-                // 进入市集
+                // 进入市集 - 使用新导航系统
                 MarketScene.init();
-                gameState.currentScene = GameScene.MARKET;
-                window.game.gameView.renderAll();
+                NavigationManager.pushScreen('market', {}, 'scroll-expand');
                 break;
             case 'assessment':
-                // 进入评定厅
-                gameState.currentScene = GameScene.TASK_LIST;
-                window.game.gameView.renderAll();
+                // 进入评定厅 - 使用新导航系统
+                NavigationManager.pushScreen('task-list', {}, 'scroll-expand');
                 break;
             case 'practice_martial':
                 // 武艺修炼 - 启动武艺小游戏
                 gameState.currentScene = GameScene.FARMING_GAME;
-                window.game.gameView.renderAll();
+                NavigationManager.pushScreen('farming-game', {}, 'scroll-expand');
                 MartialGame.start(window.game.gameView, gameState, '拜师学艺');
                 break;
             case 'duel_master':
                 // 切磋 - 启动个人战
                 gameState.currentScene = GameScene.FARMING_GAME;
-                window.game.gameView.renderAll();
+                NavigationManager.pushScreen('farming-game', {}, 'scroll-expand');
                 DuelGame.start(window.game.gameView, gameState, '武馆切磋');
                 break;
             case 'practice_engineering':
                 // 工政练习 - 启动工程小游戏
                 gameState.currentScene = GameScene.FARMING_GAME;
-                window.game.gameView.renderAll();
+                NavigationManager.pushScreen('farming-game', {}, 'scroll-expand');
                 EngineeringGame.start(window.game.gameView, gameState, '修筑城防');
                 break;
             case 'practice_firearm':
             case 'practice_firearm_craft':
                 // 火器练习 - 启动火器小游戏
                 gameState.currentScene = GameScene.FARMING_GAME;
-                window.game.gameView.renderAll();
+                NavigationManager.pushScreen('farming-game', {}, 'scroll-expand');
                 FirearmGame.start(window.game.gameView, gameState, '火器练习');
                 break;
             case 'practice_law':
                 // 律政练习 - 启动律法小游戏
                 gameState.currentScene = GameScene.FARMING_GAME;
-                window.game.gameView.renderAll();
+                NavigationManager.pushScreen('farming-game', {}, 'scroll-expand');
                 LawGame.start(window.game.gameView, gameState, '审理案件');
                 break;
             case 'practice_calligraphy':
                 // 文墨练习 - 启动文墨小游戏
                 gameState.currentScene = GameScene.FARMING_GAME;
+                NavigationManager.pushScreen('farming-game', {}, 'scroll-expand');
                 window.game.gameView.renderAll();
                 CalligraphyGame.start(window.game.gameView, gameState, '听讲经义');
                 break;
@@ -421,7 +424,10 @@ window.FacilityScene = {
     leave() {
         const gameState = window.game.gameState;
         gameState.currentFacility = null;
-        gameState.currentScene = GameScene.CITY_VIEW;
-        window.game.gameView.renderAll();
+        // 返回城市 - 使用新导航系统返回
+        NavigationManager.popScreen('scroll-collapse');
     }
 };
+
+export default FacilityScene;
+window.FacilityScene = FacilityScene;

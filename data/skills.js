@@ -260,31 +260,37 @@ const SKILLS = [
  * @param {string} id
  * @returns {Skill|undefined}
  */
-window.getSkillById = function getSkillById(id) {
+export function getSkillById(id) {
     return SKILLS.find(s => s.id === id);
-};
+}
 
 /**
  * 获取所有技能
  * @returns {Skill[]}
  */
-window.getAllSkills = function getAllSkills() {
+export function getAllSkills() {
     return SKILLS;
-};
+}
 
 /**
  * 按分类获取技能
  * @param {string} category
  * @returns {Skill[]}
  */
-window.getSkillsByCategory = function getSkillsByCategory(category) {
+export function getSkillsByCategory(category) {
     return SKILLS.filter(s => s.category === category);
-};
+}
 
 /**
  * 获取技能总数量
  * @returns {number}
  */
-window.getTotalSkillCount = function getTotalSkillCount() {
+export function getTotalSkillCount() {
     return SKILLS.length;
-};
+}
+
+// 保留全局暴露用于兼容性调试
+window.getSkillById = getSkillById;
+window.getAllSkills = getAllSkills;
+window.getSkillsByCategory = getSkillsByCategory;
+window.getTotalSkillCount = getTotalSkillCount;

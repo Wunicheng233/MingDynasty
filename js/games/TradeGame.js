@@ -3,7 +3,11 @@
  * 珠算商贾 - 连续回答6道商业算术题，计算价格利润
  */
 
-window.TradeGame = {
+import TimeSystem from '../systems/TimeSystem.js';
+import { GameScene } from '../GameState.js';
+import { getMissionTemplateById } from '../../data/tasks.js';
+
+const TradeGame = {
     /**
      * 启动游戏
      */
@@ -172,7 +176,10 @@ window.TradeGame = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
         document.getElementById('trade-submit').addEventListener('click', () => {
             const input = document.getElementById('trade-answer');
             const userAnswer = parseFloat(input.value);
@@ -250,3 +257,6 @@ window.TradeGame = {
         gameView.renderAll();
     }
 };
+
+export default TradeGame;
+window.TradeGame = TradeGame;

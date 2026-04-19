@@ -2,7 +2,11 @@
  * 个人战渲染模块 - 拆分自MartialGame
  * 负责界面渲染
  */
-window.MartialRenderer = {
+
+import { PERSONAL_SPECIALS } from '../../../data/personal-battle.js';
+import { getMissionTemplateById } from '../../../data/tasks.js';
+
+const MartialRenderer = {
     /**
      * 渲染当前回合
      */
@@ -86,8 +90,10 @@ window.MartialRenderer = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
-        MartialController.bindEvents(gameState, gameView);
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
     },
 
     /**
@@ -102,3 +108,6 @@ window.MartialRenderer = {
         btn.disabled = !valid;
     }
 };
+
+export default MartialRenderer;
+window.MartialRenderer = MartialRenderer;

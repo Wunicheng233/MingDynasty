@@ -3,7 +3,13 @@
  * 骰子驱动竞速，从起点到终点共15点进度，每回合选择策马方式掷骰前进
  */
 
-window.CavalryGame = {
+import SkillSystem from '../systems/SkillSystem.js';
+import TimeSystem from '../systems/TimeSystem.js';
+import { GameScene } from '../GameState.js';
+import GameResultManager from '../managers/GameResultManager.js';
+import { getMissionTemplateById } from '../../data/tasks.js';
+
+const CavalryGame = {
     /**
      * 启动游戏
      */
@@ -73,7 +79,10 @@ window.CavalryGame = {
             <div class="cavalry-log" id="cavalry-log"></div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
         this.bindEvents(gameState, gameView);
     },
 
@@ -221,3 +230,6 @@ window.CavalryGame = {
         gameView.renderAll();
     }
 };
+
+export default CavalryGame;
+window.CavalryGame = CavalryGame;

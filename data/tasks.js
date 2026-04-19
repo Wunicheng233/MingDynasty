@@ -780,46 +780,53 @@ const MISSION_TEMPLATES = [
  * @param {number} id
  * @returns {MissionTemplate|undefined}
  */
-window.getMissionTemplateById = function getMissionTemplateById(id) {
+export function getMissionTemplateById(id) {
     return MISSION_TEMPLATES.find(m => m.id === id);
-};
+}
 
 /**
  * 根据missionId获取主命模板
  * @param {string} missionId
  * @returns {MissionTemplate|undefined}
  */
-window.getMissionTemplateByMissionId = function getMissionTemplateByMissionId(missionId) {
+export function getMissionTemplateByMissionId(missionId) {
     return MISSION_TEMPLATES.find(m => m.mission_id === missionId);
-};
+}
 
 /**
  * 获取所有主命模板
  * @returns {MissionTemplate[]}
  */
-window.getAllMissionTemplates = function getAllMissionTemplates() {
+export function getAllMissionTemplates() {
     return MISSION_TEMPLATES;
-};
+}
 
 /**
  * 根据玩家当前身份获取可接任务
  * @param {string} currentRoleId
  * @returns {MissionTemplate[]}
  */
-window.getAvailableMissionsForRole = function getAvailableMissionsForRole(currentRoleId) {
+export function getAvailableMissionsForRole(currentRoleId) {
     const roleOrder = ROLES.find(r => r.id === currentRoleId)?.order || 0;
     return MISSION_TEMPLATES.filter(m => {
         const minRank = ROLES.find(r => r.id === m.minRank);
         if (!minRank) return true; // 没有最低限制
         return roleOrder >= minRank.order;
     });
-};
+}
 
 /**
  * 按分类获取任务
  * @param {string} category
  * @returns {MissionTemplate[]}
  */
-window.getMissionsByCategory = function getMissionsByCategory(category) {
+export function getMissionsByCategory(category) {
     return MISSION_TEMPLATES.filter(m => m.category === category);
-};
+}
+
+// 保留全局暴露用于兼容性调试
+window.getMissionTemplateById = getMissionTemplateById;
+window.getMissionTemplateByMissionId = getMissionTemplateByMissionId;
+window.getAllMissionTemplates = getAllMissionTemplates;
+window.getAvailableMissionsForRole = getAvailableMissionsForRole;
+window.getMissionsByCategory = getMissionsByCategory;

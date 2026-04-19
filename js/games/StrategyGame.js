@@ -3,7 +3,12 @@
  * 五道死活题，找出正确杀棋/活棋要点
  */
 
-window.StrategyGame = {
+import SkillSystem from '../systems/SkillSystem.js';
+import TimeSystem from '../systems/TimeSystem.js';
+import { GameScene } from '../GameState.js';
+import { getMissionTemplateById } from '../../data/tasks.js';
+
+const StrategyGame = {
     /**
      * 题库 - 死活题集合
      * 0=空, 1=黑, 2=白
@@ -253,7 +258,10 @@ window.StrategyGame = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
 
         const startBtn = document.getElementById('start-btn');
         startBtn.addEventListener('click', () => {
@@ -402,7 +410,10 @@ window.StrategyGame = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
         this.bindEvents(gameState, gameView);
     },
 
@@ -511,7 +522,10 @@ window.StrategyGame = {
                 </div>
             `;
 
-            document.getElementById('farming-game-view').innerHTML = html;
+            const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
             document.getElementById('strategy-done-btn').addEventListener('click', () => {
                 // 返回设施场景
                 gameState.currentScene = GameScene.FACILITY;
@@ -544,7 +558,10 @@ window.StrategyGame = {
                 </div>
             `;
 
-            document.getElementById('farming-game-view').innerHTML = html;
+            const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
             document.getElementById('strategy-done-btn').addEventListener('click', () => {
                 // 时间推进：按任务限时推进
                 TimeSystem.advanceDays(gameState, template.timeLimitDays);
@@ -555,3 +572,6 @@ window.StrategyGame = {
         }
     }
 };
+
+export default StrategyGame;
+window.StrategyGame = StrategyGame;

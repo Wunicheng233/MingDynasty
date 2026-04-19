@@ -3,11 +3,38 @@
  *
  * 重构说明：
  * - 提取动画逻辑到 AnimationManager
- * - 提取场景切换到 SceneManager
+ * - 提取场景切换到 NavigationManager（新导航系统带返回栈）
  * - 提取小游戏初始化到 MinigameInitializer
- * - 文件从 743行 减少到 约 300行，职责更清晰
+ * - 文件精简后职责更清晰
  */
-window.GameView = class GameView {
+
+import { GameScene } from './GameState.js';
+import { getMissionTemplateById } from '../data/tasks.js';
+import NavigationManager from './managers/NavigationManager.js';
+import AnimationManager from './managers/AnimationManager.js';
+import MinigameInitializer from './managers/MinigameInitializer.js';
+
+// 小游戏模块导入
+import FarmingGame from './games/FarmingGame.js';
+import EloquenceGame from './games/EloquenceGame.js';
+import InfantryGame from './games/InfantryGame.js';
+import CavalryGame from './games/CavalryGame.js';
+import EngineeringGame from './games/EngineeringGame.js';
+import TradeGame from './games/TradeGame.js';
+import LawGame from './games/LawGame.js';
+import NavyGame from './games/NavyGame.js';
+import StrategyGame from './games/StrategyGame.js';
+import BattleGame from './games/BattleGame.js';
+import MartialGame from './games/MartialGame.js';
+import DuelGame from './games/DuelGame.js';
+import MedicineGame from './games/MedicineGame.js';
+import CalligraphyGame from './games/CalligraphyGame.js';
+import SpyGame from './games/SpyGame.js';
+import NavigationGame from './games/NavigationGame.js';
+import RitualGame from './games/RitualGame.js';
+import FirearmGame from './games/FirearmGame.js';
+
+export default class GameView {
     constructor(gameState) {
         this.gameState = gameState;
         this.cacheDOMElements();
@@ -18,17 +45,8 @@ window.GameView = class GameView {
      * 缓存DOM元素引用
      */
     cacheDOMElements() {
-        this.statusDateEl = document.getElementById('status-date');
-        this.moneyEl = document.getElementById('money');
-        this.meritEl = document.getElementById('merit');
         this.characterViewEl = document.getElementById('character-view');
-        this.logAreaEl = document.getElementById('log-area');
-        this.nextDayBtn = document.getElementById('next-day-btn');
-        this.navCharacterBtn = document.getElementById('nav-character');
-        this.navCityBtn = document.getElementById('nav-city');
-        this.navMapBtn = document.getElementById('nav-map');
-        this.navTaskBtn = document.getElementById('nav-task');
-        this.navCardBtn = document.getElementById('nav-card');
+        // 状态栏/导航栏/日志已删除 - 全屏新模式下每个界面自行显示状态
         this.mapViewEl = document.getElementById('map-view');
     }
 
@@ -36,68 +54,26 @@ window.GameView = class GameView {
      * 绑定事件
      */
     bindEvents() {
-        this.nextDayBtn.addEventListener('click', () => {
-            this.onNextDayClick();
-        });
-        this.navCharacterBtn.addEventListener('click', () => {
-            this.onNavClick(GameScene.CHARACTER_VIEW);
-        });
-        this.navCityBtn.addEventListener('click', () => {
-            this.onNavClick(GameScene.CITY_VIEW);
-        });
-        this.navMapBtn.addEventListener('click', () => {
-            this.onNavClick(GameScene.MAP_VIEW);
-        });
-        this.navTaskBtn.addEventListener('click', () => {
-            this.onNavClick(GameScene.TASK_LIST);
-        });
-        this.navCardBtn.addEventListener('click', () => {
-            this.onNavClick(GameScene.CARD_COLLECTION);
-        });
+        // 底部导航已删除 - 全屏新模式使用导航管理器返回栈
+        // 底部导航仅在旧布局保留，新布局由界面内导航控制
     }
 
     /**
-     * 导航按钮点击 - 切到对应场景
+     * 导航按钮点击 - 切到对应场景（旧底部导航保留，新导航用NavigationManager）
      */
     onNavClick(targetScene) {
-        // 如果有未完成的剧情事件，禁止切换场景
-        // 必须完成事件选择才能离开
-        if (this.gameState.currentEvent) {
-            alert('⚠️ 当前有未完成的剧情事件，请先完成选择才能切换页面');
-            return;
+        // 已迁移到NavigationManager，保留这个方法供兼容性调用
+        const screenIdMap = {
+            [GameScene.CHARACTER_VIEW]: 'character',
+            [GameScene.CITY_VIEW]: 'city',
+            [GameScene.MAP_VIEW]: 'map',
+            [GameScene.TASK_LIST]: 'task-list',
+            [GameScene.CARD_COLLECTION]: 'card-collection',
+        };
+        const screenId = screenIdMap[targetScene];
+        if (screenId) {
+            NavigationManager.pushScreen(screenId, {}, 'scroll-expand');
         }
-        // 如果评定会未做出选择，禁止离开
-        // 必须接取任务或选择跳过才能离开
-        // 例外：如果目标就是主命界面，则允许跳转（这正是自动跳转要去的地方）
-        if (this.gameState.evaluationPendingSelection && targetScene !== GameScene.TASK_LIST) {
-            alert('⚠️ 本次评定会尚未做出选择，请接取任务或选择"暂无合适任务"才能离开');
-            return;
-        }
-
-        // 如果切出小游戏，停止所有动画避免浪费
-        if (!SceneManager.isMinigameScene(targetScene)) {
-            AnimationManager.stopAllAnimations(this.gameState);
-        }
-        this.gameState.currentScene = targetScene;
-        this.renderAll();
-    }
-
-    /**
-     * 次日按钮点击
-     */
-    onNextDayClick() {
-        // 如果有未完成的剧情事件，禁止推进时间
-        if (this.gameState.currentEvent) {
-            alert('⚠️ 当前有未完成的剧情事件，请先完成选择才能继续');
-            return;
-        }
-        // 如果评定会未做出选择，禁止推进时间
-        if (this.gameState.evaluationPendingSelection) {
-            alert('⚠️ 本次评定会尚未做出选择，请接取任务或选择"暂无合适任务"才能继续');
-            return;
-        }
-        this.gameState.advanceDay();
-        this.renderAll();
     }
 
     /**
@@ -109,49 +85,11 @@ window.GameView = class GameView {
             this.gameState._shouldAutoGoToEvaluation = false;
             // 延迟一帧让日志先渲染，再跳转
             setTimeout(() => {
-                this.onNavClick(GameScene.TASK_LIST);
+                NavigationManager.pushScreen('task-list', {}, 'scroll-expand');
             }, 100);
         }
 
-        this.renderStatusBar();
         this.renderCurrentScene();
-        this.renderLog();
-        this.updateNavActive();
-    }
-
-    /**
-     * 更新导航按钮激活状态
-     */
-    updateNavActive() {
-        const buttons = {
-            [GameScene.CHARACTER_VIEW]: this.navCharacterBtn,
-            [GameScene.CITY_VIEW]: this.navCityBtn,
-            [GameScene.MAP_VIEW]: this.navMapBtn,
-            [GameScene.TASK_LIST]: this.navTaskBtn,
-            [GameScene.CARD_COLLECTION]: this.navCardBtn,
-        };
-        // 移除所有active
-        Object.values(buttons).forEach(btn => {
-            if (btn) btn.classList.remove('active');
-        });
-        // 添加active给当前场景
-        const currentBtn = buttons[this.gameState.currentScene];
-        if (currentBtn) currentBtn.classList.add('active');
-    }
-
-    /**
-     * 渲染顶部状态栏
-     */
-    renderStatusBar() {
-        if (this.statusDateEl) {
-            this.statusDateEl.textContent = this.gameState.getFormattedDate();
-        }
-        if (this.moneyEl) {
-            this.moneyEl.textContent = this.gameState.money;
-        }
-        if (this.meritEl) {
-            this.meritEl.textContent = this.gameState.merit;
-        }
     }
 
     /**
@@ -257,49 +195,18 @@ window.GameView = class GameView {
 
     /**
      * 根据当前场景渲染
+     * 注意：主场景切换已经交给 NavigationManager 处理
+     * 这里只处理小游戏启动
      */
     renderCurrentScene() {
-        // 使用SceneManager统一切换场景显示
-        SceneManager.switchToScene(this.gameState.currentScene);
-
-        // 调用对应渲染器
+        // 只有小游戏需要在这里启动，其他主场景都由NavigationManager处理
         switch (this.gameState.currentScene) {
-            case GameScene.CHARACTER_VIEW:
-                CharacterViewRenderer.render(this.gameState);
-                break;
-            case GameScene.CITY_VIEW:
-                CityViewRenderer.render(this.gameState, this);
-                break;
-            case GameScene.MAP_VIEW:
-                MapRenderer.render(this.gameState);
-                break;
-            case GameScene.TASK_LIST:
-                TaskListRenderer.render(this.gameState, this);
-                break;
             case GameScene.FARMING_GAME:
                 // 如果有currentTask（主命任务），自动根据gameType启动游戏
                 // 如果没有currentTask（设施练习模式），游戏已经由FacilityScene手动启动，不重复启动
                 if (this.gameState.currentTask) {
                     this.startMinigameByType();
                 }
-                break;
-            case GameScene.CARD_COLLECTION:
-                CardCollectionRenderer.render(this.gameState);
-                break;
-            case GameScene.CHARACTER_LIST_VIEW:
-                CharacterListRenderer.render(this.gameState);
-                break;
-            case GameScene.SOCIAL_VIEW:
-                SocialRenderer.render(this.gameState);
-                break;
-            case GameScene.MARKET:
-                document.getElementById('market-view').innerHTML = MarketScene.render(this.gameState);
-                break;
-            case GameScene.EVENT:
-                document.getElementById('event-view').innerHTML = EventScene.render(this.gameState);
-                break;
-            case GameScene.FACILITY:
-                document.getElementById('event-view').innerHTML = FacilityScene.render(this.gameState);
                 break;
         }
     }
@@ -430,22 +337,10 @@ window.GameView = class GameView {
      * 返回城镇视图（从市集返回）
      */
     goBackToCity() {
-        this.gameState.currentScene = GameScene.CITY_VIEW;
-        this.renderAll();
-    }
-
-    /**
-     * 渲染日志
-     */
-    renderLog() {
-        this.logAreaEl.innerHTML = '';
-        const logs = this.gameState.logs;
-        logs.forEach(log => {
-            const div = document.createElement('div');
-            div.className = 'log-entry';
-            div.textContent = log;
-            this.logAreaEl.appendChild(div);
-        });
-        this.logAreaEl.scrollTop = this.logAreaEl.scrollHeight;
+        // 使用导航返回
+        NavigationManager.popScreen('scroll-collapse');
     }
 };
+
+// 全局暴露用于兼容调试
+window.GameView = GameView;

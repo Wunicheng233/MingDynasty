@@ -3,7 +3,13 @@
  * 将礼器/官爵按尊卑顺序排列
  */
 
-window.RitualGame = {
+import SkillSystem from '../systems/SkillSystem.js';
+import TimeSystem from '../systems/TimeSystem.js';
+import { GameScene } from '../GameState.js';
+import GameResultManager from '../managers/GameResultManager.js';
+import { getMissionTemplateById } from '../../data/tasks.js';
+
+const RitualGame = {
     /**
      * 启动游戏
      */
@@ -109,7 +115,10 @@ window.RitualGame = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
         this.bindEvents(gameState, gameView);
     },
 
@@ -209,3 +218,6 @@ window.RitualGame = {
         }
     }
 };
+
+export default RitualGame;
+window.RitualGame = RitualGame;

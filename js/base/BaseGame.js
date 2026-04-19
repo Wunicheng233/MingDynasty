@@ -4,7 +4,10 @@
  *
  * 每个小游戏只需要实现差异化逻辑，通用逻辑由基类提供
  */
-window.BaseGame = class BaseGame {
+
+import GameResultManager from '../managers/GameResultManager.js';
+
+export default class BaseGame {
     /**
      * 构造函数
      * @param {GameView} gameView - 游戏视图实例
@@ -144,9 +147,17 @@ window.BaseGame = class BaseGame {
      * @param {string} html
      */
     renderToContainer(html) {
-        const container = document.getElementById('farming-game-view');
-        if (container) {
-            container.innerHTML = html;
+        // 确保容器存在
+        let container = document.getElementById('farming-game-view');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'farming-game-view';
+            container.className = 'scene-view';
+            document.getElementById('main-display').appendChild(container);
         }
+        container.innerHTML = html;
     }
 };
+
+// 全局暴露用于兼容调试
+window.BaseGame = BaseGame;

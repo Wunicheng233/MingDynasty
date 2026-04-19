@@ -4,7 +4,12 @@
  * 卡片对决个人战，使用数字卡组合和特殊技击败对手
  */
 
-window.MartialGame = {
+import { getCharacterTemplateById } from '../../data/characters.js';
+import MartialCalculator from './martial/MartialCalculator.js';
+import MartialController from './martial/MartialController.js';
+import MartialRenderer from './martial/MartialRenderer.js';
+
+const MartialGame = {
     /**
      * 启动游戏
      */
@@ -84,5 +89,10 @@ window.MartialGame = {
         MartialCalculator.drawCardsToHand(gameState.martialGame.enemy, 5);
 
         MartialRenderer.renderRound(gameState, gameView, title);
+        // 绑定事件（解开循环依赖）
+        MartialController.bindEvents(gameState, gameView);
     }
 };
+
+export default MartialGame;
+window.MartialGame = MartialGame;

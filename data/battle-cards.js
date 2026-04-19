@@ -672,58 +672,60 @@ const DUEL_CARDS = [
     }
 ];
 
+export { BattleCardTypes, BattleCardColor };
+
 /**
  * 获取所有合战卡片
  * @returns {BattleCard[]}
  */
-window.getAllBattleCards = function getAllBattleCards() {
+export function getAllBattleCards() {
     return ALL_BATTLE_CARDS;
-};
+}
 
 /**
  * 获取所有绿色基础卡
  * @returns {BattleCard[]}
  */
-window.getAllNormalBattleCards = function getAllNormalBattleCards() {
+export function getAllNormalBattleCards() {
     return BATTLE_NORMAL_CARDS;
-};
+}
 
 /**
  * 获取玩家已收集的合战战术卡
  * @param {Object} collectedCards - 玩家收集的卡片ID map
  * @returns {BattleCard[]}
  */
-window.getPlayerCollectedTactics = function getPlayerCollectedTactics(collectedCards) {
+export function getPlayerCollectedTactics(collectedCards) {
     return ALL_BATTLE_CARDS.filter(card =>
         card.color === BattleCardColor.RED && collectedCards[`TACTIC_${card.id}`]
     );
-};
+}
 
 /**
  * 根据ID获取合战卡片
  * @param {string} id
  * @returns {BattleCard|undefined}
  */
-window.getBattleCardById = function getBattleCardById(id) {
+export function getBattleCardById(id) {
     return ALL_BATTLE_CARDS.find(c => c.id === id) || DUEL_CARDS.find(c => c.id === id);
-};
+}
 
 /**
  * 获取所有个人战卡片
  * @returns {BattleCard[]}
  */
-window.getAllDuelCards = function getAllDuelCards() {
+export function getAllDuelCards() {
     return DUEL_CARDS;
-};
+}
 
 /**
  * 根据ID获取个人战卡片
  * @param {string} id
  * @returns {BattleCard|undefined}
  */
-window.getDuelCardById = function getDuelCardById(id) {
+export function getDuelCardById(id) {
     return DUEL_CARDS.find(c => c.id === id);
-};
+}
 
 /**
  * 抽n张卡片（洗牌）
@@ -731,20 +733,29 @@ window.getDuelCardById = function getDuelCardById(id) {
  * @param {BattleCard[]} pool
  * @returns {BattleCard[]}
  */
-window.drawNCards = function drawNCards(n, pool) {
+export function drawNCards(n, pool) {
     // 克隆洗牌
     const shuffled = [...pool].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, n);
-};
+}
 
 /**
  * 检查是否是火攻类卡片
  * @param {BattleCard} card
  * @returns {boolean}
  */
-window.isFireCard = function isFireCard(card) {
+export function isFireCard(card) {
     return card && card.effect && card.effect.isFire;
-};
+}
 
+// 保留全局暴露用于兼容性调试
+window.getAllBattleCards = getAllBattleCards;
+window.getAllNormalBattleCards = getAllNormalBattleCards;
+window.getPlayerCollectedTactics = getPlayerCollectedTactics;
+window.getBattleCardById = getBattleCardById;
+window.getAllDuelCards = getAllDuelCards;
+window.getDuelCardById = getDuelCardById;
+window.drawNCards = drawNCards;
+window.isFireCard = isFireCard;
 window.BattleCardTypes = BattleCardTypes;
 window.BattleCardColor = BattleCardColor;

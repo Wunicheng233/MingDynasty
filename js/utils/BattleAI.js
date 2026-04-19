@@ -3,7 +3,9 @@
  * 贪心算法，选择能造成最大伤害的出牌组合
  */
 
-window.BattleAI = {
+import BattleCalculator from './BattleCalculator.js';
+
+const BattleAI = {
     /**
      * AI选择出牌
      * @param {Object} aiState - AI状态（包含handCards）
@@ -289,3 +291,8 @@ window.BattleAI = {
         return toDiscard.slice(0, maxDiscard);
     }
 };
+
+export default BattleAI;
+
+// 保留全局暴露用于兼容性调试
+window.BattleAI = BattleAI;

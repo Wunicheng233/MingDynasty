@@ -254,25 +254,25 @@ const BATTLE_FORMATIONS = [
  * 获取所有阵型
  * @returns {BattleFormation[]}
  */
-window.getAllBattleFormations = function getAllBattleFormations() {
+export function getAllBattleFormations() {
     return BATTLE_FORMATIONS;
-};
+}
 
 /**
  * 根据ID获取阵型
  * @param {string} id
  * @returns {BattleFormation|undefined}
  */
-window.getFormationById = function getFormationById(id) {
+export function getFormationById(id) {
     return BATTLE_FORMATIONS.find(f => f.id === id);
-};
+}
 
 /**
  * 根据玩家技能获取可使用的阵型列表
  * @param {Object} skills - 玩家技能 {skillId: {level}}
  * @returns {BattleFormation[]}
  */
-window.getAvailableFormationsForPlayer = function getAvailableFormationsForPlayer(skills) {
+export function getAvailableFormationsForPlayer(skills) {
     return BATTLE_FORMATIONS.filter(formation => {
         if (formation.id === 'none') return true;
         if (!formation.acquire || !formation.acquire.skill) return true;
@@ -285,7 +285,7 @@ window.getAvailableFormationsForPlayer = function getAvailableFormationsForPlaye
         }
         return true;
     });
-};
+}
 
 /**
  * 检查阵型相克，获取士气修正和倍率修正
@@ -293,7 +293,7 @@ window.getAvailableFormationsForPlayer = function getAvailableFormationsForPlaye
  * @param {string} defenderFormationId
  * @returns { {attackerMorale: number, defenderMorale: number, attackerMultiplier: number} }
  */
-window.getFormationRelationship = function getFormationRelationship(attackerFormationId, defenderFormationId) {
+export function getFormationRelationship(attackerFormationId, defenderFormationId) {
     const attacker = getFormationById(attackerFormationId);
     const defender = getFormationById(defenderFormationId);
 
@@ -333,4 +333,10 @@ window.getFormationRelationship = function getFormationRelationship(attackerForm
     }
 
     return result;
-};
+}
+
+// 保留全局暴露用于兼容性调试
+window.getAllBattleFormations = getAllBattleFormations;
+window.getFormationById = getFormationById;
+window.getAvailableFormationsForPlayer = getAvailableFormationsForPlayer;
+window.getFormationRelationship = getFormationRelationship;

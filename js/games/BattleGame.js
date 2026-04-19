@@ -5,7 +5,13 @@
  * 遵循策划《合战完整机制·本土化方案》
  */
 
-window.BattleGame = {
+import { getAllNormalBattleCards, getPlayerCollectedTactics } from '../../data/battle-cards.js';
+import { getFormationById } from '../../data/battle-formations.js';
+import { getAvailableTroopsForBattle, calculateTroopAttack, calculateTroopDefense } from '../../data/battle-troops.js';
+import BattleRenderer from './battle/BattleRenderer.js';
+import BattleController from './battle/BattleController.js';
+
+const BattleGame = {
     /**
      * 启动游戏
      */
@@ -134,5 +140,10 @@ window.BattleGame = {
 
         // 渲染战前阵型选择
         BattleRenderer.renderPreBattle(gameState, gameView);
+        // 绑定事件（解开循环依赖）
+        BattleController.bindPreBattleEvents(gameState, gameView);
     }
 };
+
+export default BattleGame;
+window.BattleGame = BattleGame;

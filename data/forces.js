@@ -119,18 +119,18 @@ window.getForceTemplateByFactionId = function getForceTemplateByFactionId(factio
  * 获取所有势力模板
  * @returns {ForceTemplate[]}
  */
-window.getAllForceTemplates = function getAllForceTemplates() {
+export function getAllForceTemplates() {
     return FACTION_TEMPLATES;
-};
+}
 
 /**
  * 根据领袖人物templateId获取势力
  * @param {string} characterTemplateId
  * @returns {ForceTemplate|undefined}
  */
-window.getForceByLeader = function getForceByLeader(characterTemplateId) {
+export function getForceByLeader(characterTemplateId) {
     return FACTION_TEMPLATES.find(f => f.leader === characterTemplateId);
-};
+}
 
 /**
  * 获取两个势力之间的关系值
@@ -138,17 +138,23 @@ window.getForceByLeader = function getForceByLeader(characterTemplateId) {
  * @param {string} factionBId
  * @returns {number} 关系值 -100 ~ +100
  */
-window.getDiplomacyRelation = function getDiplomacyRelation(factionAId, factionBId) {
+export function getDiplomacyRelation(factionAId, factionBId) {
     const factionA = FACTION_TEMPLATES.find(f => f.factionId === factionAId);
     if (!factionA || !factionA.diplomacy) return 0;
     return factionA.diplomacy[factionBId] || 0;
-};
+}
 
 /**
  * 根据势力ID获取势力模板
  * @param {string} factionId
  * @returns {ForceTemplate|undefined}
  */
-window.getFactionById = function getFactionById(factionId) {
+export function getFactionById(factionId) {
     return FACTION_TEMPLATES.find(f => f.factionId === factionId);
-};
+}
+
+// 保留全局暴露用于兼容性调试
+window.getAllForceTemplates = getAllForceTemplates;
+window.getForceByLeader = getForceByLeader;
+window.getDiplomacyRelation = getDiplomacyRelation;
+window.getFactionById = getFactionById;

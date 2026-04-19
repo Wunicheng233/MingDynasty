@@ -2,7 +2,11 @@
  * 合战渲染模块 - 拆分自BattleGame
  * 负责所有界面渲染
  */
-window.BattleRenderer = {
+
+import { getPlayerCollectedTactics } from '../../../data/battle-cards.js';
+import { getAvailableFormationsForPlayer } from '../../../data/battle-formations.js';
+
+const BattleRenderer = {
     /**
      * 渲染战前阵型选择
      */
@@ -43,10 +47,10 @@ window.BattleRenderer = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
-
-        // 绑定事件
-        BattleController.bindPreBattleEvents(gameState, gameView);
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
     },
 
     /**
@@ -158,8 +162,10 @@ window.BattleRenderer = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
-        BattleController.bindBattleEvents(gameState, gameView);
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
     },
 
     /**
@@ -389,3 +395,6 @@ window.BattleRenderer = {
         }
     }
 };
+
+export default BattleRenderer;
+window.BattleRenderer = BattleRenderer;

@@ -1461,37 +1461,39 @@ const CARD_LIBRARY = [
     }
 ];
 
+export { CardTypes };
+
 /**
  * 获取所有卡片
  * @returns {Card[]}
  */
-window.getAllCards = function getAllCards() {
+export function getAllCards() {
     return CARD_LIBRARY;
-};
+}
 
 /**
  * 根据ID获取卡片
  * @param {string} cardId
  * @returns {Card|undefined}
  */
-window.getCardById = function getCardById(cardId) {
+export function getCardById(cardId) {
     return CARD_LIBRARY.find(c => c.card_id === cardId);
-};
+}
 
 /**
  * 根据类型获取所有该类型卡片
  * @param {string} type
  * @returns {Card[]}
  */
-window.getCardsByType = function getCardsByType(type) {
+export function getCardsByType(type) {
     return CARD_LIBRARY.filter(c => c.type === type);
-};
+}
 
 /**
  * 获取开局初始卡片ID列表（朱元璋开局）
  * @returns {string[]}
  */
-window.getInitialCardIds = function getInitialCardIds() {
+export function getInitialCardIds() {
     return [
         "CHAR_ZHU_YUANZHANG",
         "CHAR_TANG_HE",
@@ -1507,7 +1509,7 @@ window.getInitialCardIds = function getInitialCardIds() {
         "EVENT_JOIN_RED",
         "TITLE_RUSTIC"
     ];
-};
+}
 
 /**
  * 检查卡片是否已经收集
@@ -1515,16 +1517,16 @@ window.getInitialCardIds = function getInitialCardIds() {
  * @param {string} cardId
  * @returns {boolean}
  */
-window.hasCard = function hasCard(collectedCards, cardId) {
+export function hasCard(collectedCards, cardId) {
     return !!collectedCards[cardId];
-};
+}
 
 /**
  * 获取卡片类型中文名称
  * @param {string} type
  * @returns {string}
  */
-window.getCardTypeName = function getCardTypeName(type) {
+export function getCardTypeName(type) {
     const names = {
         [CardTypes.CHARACTER]: '人物卡',
         [CardTypes.SKILL]: '技能卡',
@@ -1537,6 +1539,13 @@ window.getCardTypeName = function getCardTypeName(type) {
         [CardTypes.TREASURE]: '宝物卡'
     };
     return names[type] || type;
-};
+}
 
+// 保留全局暴露用于兼容性调试
+window.getAllCards = getAllCards;
+window.getCardById = getCardById;
+window.getCardsByType = getCardsByType;
+window.getInitialCardIds = getInitialCardIds;
+window.hasCard = hasCard;
+window.getCardTypeName = getCardTypeName;
 window.CardTypes = CardTypes;

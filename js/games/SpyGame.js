@@ -3,7 +3,13 @@
  * 潜入敌营，从起点走到终点，每次移动增加警报值，警报满了就被发现
  */
 
-window.SpyGame = {
+import SkillSystem from '../systems/SkillSystem.js';
+import TimeSystem from '../systems/TimeSystem.js';
+import { GameScene } from '../GameState.js';
+import GameResultManager from '../managers/GameResultManager.js';
+import { getMissionTemplateById } from '../../data/tasks.js';
+
+const SpyGame = {
     /**
      * 启动游戏
      */
@@ -102,7 +108,10 @@ window.SpyGame = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
         this.bindEvents(gameState, gameView);
     },
 
@@ -220,7 +229,10 @@ window.SpyGame = {
             </div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
         document.getElementById('spy-done-btn').addEventListener('click', () => {
             // 时间推进：按任务限时推进
             TimeSystem.advanceDays(gameState, template.timeLimitDays);
@@ -230,3 +242,6 @@ window.SpyGame = {
         });
     }
 };
+
+export default SpyGame;
+window.SpyGame = SpyGame;

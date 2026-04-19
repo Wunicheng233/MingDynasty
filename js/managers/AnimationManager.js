@@ -3,7 +3,8 @@
  * 统一处理所有小游戏的动画逻辑
  * 提取自GameView中的重复动画代码
  */
-window.AnimationManager = {
+
+const AnimationManager = {
     /**
      * 启动一个通用的摆动动画
      * @param {Object} gameState - 游戏状态对象
@@ -41,7 +42,7 @@ window.AnimationManager = {
     },
 
     /**
-     * 停止所有正在运行的小游戏动画
+     * 停止所有正在运行的小游戏动画和定时器
      * @param {Object} gameState - 游戏主状态
      */
     stopAllAnimations(gameState) {
@@ -52,6 +53,11 @@ window.AnimationManager = {
                 gameState[gameKey].animationId = null;
             }
         });
+        // 清理MedicineGame的隐藏定时器
+        if (gameState.medicineGame && gameState.medicineGame.hideTimer) {
+            clearTimeout(gameState.medicineGame.hideTimer);
+            gameState.medicineGame.hideTimer = null;
+        }
     },
 
     /**
@@ -78,3 +84,6 @@ window.AnimationManager = {
         }
     }
 };
+
+export default AnimationManager;
+window.AnimationManager = AnimationManager;

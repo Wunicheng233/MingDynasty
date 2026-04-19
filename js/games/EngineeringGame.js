@@ -3,7 +3,14 @@
  * 筑城考工 - 使用不同大小石块堆砌，让总重量尽可能接近目标
  */
 
-window.EngineeringGame = {
+import SkillSystem from '../systems/SkillSystem.js';
+import TimeSystem from '../systems/TimeSystem.js';
+import { GameScene } from '../GameState.js';
+import GameResultManager from '../managers/GameResultManager.js';
+import AnimationManager from '../managers/AnimationManager.js';
+import { getMissionTemplateById } from '../../data/tasks.js';
+
+const EngineeringGame = {
     /**
      * 启动游戏
      */
@@ -60,7 +67,10 @@ window.EngineeringGame = {
             <div class="engineering-log" id="engineering-log"></div>
         `;
 
-        document.getElementById('farming-game-view').innerHTML = html;
+        const farmingView = document.getElementById('farming-game-view');
+        if (farmingView) {
+            farmingView.innerHTML = html;
+        }
         this.bindEvents(gameState, gameView);
     },
 
@@ -154,3 +164,6 @@ window.EngineeringGame = {
         }
     }
 };
+
+export default EngineeringGame;
+window.EngineeringGame = EngineeringGame;
